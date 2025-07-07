@@ -6,17 +6,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
-	
-    <!-- datasource bean 생성(IOC) -->
-    <bean id="driver" class="oracle.jdbc.driver.OracleDriver"/>
-    <bean id="ds" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-    <constructor-arg ref="driver"></constructor-arg>
-    <constructor-arg value="jdbc:oracle:thin:@localhost:1521:xe"></constructor-arg>
-    <constructor-arg value="night"></constructor-arg>
-    <constructor-arg value="night"></constructor-arg>
-    </bean>
 
-	<context:component-scan base-package="reboard"/>
+	<context:component-scan base-package="user,manager"/>
 	
 	<!-- injection하지 않고 메모리 upload되는 bean은 id not use -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
