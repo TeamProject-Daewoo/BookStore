@@ -13,4 +13,10 @@ public class ManagerController {
 		model.addAttribute("page", "user/" + "index");
 		return "index"; 
 	}
+	
+	@RequestMapping("cart")
+	public String cart(Model model) {
+		model.addAttribute("page", "user/" + "cart");
+		return "cart"; 
+	}
 }

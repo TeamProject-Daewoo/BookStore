@@ -7,6 +7,10 @@
 <title>Insert title here</title>
 </head>
 <body>
+<<<<<<< HEAD
 cart
+=======
+cart 입니다
+>>>>>>> f6b77ceaaeb0866b0ba230484ce419d34f278b58
 </body>
 </html>

@@ -1,5 +1,6 @@
 package user;
 
+<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -60,4 +61,24 @@ public class UserController {
 		return "index";
 	}
 	
+=======
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+@Controller
+@RequestMapping("/user")
+public class UserController {
+
+	@RequestMapping("index")
+	public String index(Model model) {
+		model.addAttribute("page", "user/" + "index");
+		return "index"; 
+	}
+	
+	@RequestMapping("cart")
+	public String cart(Model model) {
+		model.addAttribute("page", "user/" + "cart");
+		return "user/cart"; 
+	}
+>>>>>>> f6b77ceaaeb0866b0ba230484ce419d34f278b58
 }
