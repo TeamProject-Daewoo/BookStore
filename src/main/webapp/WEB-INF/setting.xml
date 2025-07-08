@@ -23,6 +23,6 @@
 <property name="dataSource" ref="hikariDataSource"/>
 </bean>
 
-<mybatis-spring:scan base-package="user"/>
+<mybatis-spring:scan base-package="repository"/>
 
 </beans>

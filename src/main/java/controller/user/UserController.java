@@ -31,7 +31,8 @@ public class UserController {
 	}
 	
 	@RequestMapping("user/bookdetail")
-	public String bookDetail(@RequestParam int id, Model model) {
+	//@RequestParam int id 추후에 매개변수로 전달 받기
+	public String bookDetail(Model model) {
 		model.addAttribute("page", MAIN_URL + "bookdetail");
 		//model.addAttribute("book", service.getBook(id));
 		return "index";
