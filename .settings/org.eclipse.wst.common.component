@@ -1,55 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-<<<<<<< HEAD
-            
+                
+    
     
     <wb-module deploy-name="Seoil_Project-0.0.1-SNAPSHOT">
-                        
+                                
+        
         
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
-                        
+                                
+        
         
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
-                        
+                                
+        
         
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
-                
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
-                
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/resources"/>
-                
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/webapp"/>
-                
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resource"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main"/>
                         
         
-        <property name="java-output-path" value="/Seoil_Proejct/target/classes"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
                         
+        
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/resources"/>
+                        
+        
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/webapp"/>
+                        
+        
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resource"/>
+                
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test"/>
+                
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main"/>
+                                
+        
+        
+        <property name="java-output-path" value="/Seoil_Proejct/target/classes"/>
+                                
+        
         
         <property name="context-root" value="Seoil_Project"/>
-                    
+                            
+    
     
     </wb-module>
-        
-
-=======
-        
-    <wb-module deploy-name="Book_Project-0.0.1-SNAPSHOT">
-                
-        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
-                
-        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
-                
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
-                
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
-                
-        <property name="java-output-path" value="/Seoil_Proejct/target/classes"/>
-        <property name="context-root" value="Book_Project"/>
             
-    </wb-module>
-    
->>>>>>> f6b77ceaaeb0866b0ba230484ce419d34f278b58
+
+
 </project-modules>
