@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 
 import vo.Book;
@@ -15,6 +16,7 @@ public interface BookMapper extends BaseMapper<Book> {
 	
 	@Override
 	@Insert("insert into book(id, title, author, price, stock, img, description) values(#{id}, #{title}, #{author}, #{price}, #{stock}, #{img}, #{description})")
+	@SelectKey(statement = "SELECT book_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Book book);
 	
 	@Override

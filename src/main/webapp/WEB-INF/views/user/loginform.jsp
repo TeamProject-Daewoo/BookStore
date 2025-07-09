@@ -4,9 +4,41 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>로그인</title>
+<style>
+    body { font-family: sans-serif; }
+    .login-container { width: 300px; margin: 100px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+    .login-container h2 { text-align: center; }
+    .login-container input[type="text"], .login-container input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+    .login-container input[type="submit"] { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+</style>
+<script>
+    // Check for flash attributes and display alerts
+    window.onload = function() {
+        var successMessage = "${successMessage}";
+        var errorMessage = "${errorMessage}";
+
+        if (successMessage && successMessage !== "") {
+            alert(successMessage);
+        }
+        if (errorMessage && errorMessage !== "") {
+            alert(errorMessage);
+        }
+    };
+</script>
 </head>
 <body>
-loginform
+    <div class="login-container">
+        <h2>로그인</h2>
+        <form action="/user/login" method="post">
+            <label for="id">아이디:</label>
+            <input type="text" id="id" name="id" required>
+            
+            <label for="password">비밀번호:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <input type="submit" value="로그인">
+        </form>
+    </div>
 </body>
 </html>

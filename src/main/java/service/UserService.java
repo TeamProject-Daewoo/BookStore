@@ -1,6 +1,6 @@
-package service.user;
+package service;
 
-import java.lang.reflect.Member;
+import vo.Member;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import vo.*;
 @Service
 public class UserService {
 	
-	//member 包府
+	//member 
 	@Autowired
 	private MemberMapper memberMapper;
 	
@@ -31,8 +31,26 @@ public class UserService {
 	public int deleteMember(int id) {
 		return memberMapper.delete(id);
 	}
+
+	public Member login(int id, String password) {
+		Member member = memberMapper.findById(id);
+		if (member != null && member.getPassword().equals(password)) {
+			return member;
+		}
+		return null;
+	}
+
+	public boolean registerMember(Member member) {
+		// Check if member with the given ID already exists
+		Member existingMember = memberMapper.findById(member.getId());
+		if (existingMember != null) {
+			return false; // ID already exists
+		}
+		memberMapper.save(member);
+		return true; // Registration successful
+	}
 	
-	//book 包府
+	//book 
 	@Autowired
 	private BookMapper bookMapper;
 	
@@ -52,7 +70,7 @@ public class UserService {
 		return bookMapper.delete(id);
 	}
 	
-	//cart 包府
+	//cart 
 	@Autowired
 	private CartMapper cartMapper;
 	
@@ -72,11 +90,11 @@ public class UserService {
 		return cartMapper.delete(id);
 	}
 	
-	//purchase 包府
+	//purchase 
 	@Autowired
 	private PurchaseMapper purchaseMapper;
 	
-	public int saveBook(Purchase purchase) {
+	public int savePurchase(Purchase purchase) {
 		return purchaseMapper.save(purchase);
 	}
 	public Purchase getPurchase(int id) {

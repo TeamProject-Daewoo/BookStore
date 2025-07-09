@@ -64,13 +64,13 @@
   <nav>
     <ul>
       <c:choose>
-        <c:when test="${not empty sessionScope.user}">
-          <li><span>안녕하세요, ${sessionScope.user.name}님</span></li>
-          <li><a href="/logout">로그아웃</a></li>
+        <c:when test="${not empty sessionScope.login}">
+          <li><span>안녕하세요, ${sessionScope.login.name}님</span></li>
+          <li><a href="/user/logout">로그아웃</a></li>
         </c:when>
         <c:otherwise>
-          <li><a href="/login">로그인</a></li>
-          <li><a href="/register">회원가입</a></li>
+          <li><a href="/user/loginform">로그인</a></li>
+          <li><a href="/user/registerform">회원가입</a></li>
         </c:otherwise>
       </c:choose>
       <li>

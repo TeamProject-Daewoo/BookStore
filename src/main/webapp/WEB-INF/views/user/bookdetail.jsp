@@ -146,6 +146,8 @@
       var quantity = document.getElementById('quantity').value;  // 선택한 수량
       var totalPrice = price * quantity;  // 총 금액 계산
       document.getElementById('total-price').innerText = totalPrice.toLocaleString() + ' 원';  // 총 금액 표시
+      document.getElementById('cart-quantity-input').value = quantity; // Update hidden input
+      document.getElementById('buy-now-quantity-input').value = quantity; // Update hidden input for buy now
 
       // 재고 수를 초과하는 수량을 선택한 경우 알림 띄우기
       var stock = parseInt('${book.stock}');
@@ -169,6 +171,8 @@
         currentQuantity -= 1;
       }
       quantityInput.value = currentQuantity;
+      document.getElementById('cart-quantity-input').value = currentQuantity; // Update hidden input
+      document.getElementById('buy-now-quantity-input').value = currentQuantity; // Update hidden input for buy now
 
       updateTotalPrice();  // 총 금액 업데이트
     }
@@ -210,10 +214,18 @@
         <div id="error-message" class="error-message">선택한 수량이 재고를 초과했습니다.</div>
 
         <!-- 장바구니 버튼 -->
-        <button class="btn btn-cart">장바구니에 담기</button>
+        <form action="${pageContext.request.contextPath}/cart/add" method="post">
+            <input type="hidden" name="bookId" value="${book.id}">
+            <input type="hidden" name="quantity" id="cart-quantity-input" value="1">
+            <button type="submit" class="btn btn-cart" id="add-to-cart-btn">장바구니에 담기</button>
+        </form>
 
         <!-- 바로 구매 버튼 -->
-        <button class="btn btn-buy">바로 구매</button>
+        <form action="${pageContext.request.contextPath}/purchase/direct" method="post" style="display:inline-block;">
+            <input type="hidden" name="bookId" value="${book.id}">
+            <input type="hidden" name="quantity" id="buy-now-quantity-input" value="1">
+            <button type="submit" class="btn btn-buy">바로 구매</button>
+        </form>
       </div>
     </div>
   </div>

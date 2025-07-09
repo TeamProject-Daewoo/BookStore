@@ -1,19 +1,21 @@
 package repository;
 
-import java.lang.reflect.Member;
+import vo.Member;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface MemberMapper extends BaseMapper<Member> {
 	
 	@Override
-	@Insert("insert into member(id, name, email, password, createAt) values(#{id}, #{name}, #{email}, #{password}, SYSDATE)")
+	@Insert("insert into member(id, name, email, password, phone_number, createAt) values(#{id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE)")
+	@SelectKey(statement = "SELECT member_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Member member);
 	
 	@Override

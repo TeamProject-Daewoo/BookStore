@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 
 import vo.Purchase;
@@ -14,7 +15,8 @@ import vo.Purchase;
 public interface PurchaseMapper extends BaseMapper<Purchase> {
 	
 	@Override
-	@Insert("insert into purchase(id, member_id, book_id, quantity) values(#{id}, #{member_id}, #{book_id}, #{quantity})")
+	@Insert("insert into purchase(id, member_id, book_id, quantity, order_date) values(#{id}, #{member_id}, #{book_id}, #{quantity}, SYSDATE)")
+	@SelectKey(statement = "SELECT purchase_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Purchase purchase);
 	
 	@Override

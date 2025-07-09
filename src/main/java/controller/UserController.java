@@ -1,6 +1,8 @@
-package controller.user;
+package controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,8 +11,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import service.user.UserService;
+import service.UserService;
 import vo.Book;
 
 @Controller
@@ -28,10 +31,14 @@ public class UserController {
 
 	@RequestMapping("user/booklist")
 	public String bookList(Model model) {
-	    List<Book> books = service.getBookList(); // Book 목록 받아오기
-	    model.addAttribute("books", books);       // JSP로 전달
-	    model.addAttribute("page", MAIN_URL + "booklist"); // 서브페이지 include용
-	    return "index"; // index.jsp 안에 booklist.jsp가 include될 것
+	    model.addAttribute("page", MAIN_URL + "booklist");
+	    Map<String, Object> pageList = new HashMap<>();
+	    pageList.put("list", service.getBookList());
+	    pageList.put("totalCount", service.getBookList().size());
+	    pageList.put("currentPage", 1);
+	    pageList.put("totalPage", 1);
+	    model.addAttribute("pageList", pageList);
+	    return "index";
 	}
 	
 	@RequestMapping("user/bookdetail")
@@ -76,5 +83,36 @@ public class UserController {
 	public String registerForm(Model model) {
 		model.addAttribute("page", MAIN_URL + "registerform");
 		return "index";
-	}	
+	}
+
+	@RequestMapping("user/login")
+	public String login(@RequestParam("id") int id, @RequestParam("password") String password,
+                        javax.servlet.http.HttpSession session, RedirectAttributes redirectAttributes) {
+		vo.Member member = service.login(id, password);
+		if (member != null) {
+			session.setAttribute("login", member);
+            redirectAttributes.addFlashAttribute("successMessage", "로그인 되었습니다.");
+			return "redirect:/user/booklist";
+		}
+        redirectAttributes.addFlashAttribute("errorMessage", "아이디 또는 비번이 틀렸습니다.");
+		return "redirect:/user/loginform";
+	}
+
+	@RequestMapping("user/logout")
+	public String logout(javax.servlet.http.HttpSession session) {
+		session.invalidate();
+		return "redirect:/user/booklist";
+	}
+
+	@RequestMapping("user/register")
+	public String register(@ModelAttribute vo.Member member, RedirectAttributes redirectAttributes) {
+		boolean registered = service.registerMember(member);
+		if (registered) {
+			redirectAttributes.addFlashAttribute("successMessage", "회원가입이 완료되었습니다. 로그인해주세요.");
+			return "redirect:/user/loginform";
+		} else {
+			redirectAttributes.addFlashAttribute("errorMessage", "이미 존재하는 아이디입니다. 다른 아이디를 사용해주세요.");
+			return "redirect:/user/registerform";
+		}
+	}
 }

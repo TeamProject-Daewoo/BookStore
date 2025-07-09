@@ -6,6 +6,7 @@ import lombok.Data;
  * # BookDTO<br>
  * id<br>
  * title<br>
+ * author<br>
  * price<br>
  * stock<br>
  * img<br>
@@ -15,8 +16,8 @@ import lombok.Data;
 public class Book {
 	private int id;
 	private String title;
-	private String author;
-	private String price;
+	private String author; // Added this line
+	private int price; // Changed from String to int
 	private int stock;
 	private String img;
 	private String description;
