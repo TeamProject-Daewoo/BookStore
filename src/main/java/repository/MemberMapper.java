@@ -1,14 +1,16 @@
 package repository;
 
-import vo.Member;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
+
+import vo.Member;
 
 @Mapper
 public interface MemberMapper extends BaseMapper<Member> {
@@ -33,4 +35,7 @@ public interface MemberMapper extends BaseMapper<Member> {
 	@Override
 	@Delete("delete from member where id=#{id}")
 	int delete(int id);
+	
+	@Select("SELECT user_id, password, role FROM member WHERE username = #{user_id}")
+	Member findByUsername(@Param("user_id") String user_id);
 }
