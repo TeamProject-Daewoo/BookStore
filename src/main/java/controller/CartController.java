@@ -22,6 +22,10 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
+    
+    public CartController() {
+		// TODO Auto-generated constructor stub
+	}
 
     @Autowired
     private BookMapper bookMapper;
