@@ -66,8 +66,8 @@
     <div class="register-container">
         <h2>회원가입</h2>
         <form action="${pageContext.request.contextPath}/user/register" method="post">
-            <label for="id">아이디:</label>
-            <input type="text" id="id" name="id" required>
+            <label for="user_id">아이디:</label>
+            <input type="text" id="user_id" name="user_id" required>
             
             <label for="name">이름:</label>
             <input type="text" id="name" name="name" required>

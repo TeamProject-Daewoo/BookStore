@@ -15,6 +15,7 @@ import lombok.Data;
 @Data
 public class Member {
 	private int id;
+	private String user_id; // Changed from username to user_id
 	private String name;
 	private String email;
 	private String password;

@@ -86,9 +86,9 @@ public class UserController {
 	}
 
 	@RequestMapping("user/login")
-	public String login(@RequestParam("id") int id, @RequestParam("password") String password,
+	public String login(@RequestParam("user_id") String user_id, @RequestParam("password") String password,
                         javax.servlet.http.HttpSession session, RedirectAttributes redirectAttributes) {
-		vo.Member member = service.login(id, password);
+		vo.Member member = service.login(user_id, password);
 		if (member != null) {
 			session.setAttribute("login", member);
             redirectAttributes.addFlashAttribute("successMessage", "로그인 되었습니다.");

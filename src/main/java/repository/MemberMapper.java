@@ -14,7 +14,7 @@ import org.apache.ibatis.annotations.Update;
 public interface MemberMapper extends BaseMapper<Member> {
 	
 	@Override
-	@Insert("insert into member(id, name, email, password, phone_number, createAt) values(#{id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE)")
+	@Insert("insert into member(id, user_id, name, email, password, phone_number, CREATEDAT) values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE)")
 	@SelectKey(statement = "SELECT member_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Member member);
 	
@@ -25,6 +25,9 @@ public interface MemberMapper extends BaseMapper<Member> {
 	@Override
 	@Select("select * from member where id=#{id}")
 	Member findById(int id);
+	
+	@Select("select * from member where user_id=#{userId}")
+	Member findByUserId(String userId);
 	
 	@Override
 	@Update("update member set name=#{name}, email=#{email}, password=#{password} where id=#{id}")

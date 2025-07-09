@@ -1,23 +1,18 @@
-# Eclipse 관련 파일
-*.classpath
-*.project
-*.settings/
+*.class
 
-# 빌드 출력물
-target/
+/target/
 
-# IDE 관련 메타파일
-*.iml
 *.log
 
-# OS별
+*.iml
+.idea/
+*.swp
+*.swo
+.settings/
+.classpath
+.project
+
 .DS_Store
 Thumbs.db
 
-# Maven
-.mvn/
-
-# 기타 임시 파일
-*.tmp
-*.swp
-*.swo
+!.gitkeep
