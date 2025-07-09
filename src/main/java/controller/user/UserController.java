@@ -1,5 +1,7 @@
 package controller.user;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import service.user.UserService;
+import vo.Book;
 
 @Controller
 public class UserController {
@@ -25,13 +28,14 @@ public class UserController {
 
 	@RequestMapping("user/booklist")
 	public String bookList(Model model) {
-		model.addAttribute("page", MAIN_URL + "booklist");
-		//model.addAttribute("books", service.getBookList());
-		return "index";
+	    List<Book> books = service.getBookList(); // Book ëª©ë¡ ë°›ì•„ì˜¤ê¸°
+	    model.addAttribute("books", books);       // JSPë¡œ ì „ë‹¬
+	    model.addAttribute("page", MAIN_URL + "booklist"); // ì„œë¸Œí˜ì´ì§€ includeìš©
+	    return "index"; // index.jsp ì•ˆì— booklist.jspê°€ includeë  ê²ƒ
 	}
 	
 	@RequestMapping("user/bookdetail")
-	//@RequestParam int id ÃßÈÄ¿¡ ¸Å°³º¯¼ö·Î Àü´Ş ¹Ş±â
+	//@RequestParam int id ï¿½ï¿½ï¿½Ä¿ï¿½ ï¿½Å°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ş±ï¿½
 	public String bookDetail(Model model) {
 		model.addAttribute("page", MAIN_URL + "bookdetail");
 		//model.addAttribute("book", service.getBook(id));

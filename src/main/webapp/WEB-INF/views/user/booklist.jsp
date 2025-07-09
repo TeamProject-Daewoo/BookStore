@@ -11,7 +11,6 @@
       font-family: Arial, sans-serif;
       background-color: #fff;
     }
-
     /* 상단 헤더 */
     header {
       background-color: #f8f9fa;
@@ -21,7 +20,6 @@
       justify-content: space-between;
       border-bottom: 1px solid #ddd;
     }
-
     .logo {
       font-weight: bold;
       font-size: 24px;
@@ -30,7 +28,6 @@
       cursor: pointer;
       user-select: none;
     }
-
     nav ul {
       list-style: none;
       margin: 0;
@@ -39,23 +36,19 @@
       align-items: center;
       gap: 20px;
     }
-
     nav ul li a, nav ul li span {
       text-decoration: none;
       color: #333;
       font-size: 16px;
     }
-
     nav ul li a:hover {
       text-decoration: underline;
     }
-
     .cart {
       position: relative;
       font-weight: bold;
       color: #007bff;
     }
-
     .cart-count {
       position: absolute;
       top: -8px;
@@ -68,14 +61,12 @@
       font-weight: normal;
       user-select: none;
     }
-
     /* 검색창 */
     .search-bar {
       display: flex;
       justify-content: center;
       margin: 20px 0 10px;
     }
-
     .search-container {
       display: flex;
       align-items: center;
@@ -85,7 +76,6 @@
       background: #fff;
       width: 400px;
     }
-
     .search-dropdown {
       border: none;
       background: transparent;
@@ -94,14 +84,12 @@
       margin-right: 10px;
       cursor: pointer;
     }
-
     .search-input {
       border: none;
       outline: none;
       font-size: 16px;
-      flex: 1; /* 수정된 부분 */
+      flex: 1;
     }
-
     .search-button {
       display: flex;
       align-items: center;
@@ -112,13 +100,11 @@
       padding: 0;
       height: 24px;
     }
-
     .search-button img {
       width: 20px;
       height: 20px;
       object-fit: contain;
     }
-
     /* 메뉴바 */
     .main-menu {
       display: flex;
@@ -126,16 +112,33 @@
       gap: 20px;
       margin-bottom: 20px;
     }
-
     .main-menu a {
       text-decoration: none;
       font-weight: bold;
       color: #333;
       font-size: 15px;
     }
-
     .main-menu a:nth-child(1) { color: #00b050; }
     .main-menu a:nth-child(2) { color: #66cc33; }
+
+    /* 도서 테이블 */
+    .book-table {
+      width: 90%;
+      margin: 0 auto 50px;
+      border-collapse: collapse;
+    }
+    .book-table th, .book-table td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    .book-table th {
+      background-color: #f0f0f0;
+    }
+    .book-img {
+      width: 80px;
+      height: auto;
+    }
   </style>
 </head>
 <body>
@@ -146,8 +149,8 @@
       <div class="search-container">
         <select class="search-dropdown" name="where">
           <option value="nexearch">통합검색</option>
-          <option value="news">ebook</option>
-          <option value="image">핫트랙</option>
+          <option value="news">제목</option>
+          <option value="image">저자</option>
         </select>
         <input type="text" class="search-input" name="query" placeholder="내 안의 아티스트를 다시 불러낸다" />
         <button type="submit" class="search-button">
@@ -167,6 +170,31 @@
     <a href="#">CASTing</a>
     <a href="#">컬처라운지</a>
   </nav>
+
+  <!-- 책 목록 출력 영역 -->
+  <section>
+    <h2 style="text-align: center;">📚 추천 도서</h2>
+    <table class="book-table">
+      <tr>
+        <th>표지</th>
+        <th>제목</th>
+        <th>저자</th>
+        <th>가격</th>
+        <th>재고</th>
+        <th>설명</th>
+      </tr>
+      <c:forEach var="book" items="${books}">
+        <tr>
+          <td><img src="${book.img}" alt="책 표지" class="book-img" /></td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.price}</td>
+          <td>${book.stock}</td>
+          <td>${book.description}</td>
+        </tr>
+      </c:forEach>
+    </table>
+  </section>
 
 </body>
 </html>
