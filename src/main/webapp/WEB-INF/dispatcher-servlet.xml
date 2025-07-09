@@ -28,7 +28,7 @@
 	webapp/static/image.file.png
 	 -->
 
-	<mvc:resources mapping="/**" location="/static/"/>
+	<mvc:resources mapping="/static/**" location="classpath:/static/" /> 
 	<mvc:annotation-driven/>
     
 </beans>
