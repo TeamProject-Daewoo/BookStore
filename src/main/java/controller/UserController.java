@@ -106,6 +106,7 @@ public class UserController {
 
 	@RequestMapping("user/register")
 	public String register(@ModelAttribute vo.Member member, RedirectAttributes redirectAttributes) {
+		member.setRole("ROLE_USER");
 		boolean registered = service.registerMember(member);
 		if (registered) {
 			redirectAttributes.addFlashAttribute("successMessage", "회원가입이 완료되었습니다. 로그인해주세요.");

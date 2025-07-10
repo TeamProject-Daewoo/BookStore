@@ -20,5 +20,6 @@ public class Member {
 	private String email;
 	private String password;
 	private String phone_number; // Added phone_number
+	private String role;
 	private Date createdAt;
 }

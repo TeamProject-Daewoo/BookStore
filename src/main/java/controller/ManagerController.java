@@ -88,4 +88,48 @@ public class ManagerController {
         model.addAttribute("page", "manager/booklist");
         return "index";
     }
+    
+    @RequestMapping("loginform")
+	public String loginForm(Model model) {
+		model.addAttribute("page", "manager/loginform");
+		return "index";
+	}
+	
+	@RequestMapping("registerform")
+	public String registerForm(Model model) {
+		model.addAttribute("page", "manager/registerform");
+		return "index";
+	}
+
+	@RequestMapping("login")
+	public String login(@RequestParam("user_id") String user_id, @RequestParam("password") String password,
+                        javax.servlet.http.HttpSession session, RedirectAttributes redirectAttributes) {
+		vo.Member member = managerService.login(user_id, password);
+		if (member != null) {
+			session.setAttribute("login", member);
+            redirectAttributes.addFlashAttribute("successMessage", "로그인 되었습니다.");
+			return "redirect:/manager/booklist";
+		}
+        redirectAttributes.addFlashAttribute("errorMessage", "아이디 또는 비번이 틀렸습니다.");
+		return "redirect:/manager/loginform";
+	}
+
+	@RequestMapping("logout")
+	public String logout(javax.servlet.http.HttpSession session) {
+		session.invalidate();
+		return "redirect:/manager/booklist";
+	}
+
+	@RequestMapping("register")
+	public String register(@ModelAttribute vo.Member member, RedirectAttributes redirectAttributes) {
+		member.setRole("ROLE_ADMIN");
+		boolean registered = managerService.registerMember(member);
+		if (registered) {
+			redirectAttributes.addFlashAttribute("successMessage", "회원가입이 완료되었습니다. 로그인해주세요.");
+			return "redirect:/manager/loginform";
+		} else {
+			redirectAttributes.addFlashAttribute("errorMessage", "이미 존재하는 아이디입니다. 다른 아이디를 사용해주세요.");
+			return "redirect:/manager/registerform";
+		}
+	}
 }
