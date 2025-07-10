@@ -3,8 +3,8 @@ package repository;
 import java.util.List;
 
 /**
- * ±âº» DAO ÀÎÅÍÆäÀÌ½º(»ğÀÔ, °Ë»ö, ¼öÁ¤, »èÁ¦)
- * @param <T> DTO Á¤º¸
+ * ê¸°ë³¸ DAO ì¸í„°í˜ì´ìŠ¤(ì‚½ì…, ê²€ìƒ‰, ìˆ˜ì •, ì‚­ì œ)
+ * @param <T> DTO ì •ë³´
  */
 public interface BaseMapper<T> {
 	int save(T t);

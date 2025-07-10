@@ -56,6 +56,11 @@
       font-weight: normal;
       user-select: none;
     }
+    .purchaselist {
+      position: relative;
+      font-weight: bold;
+      color: #007bff;
+    }
   </style>
 </head>
 <body>
@@ -74,12 +79,20 @@
         </c:otherwise>
       </c:choose>
       <li>
-        <a href="/cart" class="cart">
-          장바구니
-          <span class="cart-count">
-            <c:out value="${sessionScope.cartCount != null ? sessionScope.cartCount : 0}" />
-          </span>
-        </a>
+      <!-- 로그인 시 권한이 manager일 때 구매내역 표시 -->
+      <c:choose>
+        <c:when test="">
+          <a href="/manager/purchaselist" class="purchaselist">구매내역</a>
+	    </c:when>
+        <c:otherwise>
+          <a href="/cart" class="cart">
+            장바구니
+            <span class="cart-count">
+              <c:out value="${sessionScope.cartCount != null ? sessionScope.cartCount : 0}" />
+            </span>
+          </a>
+        </c:otherwise>
+      </c:choose>
       </li>
     </ul>
   </nav>

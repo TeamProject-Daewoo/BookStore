@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,27 +13,22 @@
     .login-container input[type="text"], .login-container input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
     .login-container input[type="submit"] { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
 </style>
-<script>
-    // Check for flash attributes and display alerts
-    window.onload = function() {
-        var successMessage = "${successMessage}";
-        var errorMessage = "${errorMessage}";
 
-        if (successMessage && successMessage !== "") {
-            alert(successMessage);
-        }
-        if (errorMessage && errorMessage !== "") {
-            alert(errorMessage);
-        }
-    };
+<c:if test="${not empty result}">
+<script>
+	window.onload = function() {
+		alert("${result}");
+		location.replace(location.pathname);
+	};
 </script>
+</c:if>
 </head>
 <body>
     <div class="login-container">
         <h2>로그인</h2>
         <form action="/user/login" method="post">
-            <label for="id">아이디:</label>
-            <input type="text" id="id" name="id" required>
+            <label for="user_id">아이디:</label>
+            <input type="text" id="user_id" name="user_id" required>
             
             <label for="password">비밀번호:</label>
             <input type="password" id="password" name="password" required>

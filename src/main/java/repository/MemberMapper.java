@@ -16,7 +16,7 @@ import vo.Member;
 public interface MemberMapper extends BaseMapper<Member> {
 	
 	@Override
-	@Insert("insert into member(id, name, email, password, phone_number, createAt) values(#{id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE)")
+	@Insert("insert into member(id, user_id, name, email, password, phone_number, created_at, role) values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE, 'ROLE_USER')")
 	@SelectKey(statement = "SELECT member_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Member member);
 	
@@ -36,6 +36,6 @@ public interface MemberMapper extends BaseMapper<Member> {
 	@Delete("delete from member where id=#{id}")
 	int delete(int id);
 	
-	@Select("SELECT user_id, password, role FROM member WHERE username = #{user_id}")
-	Member findByUsername(@Param("user_id") String user_id);
+	@Select("select * from member where user_id=#{user_id}")
+	Member findByUserId(@Param("user_id") String user_id);
 }

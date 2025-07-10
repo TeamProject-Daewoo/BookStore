@@ -1,6 +1,8 @@
 package service;
 
 import vo.Member;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +12,7 @@ import repository.BookMapper;
 import repository.CartMapper;
 import repository.MemberMapper;
 import repository.PurchaseMapper;
-import vo.Book;
-import vo.Cart;
-import vo.Purchase;
+import vo.*;
 
 @Service
 public class ManagerService {
@@ -111,6 +111,25 @@ public class ManagerService {
 
 	public int deletePurchase(int id) {
 		return purchaseMapper.delete(id);
+	}
+
+	public List<PurchaseView> getPurchaseView() {
+		List<PurchaseView> result = new ArrayList<PurchaseView>();
+		//PurchaseView 데이터로 가공해서 전달
+		for (Purchase p : purchaseMapper.findAll()) {
+			result.add(
+				PurchaseView.builder()
+				.id(p.getId())
+				.member_id(p.getMember_id())
+				.member_name(memberMapper.findById(p.getMember_id()).getName())
+				.book_id(p.getBook_id())
+				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
+				.quantity(p.getQuantity())
+				.order_date(p.getOrder_date())
+				.build()
+			);
+		}
+		return result;
 	}
 
 }

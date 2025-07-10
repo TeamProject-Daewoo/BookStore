@@ -32,8 +32,8 @@ public class UserService {
 		return memberMapper.delete(id);
 	}
 
-	public Member login(int id, String password) {
-		Member member = memberMapper.findById(id);
+	public Member login(String user_id, String password) {
+		Member member = memberMapper.findByUserId(user_id);
 		if (member != null && member.getPassword().equals(password)) {
 			return member;
 		}
@@ -41,11 +41,9 @@ public class UserService {
 	}
 
 	public boolean registerMember(Member member) {
-		// Check if member with the given ID already exists
-		Member existingMember = memberMapper.findById(member.getId());
-		if (existingMember != null) {
-			return false; // ID already exists
-		}
+		// user_id 존재하면 false
+		Member existingMember = memberMapper.findByUserId(member.getUser_id());
+		if(existingMember != null) return false;
 		memberMapper.save(member);
 		return true; // Registration successful
 	}

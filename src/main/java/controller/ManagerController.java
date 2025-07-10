@@ -88,4 +88,12 @@ public class ManagerController {
         model.addAttribute("page", "manager/booklist");
         return "index";
     }
+    
+    @RequestMapping("/purchaselist")
+    public String buyList(Model model) {
+        model.addAttribute("purchaseList", managerService.getPurchaseView());
+        System.out.println(managerService.getPurchaseView());
+        model.addAttribute("page", "manager/purchaselist");
+        return "index";
+    }
 }

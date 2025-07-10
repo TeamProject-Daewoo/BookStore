@@ -2,6 +2,7 @@ package vo;
 
 import java.util.Date;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -14,7 +15,7 @@ import lombok.Data;
  */
 @Data
 public class Purchase {
-	private int id;
+	private Integer id;
 	private int member_id;
 	private int book_id;
 	private int quantity; // Changed from String to int
