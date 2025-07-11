@@ -34,4 +34,4 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	@Override
 	@Delete("delete from purchase where id=#{id}")
 	int delete(int id);
-}
+} 

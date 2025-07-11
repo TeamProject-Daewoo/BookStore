@@ -21,6 +21,24 @@ public class ManagerService {
 	@Autowired
 	private MemberMapper memberMapper;
 
+	public Member login(String user_id, String password) {
+		Member member = memberMapper.findByUserId(user_id);
+		if (member != null && member.getPassword().equals(password)) {
+			return member;
+		}
+		return null;
+	}
+
+	public boolean registerMember(Member member) {
+		// Check if user already exists
+		if (memberMapper.findByUserId(member.getUser_id()) != null) {
+			return false; // User already exists
+		}
+		// Save new member
+		memberMapper.save(member);
+		return true;
+	}
+
 	public int saveMember(Member member) {
 		return memberMapper.save(member);
 	}
@@ -112,6 +130,7 @@ public class ManagerService {
 	public int deletePurchase(int id) {
 		return purchaseMapper.delete(id);
 	}
+<<<<<<< HEAD
 
 	public List<PurchaseView> getPurchaseView() {
 		List<PurchaseView> result = new ArrayList<PurchaseView>();
@@ -133,3 +152,6 @@ public class ManagerService {
 	}
 
 }
+=======
+}
+>>>>>>> origin/lsy

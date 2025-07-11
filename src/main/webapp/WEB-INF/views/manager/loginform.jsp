@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,20 +12,25 @@
     .login-container input[type="text"], .login-container input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
     .login-container input[type="submit"] { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
 </style>
-
-<c:if test="${not empty result}">
 <script>
-	window.onload = function() {
-		alert("${result}");
-		location.replace(location.pathname);
-	};
+    // Check for flash attributes and display alerts
+    window.onload = function() {
+        var successMessage = "${successMessage}";
+        var errorMessage = "${errorMessage}";
+
+        if (successMessage && successMessage !== "") {
+            alert(successMessage);
+        }
+        if (errorMessage && errorMessage !== "") {
+            alert(errorMessage);
+        }
+    };
 </script>
-</c:if>
 </head>
 <body>
     <div class="login-container">
-        <h2>로그인</h2>
-        <form action="/user/login" method="post">
+        <h2>관리자 로그인</h2>
+        <form action="/manager/login" method="post">
             <label for="user_id">아이디:</label>
             <input type="text" id="user_id" name="user_id" required>
             
@@ -36,7 +40,7 @@
             <input type="submit" value="로그인">
         </form>
         <div style="text-align: center; margin-top: 10px;">
-            <a href="/manager/loginform">관리자 로그인</a>
+            <a href="/user/loginform">일반 사용자 로그인</a>
         </div>
     </div>
 </body>

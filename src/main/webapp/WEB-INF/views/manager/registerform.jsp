@@ -47,23 +47,25 @@
             text-align: center;
         }
     </style>
-<c:if test="${not empty result}">
-<script>
-	window.onload = function() {
-		alert("${result}");
-		location.replace(location.pathname);
-	};
-</script>
-</c:if>
+    <script>
+        // Display flash messages
+        window.onload = function() {
+            var successMessage = "${successMessage}";
+            var errorMessage = "${errorMessage}";
+
+            if (successMessage && successMessage !== "") {
+                alert(successMessage);
+            }
+            if (errorMessage && errorMessage !== "") {
+                alert(errorMessage);
+            }
+        };
+    </script>
 </head>
 <body>
     <div class="register-container">
-        <h2>회원가입</h2>
-<<<<<<< HEAD
-        <form action="${pageContext.request.contextPath}/user/register" method="post">
-=======
-        <form action="/user/register" method="post">
->>>>>>> origin/lsy
+        <h2>관리자 회원가입</h2>
+        <form action="/manager/register" method="post">
             <label for="user_id">아이디:</label>
             <input type="text" id="user_id" name="user_id" required>
             
@@ -81,8 +83,8 @@
             
             <input type="submit" value="회원가입">
             <div style="text-align: center; margin-top: 10px;">
-            	<a href="/manager/registerform">관리자 회원가입</a>
-        	</div>
+            	<a href="/user/registerform">일반 사용자 회원가입</a>
+       		</div>
         </form>
     </div>
 </body>

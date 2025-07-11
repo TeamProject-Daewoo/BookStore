@@ -16,7 +16,11 @@ import vo.Member;
 public interface MemberMapper extends BaseMapper<Member> {
 	
 	@Override
+<<<<<<< HEAD
 	@Insert("insert into member(id, user_id, name, email, password, phone_number, created_at, role) values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE, 'ROLE_USER')")
+=======
+	@Insert("insert into member(id, user_id, name, email, password, phone_number, CREATED_AT, role) values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE, #{role})")
+>>>>>>> origin/lsy
 	@SelectKey(statement = "SELECT member_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Member member);
 	
@@ -27,6 +31,9 @@ public interface MemberMapper extends BaseMapper<Member> {
 	@Override
 	@Select("select * from member where id=#{id}")
 	Member findById(int id);
+	
+	@Select("select * from member where user_id=#{userId}")
+	Member findByUserId(String userId);
 	
 	@Override
 	@Update("update member set name=#{name}, email=#{email}, password=#{password} where id=#{id}")
