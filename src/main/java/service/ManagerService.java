@@ -130,7 +130,6 @@ public class ManagerService {
 	public int deletePurchase(int id) {
 		return purchaseMapper.delete(id);
 	}
-<<<<<<< HEAD
 
 	public List<PurchaseView> getPurchaseView() {
 		List<PurchaseView> result = new ArrayList<PurchaseView>();
@@ -150,8 +149,4 @@ public class ManagerService {
 		}
 		return result;
 	}
-
 }
-=======
-}
->>>>>>> origin/lsy

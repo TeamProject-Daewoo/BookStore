@@ -92,13 +92,8 @@ public class UserController {
 
 	@RequestMapping("user/login")
 	public String login(@RequestParam("user_id") String user_id, @RequestParam("password") String password,
-<<<<<<< HEAD
                         HttpSession session, RedirectAttributes redirectAttributes) {
 		Member member = service.login(user_id, password);
-=======
-                        javax.servlet.http.HttpSession session, RedirectAttributes redirectAttributes) {
-		vo.Member member = service.login(user_id, password);
->>>>>>> origin/lsy
 		if (member != null) {
 			session.setAttribute("login", member);
             redirectAttributes.addFlashAttribute("successMessage", "로그인 되었습니다.");
@@ -114,14 +109,10 @@ public class UserController {
 		return "redirect:/"+MAIN_URL+"booklist";
 	}
 
-<<<<<<< HEAD
-	@PostMapping("user/register")
-	public String register(@ModelAttribute Member member, RedirectAttributes redirectAttributes) {
-=======
+
 	@RequestMapping("user/register")
-	public String register(@ModelAttribute vo.Member member, RedirectAttributes redirectAttributes) {
+	public String register(@ModelAttribute Member member, RedirectAttributes redirectAttributes) {
 		member.setRole("ROLE_USER");
->>>>>>> origin/lsy
 		boolean registered = service.registerMember(member);
 		String result = (registered) ? "회원가입이 완료되었습니다. 로그인해주세요." : "이미 존재하는 아이디입니다. 다른 아이디를 사용해주세요.";
 		//삽입 결과에 따라 메세지와 페이지 결정

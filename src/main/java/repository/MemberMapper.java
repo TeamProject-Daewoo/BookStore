@@ -16,11 +16,7 @@ import vo.Member;
 public interface MemberMapper extends BaseMapper<Member> {
 	
 	@Override
-<<<<<<< HEAD
-	@Insert("insert into member(id, user_id, name, email, password, phone_number, created_at, role) values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE, 'ROLE_USER')")
-=======
-	@Insert("insert into member(id, user_id, name, email, password, phone_number, CREATED_AT, role) values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE, #{role})")
->>>>>>> origin/lsy
+	@Insert("insert into member(id, user_id, name, email, password, phone_number, created_at, role) values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, SYSDATE, #{role})")
 	@SelectKey(statement = "SELECT member_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Member member);
 	
@@ -33,7 +29,7 @@ public interface MemberMapper extends BaseMapper<Member> {
 	Member findById(int id);
 	
 	@Select("select * from member where user_id=#{userId}")
-	Member findByUserId(String userId);
+	Member findByUserId(String user_id);
 	
 	@Override
 	@Update("update member set name=#{name}, email=#{email}, password=#{password} where id=#{id}")
@@ -43,6 +39,4 @@ public interface MemberMapper extends BaseMapper<Member> {
 	@Delete("delete from member where id=#{id}")
 	int delete(int id);
 	
-	@Select("select * from member where user_id=#{user_id}")
-	Member findByUserId(@Param("user_id") String user_id);
 }
