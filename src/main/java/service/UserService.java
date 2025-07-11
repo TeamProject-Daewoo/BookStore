@@ -61,6 +61,9 @@ public class UserService {
 	public List<Book> getBookList() {
 		return bookMapper.findAll();
 	}
+	public List<Book> findByKeyword(String keyword) {
+		return bookMapper.findByKeyword(keyword);
+	}
 	public int updateBook(Book book) {
 		return bookMapper.update(book);
 	}

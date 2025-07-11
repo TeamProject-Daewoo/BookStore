@@ -59,11 +59,8 @@
 <body>
     <div class="register-container">
         <h2>회원가입</h2>
-<<<<<<< HEAD
         <form action="${pageContext.request.contextPath}/user/register" method="post">
-=======
-        <form action="/user/register" method="post">
->>>>>>> origin/lsy
+
             <label for="user_id">아이디:</label>
             <input type="text" id="user_id" name="user_id" required>
             

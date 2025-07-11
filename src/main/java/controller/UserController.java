@@ -35,10 +35,10 @@ public class UserController {
 //	}
 
 	@RequestMapping("user/booklist")
-	public String bookList(Model model) {
+	public String bookList(Model model, String keyword) {
 	    model.addAttribute("page", MAIN_URL + "booklist");
 	    Map<String, Object> pageList = new HashMap<>();
-	    pageList.put("list", service.getBookList());
+	    pageList.put("list", keyword != null ? service.findByKeyword(keyword) : service.getBookList());
 	    pageList.put("totalCount", service.getBookList().size());
 	    pageList.put("currentPage", 1);
 	    pageList.put("totalPage", 1);
