@@ -62,6 +62,10 @@ public class CartController {
         int memberId = getMemberIdFromSession(session);
 
         List<CartItem> cartItems = cartService.getCartItems(memberId);
+        int cartCount = cartItems.size();
+        
+        session.setAttribute("cartCount", cartCount);
+        
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("cartTotal", cartService.calculateCartTotal(memberId));
         return "user/cart";
