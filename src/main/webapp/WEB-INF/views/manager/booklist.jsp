@@ -8,7 +8,7 @@
     <title>책 목록 (관리자)</title>
     <style>
         body { font-family: sans-serif; }
-        .container { width: 90%; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .container { width: 90%; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; margin-top: 0px; }
         h2 { text-align: center; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -43,23 +43,97 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+       .tabs {
+      		font-size: 13px; line-height: 20px;
+      		margin-top: 25px;
+  			
+    		}
+    	.tabs ul {
+      		margin:0; list-style:none; padding: 0 6%;
+      		overflow: hidden;
+    	}
+    	.tabs ul li {
+      		float: left;
+      		margin: 0;
+    	}
+    	.tabs ul li a {
+      		background: #f6f6f6;
+      		font-weight: bold;
+      		text-align: center;
+      		display: block;
+      		border: 1px solid #e0e0e0;
+      		color: #909090;
+      		text-shadow: 0 1px 0 rgba(255,255,255, 0.75);
+      		padding: 6px 18px; margin: 0 5px -1px 0;
+      		border-top-left-radius: 10px;
+      		border-top-right-radius: 10px;
+      		text-decoration:none;
+    	}
+    	.tabs ul li a:hover {
+      		border-color: rgb(214, 241, 207);
+      		color: #606060;
+    	}
+    	.tabs ul li.active a {
+      		background: #fff;
+      		border-color: #d4d4d4;
+      		border-bottom: 1px solid #fff;
+      		color: #dd390d;
+      		margin-top: -4px;
+      		padding-top: 10px;
+    	}
     </style>
     <script>
-        window.onload = function() {
-            var successMessage = "${successMessage}";
-            var errorMessage = "${errorMessage}";
+    document.addEventListener('DOMContentLoaded', function() {
+        var successMessage = "${successMessage}";
+        var errorMessage = "${errorMessage}";
 
-            if (successMessage && successMessage !== "") {
-                alert(successMessage);
-            }
-            if (errorMessage && errorMessage !== "") {
-                alert(errorMessage);
-            }
-        };
+        if (successMessage && successMessage !== "") {
+            alert(successMessage);
+        }
+        if (errorMessage && errorMessage !== "") {
+            alert(errorMessage);
+        }
+
+        const accountTab = document.getElementById('accountTab');
+        const container = document.getElementById('content-container');
+
+        if(accountTab) {
+            accountTab.addEventListener('click', function(e) {
+                e.preventDefault();  // 페이지 이동 막기
+
+                // Ajax로 계정 정보 내용만 로드
+                fetch(this.href)
+                .then(resp => {
+                    if (!resp.ok) throw new Error('네트워크 오류');
+                    return resp.text();
+                })
+                .then(html => {
+                    container.innerHTML = html;
+
+                    // 탭 활성화 클래스 처리 (책 목록 탭은 비활성, 계정 탭은 활성)
+                    const tabs = document.querySelectorAll('.tabs ul li');
+                    tabs.forEach(li => li.classList.remove('active'));
+                    this.parentElement.classList.add('active');
+                })
+                .catch(err => {
+                    container.innerHTML = '<p class="text-danger">내용 로드 실패</p>';
+                    console.error(err);
+                });
+            });
+        }
+    });
     </script>
 </head>
 <body>
-    <div class="container">
+<div>
+	<div class="tabs">
+  		<ul>
+  		<br>
+    		<li class="active"><a href="${pageContext.request.contextPath}/manager/booklist">책 목록</a></li>
+      		<li><a href="${pageContext.request.contextPath}/manager/managerview" id="accountTab">회원 목록</a></li>
+  		</ul>
+	</div>
+    <div class="container" id="content-container">
         <h2>책 목록 (관리자)</h2>
         <a href="${pageContext.request.contextPath}/manager/insertform" class="add-button">새 책 추가</a>
         <table>
@@ -94,5 +168,6 @@
             </tbody>
         </table>
     </div>
+</div>
 </body>
 </html>
