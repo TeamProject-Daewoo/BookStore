@@ -58,8 +58,8 @@
 </head>
 <body>
     <div class="register-container">
-        <h2>회원가입</h2>
-        <form action="${pageContext.request.contextPath}/user/register" method="post">
+        <h2>관리자 회원가입</h2>
+        <form action="${pageContext.request.contextPath}/user/adminregister" method="post">
 
             <label for="user_id">아이디:</label>
             <input type="text" id="user_id" name="user_id" required>

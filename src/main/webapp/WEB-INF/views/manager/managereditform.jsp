@@ -123,7 +123,7 @@ h2 {
 }
 </style>
 <h2>회원 정보 수정(관리자)</h2>
-<form class="account-form" action="${pageContext.request.contextPath}/manager/manageredit?id=${member.id}" method="post" onsubmit="return confirm('수정하시겠습니까?');">
+<form class="account-form" action="${pageContext.request.contextPath}/manager/manageredit?id=${member.id}" method="post">
   
 
   <div class="form-row">
@@ -182,13 +182,14 @@ h2 {
     <button type="reset" class="btn btn-reset">다시쓰기</button>
     <button type="button" class="btn btn-delete" onclick="history.back()">나가기</button>
   </div>
+  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
 </form>
 <script>
 const form = document.querySelector('.account-form');
 form.addEventListener('submit', function (e) {
     const pw = passwordInput.value.trim();
     const pwConfirm = passwordConfirmInput.value.trim();
-
+    
     if (pw !== "" || pwConfirm !== "") {
       if (pw !== pwConfirm) {
         e.preventDefault();
@@ -202,9 +203,8 @@ form.addEventListener('submit', function (e) {
         return false;
       }
     }
-
     if (!confirm("수정하시겠습니까?")) {
-      e.preventDefault();
+    	e.preventDefault();
     }
   });
 

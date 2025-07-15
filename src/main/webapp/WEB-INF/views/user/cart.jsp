@@ -118,17 +118,19 @@
                             <p>가격: ${item.book.price} 원</p>
                         </div>
                         <div class="item-quantity">
-                            <form action="${pageContext.request.contextPath}/cart/updateQuantity" method="post" style="display:inline-block;">
+                            <form action="/cart/updateQuantity" method="post" style="display:inline-block;">
                                 <input type="hidden" name="bookId" value="${item.book.id}">
                                 <input type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
                                 <button type="submit">수정</button>
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
                             </form>
                         </div>
                         <div class="item-total">총액: ${item.itemTotal} 원</div>
                         <div class="item-actions">
-                            <form action="${pageContext.request.contextPath}/cart/remove" method="post" style="display:inline-block; margin-left: 10px;">
+                            <form action="/cart/remove" method="post" style="display:inline-block; margin-left: 10px;">
                                 <input type="hidden" name="bookId" value="${item.book.id}">
                                 <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">삭제</button>
+                            	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
                             </form>
                         </div>
                     </div>

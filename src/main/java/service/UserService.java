@@ -4,6 +4,8 @@ import vo.Member;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import repository.*;
@@ -41,9 +43,23 @@ public class UserService {
 	}
 
 	public boolean registerMember(Member member) {
-		// user_id 존재하면 false
+		// user_id 議댁옱�븯硫� false
 		Member existingMember = memberMapper.findByUserId(member.getUser_id());
 		if(existingMember != null) return false;
+		member.setRole("ROLE_USER");
+		PasswordEncoder pe = new BCryptPasswordEncoder();
+		member.setPassword(pe.encode(member.getPassword() ));
+		memberMapper.save(member);
+		return true; // Registration successful
+	}
+	
+	public boolean registerAdmin(Member member) {
+		// user_id 議댁옱�븯硫� false
+		Member existingMember = memberMapper.findByUserId(member.getUser_id());
+		if(existingMember != null) return false;
+		member.setRole("ROLE_ADMIN");
+		PasswordEncoder pe = new BCryptPasswordEncoder();
+		member.setPassword(pe.encode(member.getPassword() ));
 		memberMapper.save(member);
 		return true; // Registration successful
 	}

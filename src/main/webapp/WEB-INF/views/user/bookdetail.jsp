@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -214,17 +215,19 @@
         <div id="error-message" class="error-message">선택한 수량이 재고를 초과했습니다.</div>
 
         <!-- 장바구니 버튼 -->
-        <form action="${pageContext.request.contextPath}/cart/add" method="post">
+        <form action="/cart/add" method="post">
             <input type="hidden" name="bookId" value="${book.id}">
             <input type="hidden" name="quantity" id="cart-quantity-input" value="1">
             <button type="submit" class="btn btn-cart" id="add-to-cart-btn">장바구니에 담기</button>
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
         </form>
 
         <!-- 바로 구매 버튼 -->
-        <form action="${pageContext.request.contextPath}/purchase/direct" method="post" style="display:inline-block;">
+        <form action="/purchase/direct" method="post" style="display:inline-block;">
             <input type="hidden" name="bookId" value="${book.id}">
             <input type="hidden" name="quantity" id="buy-now-quantity-input" value="1">
             <button type="submit" class="btn btn-buy">바로 구매</button>
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
         </form>
       </div>
     </div>

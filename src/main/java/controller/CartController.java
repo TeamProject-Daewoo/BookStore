@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
 import repository.BookMapper;
+import repository.MemberMapper;
 import service.CartService;
-import vo.Book;
-import vo.CartItem;
+import vo.*;
 
 import javax.servlet.http.HttpSession;
+
+import java.security.Principal;
 import java.util.List; // Changed from Map to List
 
 @Controller
@@ -25,22 +27,28 @@ public class CartController {
 
     @Autowired
     private BookMapper bookMapper;
+    
+    @Autowired
+    private MemberMapper memberMapper;
 
-    private int getMemberIdFromSession(HttpSession session) {
-        vo.Member member = (vo.Member) session.getAttribute("login");
-        if (member == null) {
-            throw new IllegalStateException("User not logged in. 'login' attribute (Member object) not found in session.");
-        }
-        return member.getId(); // Assuming Member object has an getId() method
+//    private int getMemberIdFromSession(HttpSession session) {
+//        Member member = (vo.Member) session.getAttribute("login");
+//        if (member == null) {
+//            throw new IllegalStateException("User not logged in. 'login' attribute (Member object) not found in session.");
+//        }
+//        return member.getId(); // Assuming Member object has an getId() method
+//    }
+    private int getLoginedMemberId(Principal user) {
+    	return memberMapper.findByUserId(user.getName()).getId();
     }
-
+    
     @PostMapping("/add")
     public String addItemToCart(@RequestParam("bookId") int bookId,
                                 @RequestParam(value = "quantity", defaultValue = "1") int quantity,
-                                HttpSession session,
+                                Principal user,
                                 RedirectAttributes redirectAttributes) {
-        int memberId = getMemberIdFromSession(session);
-
+        
+    	int memberId = getLoginedMemberId(user);
         Book book = bookMapper.findById(bookId);
         if (book == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Book not found.");
@@ -57,14 +65,12 @@ public class CartController {
         return "redirect:/cart";
     }
 
+
     @GetMapping
-    public String viewCart(HttpSession session, Model model) {
-        int memberId = getMemberIdFromSession(session);
+    public String viewCart(Principal user, Model model) {
+        int memberId = getLoginedMemberId(user);
 
         List<CartItem> cartItems = cartService.getCartItems(memberId);
-        int cartCount = cartItems.size();
-        
-        session.setAttribute("cartCount", cartCount);
         
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("cartTotal", cartService.calculateCartTotal(memberId));
@@ -74,9 +80,9 @@ public class CartController {
     @PostMapping("/updateQuantity")
     public String updateCartItemQuantity(@RequestParam("bookId") int bookId,
                                          @RequestParam("quantity") int quantity,
-                                         HttpSession session,
+                                         Principal user,
                                          RedirectAttributes redirectAttributes) {
-        int memberId = getMemberIdFromSession(session);
+        int memberId = getLoginedMemberId(user);
 
         cartService.updateItemQuantity(memberId, bookId, quantity);
         redirectAttributes.addFlashAttribute("successMessage", "Cart updated successfully.");
@@ -85,9 +91,9 @@ public class CartController {
 
     @PostMapping("/remove")
     public String removeCartItem(@RequestParam("bookId") int bookId,
-                                 HttpSession session,
+                                 Principal user,
                                  RedirectAttributes redirectAttributes) {
-        int memberId = getMemberIdFromSession(session);
+        int memberId = getLoginedMemberId(user);
 
         cartService.removeItemFromCart(memberId, bookId);
         redirectAttributes.addFlashAttribute("successMessage", "Item removed from cart.");

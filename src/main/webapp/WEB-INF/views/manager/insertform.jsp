@@ -88,6 +88,7 @@
             <textarea id="description" name="description" rows="5"></textarea>
 
             <input type="submit" value="책 추가">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
         </form>
     </div>
 </body>

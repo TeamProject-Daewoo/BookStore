@@ -68,7 +68,7 @@
 <body>
     <div class="container">
         <h2>책 정보 수정</h2>
-        <form action="${pageContext.request.contextPath}/manager/bookedit" method="post">
+        <form action="${pageContext.request.contextPath}/manager/bookedit" method="post" onsubmit="return confirm('수정하시겠습니까?');">
             <input type="hidden" name="id" value="${book.id}">
 
             <label for="title">제목:</label>
@@ -90,6 +90,7 @@
             <textarea id="description" name="description" rows="5">${book.description}</textarea>
 
             <input type="submit" value="정보 수정">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
         </form>
     </div>
 </body>
