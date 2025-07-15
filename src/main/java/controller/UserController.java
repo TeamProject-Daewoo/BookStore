@@ -95,9 +95,16 @@ public class UserController {
                         HttpSession session, RedirectAttributes redirectAttributes) {
 		Member member = service.login(user_id, password);
 		if (member != null) {
-			session.setAttribute("login", member);
-            redirectAttributes.addFlashAttribute("successMessage", "로그인 되었습니다.");
-			return "redirect:/"+MAIN_URL+"booklist";
+			if(member.getRole().equals("ROLE_ADMIN")) {
+				session.setAttribute("login", member);
+	            redirectAttributes.addFlashAttribute("successMessage", "관리자 " + member.getName() +"님 어서오세요.");
+				return "redirect:/"+"manager/"+"booklist";
+			}
+			else if(member.getRole().equals("ROLE_USER")) {
+				session.setAttribute("login", member);
+	            redirectAttributes.addFlashAttribute("successMessage", member.getName() +"님 어서오세요.");
+				return "redirect:/"+MAIN_URL+"booklist";
+			}
 		}
         redirectAttributes.addFlashAttribute("errorMessage", "아이디 또는 비번이 틀렸습니다.");
 		return "redirect:/"+MAIN_URL+"loginform";

@@ -77,9 +77,6 @@
             <input type="text" id="phone_number" name="phone_number" required>
             
             <input type="submit" value="회원가입">
-            <div style="text-align: center; margin-top: 10px;">
-            	<a href="/manager/registerform">관리자 회원가입</a>
-        	</div>
         </form>
     </div>
 </body>

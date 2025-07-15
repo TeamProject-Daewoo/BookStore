@@ -35,9 +35,6 @@
             
             <input type="submit" value="로그인">
         </form>
-        <div style="text-align: center; margin-top: 10px;">
-            <a href="/manager/loginform">관리자 로그인</a>
-        </div>
     </div>
 </body>
 </html>
