@@ -58,8 +58,8 @@
 </head>
 <body>
     <div class="register-container">
-        <h2>회원가입</h2>
-        <form action="${pageContext.request.contextPath}/user/register" method="post">
+        <h2>관리자 회원가입</h2>
+        <form action="${pageContext.request.contextPath}/user/adminregister" method="post">
 
             <label for="user_id">아이디:</label>
             <input type="text" id="user_id" name="user_id" required>
@@ -78,9 +78,6 @@
             
             <input type="submit" value="회원가입">
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-            <div style="text-align: center; margin-top: 10px;">
-            	<a href="/manager/registerform">관리자 회원가입</a>
-        	</div>
         </form>
     </div>
 </body>

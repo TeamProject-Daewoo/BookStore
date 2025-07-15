@@ -39,4 +39,7 @@ public interface MemberMapper extends BaseMapper<Member> {
 	@Delete("delete from member where id=#{id}")
 	int delete(int id);
 	
+	@Select("select user_id,password,role from member where user_id=#{username}")
+	public Member findByUsername(String username);
+	
 }

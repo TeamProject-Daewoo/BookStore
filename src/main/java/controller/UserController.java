@@ -1,18 +1,15 @@
 package controller;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import java.util.HashMap;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -48,21 +45,21 @@ public class UserController {
 	
 	@RequestMapping("user/bookdetail")
 	public String bookDetail(@RequestParam int id, Model model) {
-	    // id로 책 정보를 조회
+	    // id濡� 梨� �젙蹂대�� 議고쉶
 	    Book book = service.getBook(id);
 	    
-	    // 이미지 경로 생성 (static/images/ 경로와 책 이미지 파일명 결합)
-	    String imagePath = "/static/images/" + book.getImg();  // "혼모.jpg"와 결합하여 /static/images/혼모.jpg로 만듦
+	    // �씠誘몄� 寃쎈줈 �깮�꽦 (static/images/ 寃쎈줈�� 梨� �씠誘몄� �뙆�씪紐� 寃고빀)
+	    String imagePath = "/static/images/" + book.getImg();  // "�샎紐�.jpg"�� 寃고빀�븯�뿬 /static/images/�샎紐�.jpg濡� 留뚮벀
 	    
-	    // 책 정보와 이미지 경로, 페이지 정보를 모델에 추가
+	    // 梨� �젙蹂댁� �씠誘몄� 寃쎈줈, �럹�씠吏� �젙蹂대�� 紐⑤뜽�뿉 異붽�
 	    model.addAttribute("book", book);
-	    model.addAttribute("imagePath", imagePath);  // 이미지 경로 추가
+	    model.addAttribute("imagePath", imagePath);  // �씠誘몄� 寃쎈줈 異붽�
 	    model.addAttribute("page", MAIN_URL + "bookdetail");
 	    
-	    // imagePath를 확인하기 위해 로그 출력
-	    System.out.println("Image Path: " + imagePath);  // 콘솔에서 경로 확인
+	    // imagePath瑜� �솗�씤�븯湲� �쐞�빐 濡쒓렇 異쒕젰
+	    System.out.println("Image Path: " + imagePath);  // 肄섏넄�뿉�꽌 寃쎈줈 �솗�씤
 	    
-	    return "index";  // index.jsp에서 bookdetail.jsp를 include하도록 처리
+	    return "index";  // index.jsp�뿉�꽌 bookdetail.jsp瑜� include�븯�룄濡� 泥섎━
 	}
 	
 	@RequestMapping("user/loginform")
@@ -90,18 +87,21 @@ public class UserController {
 		return "index";
 	}
 
-	@RequestMapping("user/login")
-	public String login(@RequestParam("user_id") String user_id, @RequestParam("password") String password,
-                        HttpSession session, RedirectAttributes redirectAttributes) {
-		Member member = service.login(user_id, password);
-		if (member != null) {
-			session.setAttribute("login", member);
-            redirectAttributes.addFlashAttribute("successMessage", "로그인 되었습니다.");
-			return "redirect:/"+MAIN_URL+"booklist";
-		}
-        redirectAttributes.addFlashAttribute("errorMessage", "아이디 또는 비번이 틀렸습니다.");
-		return "redirect:/"+MAIN_URL+"loginform";
-	}
+//	@RequestMapping("user/login")
+//	public String login(@RequestParam("user_id") String user_id, @RequestParam("password") String password,
+//                        HttpSession session, RedirectAttributes redirectAttributes) {
+//		Member member = service.login(user_id, password);
+//		if (member != null) {
+//			session.setAttribute("login", member);
+//            redirectAttributes.addFlashAttribute("successMessage", "濡쒓렇�씤 �릺�뿀�뒿�땲�떎.");
+//			return "redirect:/"+MAIN_URL+"booklist";
+//		}
+//        redirectAttributes.addFlashAttribute("errorMessage", "�븘�씠�뵒 �삉�뒗 鍮꾨쾲�씠 ���졇�뒿�땲�떎.");
+//		return "redirect:/"+MAIN_URL+"loginform";
+//	}
+	
+//	@GetMapping("user/login")
+//	public void login() {}
 
 	@RequestMapping("user/logout")
 	public String logout(HttpSession session) {
@@ -112,11 +112,22 @@ public class UserController {
 
 	@RequestMapping("user/register")
 	public String register(@ModelAttribute Member member, RedirectAttributes redirectAttributes) {
-		member.setRole("ROLE_USER");
 		boolean registered = service.registerMember(member);
-		String result = (registered) ? "회원가입이 완료되었습니다. 로그인해주세요." : "이미 존재하는 아이디입니다. 다른 아이디를 사용해주세요.";
-		//삽입 결과에 따라 메세지와 페이지 결정
+		String result = (registered) ? "�쉶�썝媛��엯�씠 �셿猷뚮릺�뿀�뒿�땲�떎. 濡쒓렇�씤�빐二쇱꽭�슂." : "�씠誘� 議댁옱�븯�뒗 �븘�씠�뵒�엯�땲�떎. �떎瑜� �븘�씠�뵒瑜� �궗�슜�빐二쇱꽭�슂.";
+		//�궫�엯 寃곌낵�뿉 �뵲�씪 硫붿꽭吏��� �럹�씠吏� 寃곗젙
 		redirectAttributes.addFlashAttribute("result", result);
 		return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "registerform");
+	}
+	
+	@RequestMapping("user/adminregisterform")
+	public String adminregisterForm(Model model) {
+		model.addAttribute("page", MAIN_URL + "adminregisterform");
+		return "index";
+	}
+	
+	@RequestMapping("user/adminregister")
+	public String adminregister(@ModelAttribute Member member) {
+		boolean registered = service.registerAdmin(member);
+		return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "adminregisterform");
 	}
 }
