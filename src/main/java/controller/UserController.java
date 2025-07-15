@@ -19,7 +19,7 @@ import vo.Book;
 import vo.Member;
 
 @Controller
-@RequestMapping("user")
+@RequestMapping("user")		//index 페이지 없을 시 추가
 public class UserController {
 	
 	@Autowired

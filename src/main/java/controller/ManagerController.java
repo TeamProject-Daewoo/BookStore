@@ -19,10 +19,12 @@ public class ManagerController {
 	
     @Autowired
     ManagerService managerService;
+    
+    final static String MAIN_URL = "manager/";
 
     @GetMapping("/insertform")
     public String insertForm(Model model) {
-        model.addAttribute("page", "manager/insertform");
+        model.addAttribute("page", MAIN_URL+"insertform");
         return "index";
     }
 
@@ -34,7 +36,7 @@ public class ManagerController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "책 추가 중 오류가 발생했습니다: " + e.getMessage());
         }
-        return "redirect:/manager/booklist";
+        return "redirect:/"+MAIN_URL+"booklist";
     }
 
     @GetMapping("/bookeditform")
@@ -45,7 +47,7 @@ public class ManagerController {
             return "redirect:/manager/booklist";
         }
         model.addAttribute("book", book);
-        model.addAttribute("page", "manager/bookeditform");
+        model.addAttribute("page", MAIN_URL+"bookeditform");
         return "index";
     }
 
@@ -57,7 +59,7 @@ public class ManagerController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "책 정보 수정 중 오류가 발생했습니다: " + e.getMessage());
         }
-        return "redirect:/manager/booklist";
+        return "redirect:/"+MAIN_URL+"booklist";
     }
 
     @GetMapping("/bookdelete")
@@ -68,27 +70,27 @@ public class ManagerController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "책 삭제 중 오류가 발생했습니다: " + e.getMessage());
         }
-        return "redirect:/manager/booklist";
+        return "redirect:/"+MAIN_URL+"booklist";
     }
 
     @GetMapping("/booklist")
     public String bookList(Model model) {
         model.addAttribute("list", managerService.getBookList());
-        model.addAttribute("page", "manager/booklist");
+        model.addAttribute("page", MAIN_URL+"booklist");
         return "index";
     }
     
     @RequestMapping("/purchaselist")
     public String buyList(Model model) {
         model.addAttribute("purchaseList", managerService.getPurchaseView());
-        model.addAttribute("page", "manager/purchaselist");
+        model.addAttribute("page", MAIN_URL+"purchaselist");
         return "index";
     }
     
     @GetMapping("/managerview")
 	public String managerList(Model model) {
 	    model.addAttribute("members", managerService.getMemberList());
-	    return "manager/managerview";  // managerview.jsp만 반환
+	    return MAIN_URL+"managerview";  // managerview.jsp만 반환
 	}
 	
 	@GetMapping("/managereditform")
@@ -96,10 +98,10 @@ public class ManagerController {
         Member member = managerService.getMember(id);
         if (member == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "계정 정보를 찾을 수 없습니다.");
-            return "redirect:/manager/booklist";
+            return "redirect:/"+MAIN_URL+"booklist";
         }
         model.addAttribute("member", member);
-        model.addAttribute("page", "manager/managereditform");
+        model.addAttribute("page", MAIN_URL+"managereditform");
         return "index";
     }
 	
@@ -111,7 +113,7 @@ public class ManagerController {
 
 	        if (existingMember == null) {
 	            redirectAttributes.addFlashAttribute("errorMessage", "계정 정보를 찾을 수 없습니다.");
-	            return "redirect:/manager/booklist";
+	            return "redirect:/"+MAIN_URL+"booklist";
 	        }
 
 	        // 2. 비밀번호 변경 여부 확인
@@ -128,11 +130,11 @@ public class ManagerController {
 	        session.setAttribute("login", updated);
 	        
 	        redirectAttributes.addFlashAttribute("successMessage", "계정 정보가 성공적으로 수정되었습니다.");
-	        return "redirect:/manager/booklist";
+	        return "redirect:/"+MAIN_URL+"booklist";
 
 	    } catch (Exception e) {
 	        redirectAttributes.addFlashAttribute("errorMessage", "계정 정보 수정 중 오류가 발생했습니다: " + e.getMessage());
-	        return "redirect:/manager/managereditform";
+	        return "redirect:/"+MAIN_URL+"managereditform";
 	    }
 		
 	 }
@@ -147,6 +149,6 @@ public class ManagerController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "계정 삭제 중 오류가 발생했습니다: " + e.getMessage());
         }
-        return "redirect:/manager/loginform";
+        return "redirect:/"+MAIN_URL+"loginform";
     }
 }

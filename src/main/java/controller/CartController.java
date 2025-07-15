@@ -38,6 +38,8 @@ public class CartController {
 //        }
 //        return member.getId(); // Assuming Member object has an getId() method
 //    }
+    
+    //Principal 로그인중인 사용자 정보(username)
     private int getLoginedMemberId(Principal user) {
     	return memberMapper.findByUserId(user.getName()).getId();
     }

@@ -175,6 +175,7 @@
                 </div>
 
                 <button type="submit" class="btn-confirm-purchase">결제하기</button>
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
             </form>
         </div>
     </div>

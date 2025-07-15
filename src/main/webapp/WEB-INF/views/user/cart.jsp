@@ -143,9 +143,10 @@
 
             <form action="${pageContext.request.contextPath}/purchase/cart" method="post">
                 <button type="submit" class="btn-checkout">주문하기</button>
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
             </form>
-            <a href="${pageContext.request.contextPath}/user/booklist" class="btn-continue-shopping">계속 쇼핑하기</a>
         </c:if>
+        <a href="${pageContext.request.contextPath}/user/booklist" class="btn-continue-shopping">계속 쇼핑하기</a>
     </div>
 </body>
 </html>

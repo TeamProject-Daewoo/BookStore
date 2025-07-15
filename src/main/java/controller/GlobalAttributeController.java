@@ -11,6 +11,11 @@ import repository.MemberMapper;
 import service.CartService;
 import vo.Member;
 
+/**
+ * 전역 Controller<br>
+ * 전역 정보)<br>
+ * - 카트 개수
+ */
 @Component
 @ControllerAdvice
 public class GlobalAttributeController {
@@ -21,6 +26,7 @@ public class GlobalAttributeController {
     @Autowired
     private CartService cartService;
 
+    //세션의 setAttribute를 spring-security 방식으로 대체
     @ModelAttribute("cartCount")
     public int getCartCount(Principal user) {
         if(user == null) return 0;

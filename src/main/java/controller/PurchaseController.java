@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import service.PurchaseService;
 import repository.BookMapper;
+import repository.MemberMapper;
 import vo.Book;
 import vo.CartItem;
 import service.CartService;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Arrays; // For List.of() alternative if Java < 9
 import java.util.Collections; // For List.of() alternative if Java < 9
+import java.security.Principal;
 import java.util.ArrayList; // For List.of() alternative if Java < 9
 
 @Controller
@@ -32,26 +34,35 @@ public class PurchaseController {
 
     @Autowired
     private CartService cartService;
+    
+    @Autowired
+    private MemberMapper memberMapper;
 
-    private int getMemberIdFromSession(HttpSession session) {
-        vo.Member member = (vo.Member) session.getAttribute("login");
-        if (member == null) {
-            throw new IllegalStateException("User not logged in. 'login' attribute (Member object) not found in session.");
-        }
-        return member.getId();
+//    private int getMemberIdFromSession(HttpSession session) {
+//        vo.Member member = (vo.Member) session.getAttribute("login");
+//        if (member == null) {
+//            throw new IllegalStateException("User not logged in. 'login' attribute (Member object) not found in session.");
+//        }
+//        return member.getId();
+//    }
+    
+  //Principal 로그인중인 사용자 정보(username)
+    private int getLoginedMemberId(Principal user) {
+    	return memberMapper.findByUserId(user.getName()).getId();
     }
 
     // Direct purchase from book detail/list
     @PostMapping("/direct")
     public String directPurchase(@RequestParam("bookId") int bookId,
                                  @RequestParam(value = "quantity", defaultValue = "1") int quantity,
-                                 HttpSession session,
+                                 Principal user,
                                  RedirectAttributes redirectAttributes) {
-        int memberId = getMemberIdFromSession(session);
+        int memberId = getLoginedMemberId(user);
 
         try {
-            purchaseService.directPurchase(memberId, bookId, quantity);
-            redirectAttributes.addFlashAttribute("successMessage", "Book purchased successfully!");
+        	//두 번 구매되어 제거함
+            //purchaseService.directPurchase(memberId, bookId, quantity);
+            redirectAttributes.addFlashAttribute("successMessage", "Proceeding to checkout with cart items.");
             return "redirect:/purchase/checkout?type=direct&bookId=" + bookId + "&quantity=" + quantity; // Redirect to checkout page
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -61,9 +72,9 @@ public class PurchaseController {
 
     // Purchase all items from cart
     @PostMapping("/cart")
-    public String cartPurchase(HttpSession session,
+    public String cartPurchase(Principal user,
                                RedirectAttributes redirectAttributes) {
-        int memberId = getMemberIdFromSession(session);
+        int memberId = getLoginedMemberId(user);
 
         try {
             // No direct purchase here, just prepare for checkout
@@ -81,10 +92,10 @@ public class PurchaseController {
     public String checkout(@RequestParam("type") String type,
                            @RequestParam(value = "bookId", required = false) Integer bookId,
                            @RequestParam(value = "quantity", required = false) Integer quantity,
-                           HttpSession session,
+                           Principal user,
                            Model model,
                            RedirectAttributes redirectAttributes) {
-        int memberId = getMemberIdFromSession(session);
+        int memberId = getLoginedMemberId(user);
 
         List<CartItem> itemsToPurchase = null;
         int totalAmount = 0;
@@ -125,10 +136,9 @@ public class PurchaseController {
                                   @RequestParam(value = "bookId", required = false) Integer bookId,
                                   @RequestParam(value = "quantity", required = false) Integer quantity,
                                   // Add address parameters here
-                                  HttpSession session,
+                                  Principal user,
                                   RedirectAttributes redirectAttributes) {
-        int memberId = getMemberIdFromSession(session);
-
+        int memberId = getLoginedMemberId(user);
         try {
             if ("direct".equals(purchaseType) && bookId != null && quantity != null) {
                 purchaseService.directPurchase(memberId, bookId, quantity);

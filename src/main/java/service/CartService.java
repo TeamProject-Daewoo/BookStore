@@ -59,7 +59,8 @@ public class CartService {
         if (quantity <= 0) {
             cartMapper.deleteByMemberIdAndBookId(memberId, bookId);
         } else {
-            cartMapper.updateQuantity(memberId, bookId, quantity);
+        	int stock = bookMapper.findById(bookId).getStock();
+            cartMapper.updateQuantity(memberId, bookId, quantity > stock ? stock : quantity);
         }
     }
 
