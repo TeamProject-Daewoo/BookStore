@@ -1,6 +1,6 @@
 package service;
 
-import vo.Member;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,10 @@ public class UserService {
 	public int deleteMember(int id) {
 		return memberMapper.delete(id);
 	}
+	public int findId(String username) {
+		Member member =  memberMapper.findByUsername(username);
+		return member.getId();
+	}
 
 	public Member login(String user_id, String password) {
 		Member member = memberMapper.findByUserId(user_id);
@@ -43,7 +47,7 @@ public class UserService {
 	}
 
 	public boolean registerMember(Member member) {
-		// user_id 議댁옱�븯硫� false
+		// user_id 鈺곕똻�삺占쎈릭筌롳옙 false
 		Member existingMember = memberMapper.findByUserId(member.getUser_id());
 		if(existingMember != null) return false;
 		member.setRole("ROLE_USER");
@@ -54,7 +58,7 @@ public class UserService {
 	}
 	
 	public boolean registerAdmin(Member member) {
-		// user_id 議댁옱�븯硫� false
+		// user_id 鈺곕똻�삺占쎈릭筌롳옙 false
 		Member existingMember = memberMapper.findByUserId(member.getUser_id());
 		if(existingMember != null) return false;
 		member.setRole("ROLE_ADMIN");
@@ -126,4 +130,21 @@ public class UserService {
 	public int deletePurchase(int id) {
 		return purchaseMapper.delete(id);
 	}
+	
+	public List<MyPurchaseView> getMyPurchaseView(int id) {
+		List<MyPurchaseView> result = new ArrayList<>();
+		
+		for (Purchase p : purchaseMapper.findByUserId(id)) {
+			
+			result.add(
+				MyPurchaseView.builder()
+				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
+				.quantity(p.getQuantity())
+				.order_date(p.getOrder_date())
+				.build()
+			);
+		}
+		return result;
+	}
+	
 }

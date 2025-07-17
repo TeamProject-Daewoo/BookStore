@@ -106,7 +106,12 @@ nav ul li a:hover {
 				<!-- 로그인 시 권한이 admin일 때 구매내역 표시 -->
 				<sec:authorize access="hasRole('ROLE_ADMIN')">
 					<li>
-						<a href="/manager/purchaselist" class="purchaselist">구매내역</a>
+						<a href="/manager/purchaselist" class="purchaselist">회원 구매내역</a>
+					</li>
+				</sec:authorize>
+				<sec:authorize access="hasRole('ROLE_USER')">
+					<li>
+						<a href="/user/mypurchaselist" class="mypurchaselist">내 구매내역</a>
 					</li>
 				</sec:authorize>
 				<li>

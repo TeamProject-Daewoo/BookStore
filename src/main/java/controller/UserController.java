@@ -3,9 +3,10 @@ package controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -145,5 +146,24 @@ public class UserController {
 	public String adminregister(@ModelAttribute Member member) {
 		boolean registered = service.registerAdmin(member);
 		return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "adminregisterform");
+	}
+	
+	@RequestMapping("mypurchaselist")
+	public String mypurchaselist(Model model) {
+		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		    String username = "";
+
+		    // 인증 객체에서 사용자 이름 추출
+		    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+		        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		        username = userDetails.getUsername();
+		    } else {
+		        // 예외 또는 기타 처리
+		        username = authentication.getName(); // 보통 이 경우에도 username이 들어 있음
+		    }
+		    int id = service.findId(username);
+		model.addAttribute("purchaseList", service.getMyPurchaseView(id));
+		model.addAttribute("page", MAIN_URL + "mypurchaselist");
+		return "index";
 	}
 }
