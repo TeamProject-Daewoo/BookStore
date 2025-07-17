@@ -140,6 +140,7 @@ public class UserService {
 				MyPurchaseView.builder()
 				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
 				.quantity(p.getQuantity())
+				.img(bookMapper.findById(p.getBook_id()).getImg())
 				.order_date(p.getOrder_date())
 				.build()
 			);

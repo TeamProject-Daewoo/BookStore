@@ -19,6 +19,7 @@ import lombok.Data;
 @Data
 public class MyPurchaseView {
     private String book_title;
+    private String img;
     private int quantity;
     private Date order_date;
 }

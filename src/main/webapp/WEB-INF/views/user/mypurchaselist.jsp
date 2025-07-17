@@ -63,6 +63,14 @@ th {
 .add-button:hover {
 	background-color: #218838;
 }
+
+.book-img {
+    width: 80px;        /* 원하는 너비로 조정 */
+    height: auto;       /* 비율 유지하면서 높이 자동 조절 */
+    border-radius: 5px; /* 모서리 살짝 둥글게 */
+    object-fit: cover;  /* 이미지가 잘리지 않게 비율 맞춤 */
+}
+
 </style>
 </head>
 <body>
@@ -73,6 +81,7 @@ th {
 				<tr>
 					<th>번호</th>
 					<th>제목</th>
+					<th>사진</th>
 					<th>수량</th>
 					<th>구매날짜</th>
 				</tr>
@@ -82,6 +91,7 @@ th {
 					<tr>
 						<td>${status.index + 1}</td>
 						<td>${purchase.book_title}</td>
+						<td><img class="book-img" src="${pageContext.request.contextPath}/resources/images/${purchase.img}" alt="책 이미지"/></td>
 						<td>${purchase.quantity}</td>
 						<td><fmt:formatDate value="${purchase.order_date}"
 								pattern="yyyy-MM-dd" /></td>
