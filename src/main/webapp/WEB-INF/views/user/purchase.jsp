@@ -8,10 +8,8 @@
     <title>구매하기</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: sans-serif;
             background-color: #f8f9fa;
-            margin: 0;
-            padding: 20px;
             color: #333;
         }
         .purchase-container {

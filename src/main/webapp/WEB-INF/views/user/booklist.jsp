@@ -8,6 +8,9 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 	<style>
+	body {
+		font-family: sans-serif;
+	}	
 	  .custom-table {
 	    border-radius: 10px;
 	    overflow: hidden;

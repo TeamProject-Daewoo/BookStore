@@ -2,6 +2,11 @@
 
 <!-- Bootstrap CSS 필요 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+	font-family: sans-serif;
+}	
+</style>
 
 <div class="container min-vh-100 d-flex justify-content-center align-items-center py-5">
   <div class="bg-white p-5 rounded shadow text-center" style="max-width: 600px; width: 100%;">

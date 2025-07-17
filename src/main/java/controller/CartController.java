@@ -12,9 +12,6 @@ import repository.BookMapper;
 import repository.MemberMapper;
 import service.CartService;
 import vo.*;
-
-import javax.servlet.http.HttpSession;
-
 import java.security.Principal;
 import java.util.List; // Changed from Map to List
 
@@ -56,7 +53,6 @@ public class CartController {
             redirectAttributes.addFlashAttribute("errorMessage", "Book not found.");
             return "redirect:/books";
         }
-
         if (quantity <= 0) {
             redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be at least 1.");
             return "redirect:/bookDetail?id=" + bookId;

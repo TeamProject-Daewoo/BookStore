@@ -8,7 +8,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>책 상세 정보</title>
   <style>
-
+	body {
+		font-family: sans-serif;
+	}
 	.quantity-selector {
 	  display: flex;
 	  justify-content: flex-start;
@@ -94,7 +96,6 @@
           <c:if test="${book.stock > 0}">
             <p><strong>가격:</strong> ${book.price} 원</p>
             <p><strong>재고:</strong> ${book.stock}</p>
-
 		<div class="quantity-selector d-flex gap-2 my-2">
 		  <button class="btn btn-outline-secondary" onclick="changeQuantity('decrement')">-</button>
 		  <input type="number" id="quantity" class="form-control text-center" style="width: 80px;"
@@ -102,7 +103,7 @@
 		  <button class="btn btn-outline-secondary" onclick="changeQuantity('increment')">+</button>
 		</div>
 
-            <p><strong>총 금액:</strong> <span id="total-price">${book.price} 원</span></p>
+            <p><strong>총 금액:</strong> <span id="total-price"></span></p>
 
             <div id="error-message" class="alert alert-danger py-1 d-none" role="alert">
               선택한 수량이 재고를 초과했습니다.
@@ -131,5 +132,6 @@
     </div>
   </div>
 </body>
-
+<!-- 초기값 천 단위 구분 적용 -->
+<script>updateTotalPrice();</script>
 </html>

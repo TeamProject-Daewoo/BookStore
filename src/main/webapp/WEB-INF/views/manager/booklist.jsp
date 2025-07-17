@@ -9,9 +9,11 @@
 <style>
   /* 전체 기본 폰트, 배경 */
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  	/* 한 가지 폰트로 통일! 페이지 이동할 때마다 크기 오차 생김  */
+    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+    font-family: sans-serif;
     background: #f7f8fa;
-    margin: 20px;
+    margin: 0px;
     color: #333;
   }
 

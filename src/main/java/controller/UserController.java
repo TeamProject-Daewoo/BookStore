@@ -36,7 +36,7 @@ public class UserController {
 	public String bookList(Model model, String keyword) {
 	    model.addAttribute("page", MAIN_URL + "booklist");
 	    Map<String, Object> pageList = new HashMap<>();
-	    pageList.put("list", keyword != null ? service.findByKeyword(keyword) : service.getBookList());
+	    pageList.put("list", keyword != null ? service.findByKeyword(keyword) : service.getExistBookList());
 	    pageList.put("totalCount", service.getBookList().size());
 	    pageList.put("currentPage", 1);
 	    pageList.put("totalPage", 1);
@@ -59,7 +59,6 @@ public class UserController {
 	    
 	    // imagePath를 확인하기 위해 로그 출력
 	    System.out.println("Image Path: " + imagePath);  // 콘솔에서 경로 확인
-	    
 	    
 	    return "index";  // index.jsp에서 bookdetail.jsp를 include하도록 처리
 	}

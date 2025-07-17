@@ -27,7 +27,6 @@
       <a class="navbar-brand fw-bold" href="/user/booklist">📚 BookStore</a>
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav align-items-center gap-3">
-
           <sec:authorize access="isAuthenticated()">
             <li class="nav-item">
               <span class="navbar-text">
@@ -37,15 +36,16 @@
             <li class="nav-item">
               <form id="logoutForm" action="<c:url value='/logout' />" method="post" class="d-inline">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                <button type="submit" class="btn btn-outline-danger btn-sm">로그아웃</button>
+                <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;" 
+     				class="nav-link">로그아웃</a>
               </form>
             </li>
 
             <sec:authorize access="hasRole('ROLE_ADMIN')">
               <li class="nav-item">
-                <button onclick="location.href='<c:url value='/manager/booklist' />'" class="btn btn-outline-primary btn-sm">
+                <a class="nav-link" href="<c:url value='/manager/booklist' />">
                   관리자 페이지
-                </button>
+                </a>
               </li>
             </sec:authorize>
           </sec:authorize>
@@ -64,6 +64,14 @@
               <a href="/manager/purchaselist" class="nav-link">구매내역</a>
             </li>
           </sec:authorize>
+          <!-- 관리자도 내 구매내역 표기 -->
+          <%-- <sec:authorize access="hasRole('ROLE_USER')"> --%>
+          <!-- 관리자는 구매내역 표기X -->
+          <sec:authorize access="!hasRole('ROLE_ADMIN') and isAuthenticated()">
+			<li class="nav-item">
+				<a href="/user/mypurchaselist" class="nav-link">내 구매내역</a>
+			</li>
+		  </sec:authorize>
 
           <li class="nav-item position-relative">
             <a href="/cart" class="nav-link d-flex align-items-center">
@@ -77,7 +85,6 @@
       </div>
     </nav>
   </header>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

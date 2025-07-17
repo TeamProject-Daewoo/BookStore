@@ -10,8 +10,6 @@ import vo.CartItem;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class CartService {
@@ -27,7 +25,9 @@ public class CartService {
 
         if (existingCart != null) {
             // Update quantity if item already exists
-            existingCart.setQuantity(existingCart.getQuantity() + quantity);
+        	int addCount = quantity+existingCart.getQuantity();
+        	//재고 넘칠 때 예외처리
+            existingCart.setQuantity(addCount > book.getStock() ? book.getStock() : addCount);
             cartMapper.update(existingCart);
         } else {
             // Add new item to cart

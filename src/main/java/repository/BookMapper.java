@@ -35,7 +35,9 @@ public interface BookMapper extends BaseMapper<Book> {
 	@Delete("delete from book where id=#{id}")
 	int delete(int id);
 
-	@Select("SELECT * FROM book WHERE title LIKE '%'||#{keyword}||'%' OR author LIKE '%'||#{keyword}||'%'")
-
+	@Select("SELECT * FROM book WHERE stock > 0 and (title LIKE '%'||#{keyword}||'%' OR author LIKE '%'||#{keyword}||'%')")
 	public List<Book> findByKeyword(String keyword);
+	
+	@Select("select * from book where stock > 0")
+	public List<Book> findExistBook();
 }

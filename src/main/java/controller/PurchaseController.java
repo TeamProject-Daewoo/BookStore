@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import service.PurchaseService;
 import repository.BookMapper;
+import repository.CartMapper;
 import repository.MemberMapper;
 import vo.Book;
 import vo.CartItem;
@@ -37,6 +38,9 @@ public class PurchaseController {
     
     @Autowired
     private MemberMapper memberMapper;
+    
+    @Autowired
+    private CartMapper cartMapper;
 
 //    private int getMemberIdFromSession(HttpSession session) {
 //        vo.Member member = (vo.Member) session.getAttribute("login");
@@ -55,10 +59,7 @@ public class PurchaseController {
     @PostMapping("/direct")
     public String directPurchase(@RequestParam("bookId") int bookId,
                                  @RequestParam(value = "quantity", defaultValue = "1") int quantity,
-                                 Principal user,
                                  RedirectAttributes redirectAttributes) {
-        int memberId = getLoginedMemberId(user);
-
         try {
         	//두 번 구매되어 제거함
             //purchaseService.directPurchase(memberId, bookId, quantity);
@@ -72,10 +73,7 @@ public class PurchaseController {
 
     // Purchase all items from cart
     @PostMapping("/cart")
-    public String cartPurchase(Principal user,
-                               RedirectAttributes redirectAttributes) {
-        int memberId = getLoginedMemberId(user);
-
+    public String cartPurchase(RedirectAttributes redirectAttributes) {
         try {
             // No direct purchase here, just prepare for checkout
             // The actual purchase will happen on /purchase/confirm
@@ -142,6 +140,7 @@ public class PurchaseController {
         try {
             if ("direct".equals(purchaseType) && bookId != null && quantity != null) {
                 purchaseService.directPurchase(memberId, bookId, quantity);
+                cartService.removeItemFromCart(memberId, bookId);
             } else if ("cart".equals(purchaseType)) {
                 purchaseService.cartPurchase(memberId);
             } else {

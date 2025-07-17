@@ -93,17 +93,19 @@
 	          <div class="item-quantity">
 	            <form action="/cart/updateQuantity" method="post" class="d-flex align-items-center">
 	              <input type="hidden" name="bookId" value="${item.book.id}">
-	              <input type="number" name="quantity" value="${item.quantity}" min="1" class="form-control form-control-sm me-2">
-	              <button type="submit" class="btn btn-outline-secondary btn-sm">수정</button>
+	              <!-- onchange로 /cart/updateQuantity페이지 호출 -->
+	              <input type="number" name="quantity" value="${item.quantity}" min="1" class="form-control form-control-sm me-2"
+	              	onchange="submit();">
+	              <!-- <button type="submit" class="btn btn-outline-secondary btn-sm">수정</button> -->
 	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
 	            </form>
 	          </div>
 	
 	          <div class="item-total">
-	            <span>총액: <strong>${item.itemTotal} 원</strong></span>
+	            <span>총액: <strong>${item.itemTotal}원</strong></span>
 	          </div>
 	
-	          <div class="item-actions">
+	          <div class="item-actions mx-3">
 	            <form action="/cart/remove" method="post">
 	              <input type="hidden" name="bookId" value="${item.book.id}">
 	              <button type="submit" class="btn btn-danger btn-sm">삭제</button>
