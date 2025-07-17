@@ -27,6 +27,9 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	@Select("select * from purchase where id=#{id}")
 	Purchase findById(int id);
 	
+	@Select("select * from purchase where member_id=#{id}")
+	List<Purchase> findByUserId(int id);
+	
 	@Override
 	@Update("update purchase set member_id=#{member_id}, book_id=#{book_id}, quantity=#{quantity} where id=#{id}")
 	int update(Purchase purchase);

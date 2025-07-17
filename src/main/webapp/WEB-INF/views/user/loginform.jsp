@@ -52,18 +52,21 @@ body {
 </c:if>
 </head>
 <body>
-    <div class="login-container">
-        <h2>로그인</h2>
-        <form action="<c:url value='/login'/>" method="post">
-            <label for="user_id">아이디:</label>
-            <input type="text" id="user_id" name="user_id" required>
-            
-            <label for="password">비밀번호:</label>
-            <input type="password" id="password" name="password" required>
-            
-            <input type="submit" value="로그인">
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
-        </form>
-    </div>
+
+
+	<div class="login-container">
+		<c:if test="${not empty loginError}">
+			<div style="color: red">${loginError}</div>
+		</c:if>
+		<h2>로그인</h2>
+		<form action="<c:url value='/login'/>" method="post">
+			<label for="user_id">아이디:</label> <input type="text" id="user_id"
+				name="user_id" required> <label for="password">비밀번호:</label>
+			<input type="password" id="password" name="password" required>
+
+			<input type="submit" value="로그인"> <input type="hidden"
+				name="${_csrf.parameterName}" value="${_csrf.token }" />
+		</form>
+	</div>
 </body>
 </html>
