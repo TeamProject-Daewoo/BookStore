@@ -7,7 +7,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>BookStore</title>
+  <title>Header</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .navbar .cart-count {
@@ -25,7 +25,6 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
       <a class="navbar-brand fw-bold" href="/user/booklist">📚 BookStore</a>
-
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav align-items-center gap-3">
 
