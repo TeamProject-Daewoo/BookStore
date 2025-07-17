@@ -6,147 +6,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>장바구니</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-        .cart-container {
-            max-width: 900px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        h3 {
-            text-align: center;
-            font-size: 32px;
-            color: #0056b3;
-            margin-bottom: 30px;
-        }
-        .cart-item {
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-        }
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-        .item-image {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 20px;
-        }
-        .item-details {
-            flex-grow: 1;
-        }
-        .item-details h4 {
-            margin: 0 0 5px 0;
-            font-size: 18px;
-            color: #333;
-        }
-        .item-details p {
-            margin: 0;
-            font-size: 14px;
-            color: #666;
-        }
-        .item-quantity, .item-price, .item-total {
-            width: 100px;
-            text-align: right;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .cart-summary {
-            text-align: right;
-            margin-top: 30px;
-            font-size: 20px;
-            font-weight: bold;
-            border-top: 2px solid #0056b3;
-            padding-top: 20px;
-        }
-        .empty-cart {
-            text-align: center;
-            font-size: 18px;
-            color: #666;
-            padding: 50px 0;
-        }
-        .btn-checkout {
-            display: block;
-            width: 200px;
-            margin: 30px auto 0;
-            padding: 15px;
-            background-color: #28a745;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .btn-checkout:hover {
-            background-color: #218838;
-        }
-        .btn-continue-shopping:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+	  .cart-item {
+	    display: flex;
+	    align-items: center;
+	    justify-content: space-between;
+	    border: 1px solid #ddd;
+	    border-radius: 10px;
+	    padding: 15px;
+	    margin-bottom: 15px;
+	    background-color: #f8f9fa;
+	  }
+	
+	  .item-image {
+	    width: 100px;
+	    height: auto;
+	    border-radius: 5px;
+	    margin-right: 15px;
+	  }
+	
+	  .item-details {
+	    flex: 1;
+	  }
+	
+	  .item-quantity input[type="number"] {
+	    width: 60px;
+	    margin-right: 5px;
+	  }
+	
+	  .cart-summary {
+	    font-weight: bold;
+	    font-size: 1.2rem;
+	    text-align: right;
+	    margin-top: 20px;
+	    margin-bottom: 10px;
+	  }
+	
+	  .btn-checkout {
+	    width: 100%;
+	    padding: 10px;
+	    background-color: #28a745;
+	    color: white;
+	    border: none;
+	    font-weight: bold;
+	    border-radius: 5px;
+	  }
+	
+	  .btn-continue-shopping {
+	    display: inline-block;
+	    margin-top: 20px;
+	    text-decoration: none;
+	    color: #007bff;
+	  }
+	
+	  .empty-cart {
+	    text-align: center;
+	    padding: 30px;
+	    font-size: 1.2rem;
+	    color: #888;
+	    border: 1px dashed #ccc;
+	    border-radius: 10px;
+	    background-color: #fcfcfc;
+	  }
+	</style>
 </head>
 <body>
-    <div class="cart-container">
-        <h3>장바구니</h3>
+	<div class="container my-5">
+	  <h3 class="text-center mb-4">🛒 장바구니</h3>
+	
+	  <c:if test="${empty cartItems}">
+	    <div class="empty-cart">장바구니가 비어 있습니다.</div>
+	  </c:if>
+	
+	  <c:if test="${not empty cartItems}">
+	    <div class="cart-items-list">
+	      <c:forEach var="item" items="${cartItems}">
+	        <div class="cart-item">
+	          <img src="${pageContext.request.contextPath}/resources/images/${item.book.img}" alt="${item.book.title}" class="item-image">
+	          <div class="item-details">
+	            <h5>${item.book.title}</h5>
+	            <p class="mb-1">저자: ${item.book.author}</p>
+	            <p class="mb-1">가격: <strong>${item.book.price} 원</strong></p>
+	          </div>
+	
+	          <div class="item-quantity">
+	            <form action="/cart/updateQuantity" method="post" class="d-flex align-items-center">
+	              <input type="hidden" name="bookId" value="${item.book.id}">
+	              <input type="number" name="quantity" value="${item.quantity}" min="1" class="form-control form-control-sm me-2">
+	              <button type="submit" class="btn btn-outline-secondary btn-sm">수정</button>
+	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
+	            </form>
+	          </div>
+	
+	          <div class="item-total">
+	            <span>총액: <strong>${item.itemTotal} 원</strong></span>
+	          </div>
+	
+	          <div class="item-actions">
+	            <form action="/cart/remove" method="post">
+	              <input type="hidden" name="bookId" value="${item.book.id}">
+	              <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
+	            </form>
+	          </div>
+	        </div>
+	      </c:forEach>
+	    </div>
+	
+	    <div class="cart-summary">
+	      총 주문 금액: <strong>${cartTotal} 원</strong>
+	    </div>
+	
+	    <form action="${pageContext.request.contextPath}/purchase/cart" method="post">
+	      <button type="submit" class="btn-checkout">✅ 주문하기</button>
+	      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
+	    </form>
+	  </c:if>
+	
+	  <div class="text-end">
+	    <a href="${pageContext.request.contextPath}/user/booklist" class="btn-continue-shopping">← 계속 쇼핑하기</a>
+	  </div>
+	</div>
 
-        <c:if test="${empty cartItems}">
-            <div class="empty-cart">장바구니가 비어 있습니다.</div>
-        </c:if>
-
-        <c:if test="${not empty cartItems}">
-            <div class="cart-items-list">
-                <c:forEach var="item" items="${cartItems}">
-                    <div class="cart-item">
-                        <img src="${pageContext.request.contextPath}/resources/images/${item.book.img}" alt="${item.book.title}" class="item-image">
-                        <div class="item-details">
-                            <h4>${item.book.title}</h4>
-                            <p>저자: ${item.book.author}</p>
-                            <p>가격: ${item.book.price} 원</p>
-                        </div>
-                        <div class="item-quantity">
-                            <form action="/cart/updateQuantity" method="post" style="display:inline-block;">
-                                <input type="hidden" name="bookId" value="${item.book.id}">
-                                <input type="number" name="quantity" value="${item.quantity}" min="1" style="width: 50px; text-align: center;">
-                                <button type="submit">수정</button>
-                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
-                            </form>
-                        </div>
-                        <div class="item-total">총액: ${item.itemTotal} 원</div>
-                        <div class="item-actions">
-                            <form action="/cart/remove" method="post" style="display:inline-block; margin-left: 10px;">
-                                <input type="hidden" name="bookId" value="${item.book.id}">
-                                <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">삭제</button>
-                            	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
-                            </form>
-                        </div>
-                    </div>
-                </c:forEach>
-            </div>
-
-            <div class="cart-summary">
-                총 주문 금액: ${cartTotal} 원
-            </div>
-
-            <form action="${pageContext.request.contextPath}/purchase/cart" method="post">
-                <button type="submit" class="btn-checkout">주문하기</button>
-                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
-            </form>
-        </c:if>
-        <a href="${pageContext.request.contextPath}/user/booklist" class="btn-continue-shopping">계속 쇼핑하기</a>
-    </div>
 </body>
 </html>
