@@ -70,7 +70,6 @@ nav ul li a:hover {
 	position: relative;
 	font-weight: bold;
 	color: #008080;
-	margin-right: 15px;
 }
 </style>
 </head>
