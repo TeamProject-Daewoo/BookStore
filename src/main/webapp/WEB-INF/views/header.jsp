@@ -70,7 +70,6 @@ nav ul li a:hover {
 	position: relative;
 	font-weight: bold;
 	color: #008080;
-	margin-right: 15px;
 }
 </style>
 </head>
@@ -104,11 +103,13 @@ nav ul li a:hover {
 					<li><a href="<c:url value='/user/loginform' />">로그인</a></li>
 					<li><a href="<c:url value='/user/registerform' />">회원가입</a></li>
 				</sec:authorize>
-				<li>
-					<!-- 로그인 시 권한이 manager일 때 구매내역 표시 -->
-					<sec:authorize access="isAuthenticated()">
+				<!-- 로그인 시 권한이 admin일 때 구매내역 표시 -->
+				<sec:authorize access="hasRole('ROLE_ADMIN')">
+					<li>
 						<a href="/manager/purchaselist" class="purchaselist">구매내역</a>
-					</sec:authorize>
+					</li>
+				</sec:authorize>
+				<li>
 					<a href="/cart" class="cart"> 
 						장바구니 
 						<span class="cart-count">
