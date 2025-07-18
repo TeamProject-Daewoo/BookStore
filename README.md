@@ -17,9 +17,11 @@ GET /bookdelete?id={id}: 도서 삭제
 GET /booklist: 도서 목록 조회
 
 구매 내역 조회 (PaymentAdmin과 유사)
+
 REQUEST /purchaselist: 결제 내역 목록 조회
 
 관리자(회원) 관리
+
 GET /managerview: 회원 목록 조회
 
 GET /managereditform?id={id}: 회원 수정 폼으로 이동
@@ -56,6 +58,7 @@ GET /login?error=true: 로그인 실패 시 메시지 포함
 GET /logout: 로그아웃 처리 후 도서 목록으로 이동
 
 결제 관련
+
 GET /purchase: 구매 페이지 이동
 
 GET /mypurchaselist: 현재 로그인한 사용자의 구매 내역 조회
