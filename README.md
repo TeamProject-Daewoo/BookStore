@@ -3,7 +3,7 @@
 ## Manager
 ### 도서 관리 기능 (BookAdmin과 동일)
 
-GET /insertform: 도서 등록 폼으로 이동
++ GET /insertform: 도서 등록 폼으로 이동
 
 POST /insert: 도서 등록
 
