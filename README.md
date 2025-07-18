@@ -28,7 +28,7 @@
 + POST /manageredit: 회원 정보 수정
 
 + GET /managerdelete?id={id}: 회원 삭제
-
+---
 
 ## User
 ### 도서 기능
@@ -60,7 +60,7 @@ GET /bookdetail?id={id}: 도서 상세 정보 조회
 + GET /purchase: 구매 페이지 이동
 
 + GET /mypurchaselist: 현재 로그인한 사용자의 구매 내역 조회
-
+---
 
 ## Cart
 + POST /add : 장바구니에 상품 추가 (bookId, quantity 포함)
@@ -71,8 +71,7 @@ GET /bookdetail?id={id}: 도서 상세 정보 조회
 
 + POST /remove : 장바구니에서 상품 삭제 (bookId 포함)
 
-
-
+---
 
 ## Purchase
 + POST /direct : 도서 상세/목록에서 바로 구매 요청 (bookId, quantity 포함) → 결제 페이지로 이동
