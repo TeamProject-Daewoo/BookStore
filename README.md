@@ -1,6 +1,6 @@
 # BookStore
 
-## Manager
+## 📚 Manager
 ### 도서 관리 기능 (BookAdmin과 동일)
 
 + GET /insertform: 도서 등록 폼으로 이동
@@ -30,7 +30,7 @@
 + GET /managerdelete?id={id}: 회원 삭제
 ---
 
-## User
+## 👤 User
 ### 도서 기능
 
 GET /booklist: 도서 목록 조회 (검색어 포함 가능)
@@ -62,7 +62,7 @@ GET /bookdetail?id={id}: 도서 상세 정보 조회
 + GET /mypurchaselist: 현재 로그인한 사용자의 구매 내역 조회
 ---
 
-## Cart
+## 🛒 Cart
 + POST /add : 장바구니에 상품 추가 (bookId, quantity 포함)
 
 + GET / : 로그인한 사용자 장바구니 목록 조회
@@ -73,7 +73,7 @@ GET /bookdetail?id={id}: 도서 상세 정보 조회
 
 ---
 
-## Purchase
+## 💳 Purchase
 + POST /direct : 도서 상세/목록에서 바로 구매 요청 (bookId, quantity 포함) → 결제 페이지로 이동
 
 + POST /cart : 장바구니 전체 상품 구매 준비 → 결제 페이지로 이동
