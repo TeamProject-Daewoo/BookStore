@@ -1,6 +1,16 @@
-# Book_Project
+# BookStore
 
-07/07
-```
+Manager
+---
 
-```
+User
+---
+
+Cart
+---
+
+Purchase
+---
+
+GlobalAttribute
+---
