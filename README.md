@@ -2,7 +2,7 @@
 
 ---
 
-## 📚 Manager 기능
+##  Manager 기능
 
 ### 도서 관리 (BookAdmin과 동일)
 - `GET /insertform`  
@@ -34,7 +34,7 @@
 
 ---
 
-## 👤 User 기능
+##  User 기능
 
 ### 도서 기능
 - `GET /booklist`  
@@ -68,7 +68,7 @@
 
 ---
 
-## 🛒 Cart 기능
+##  Cart 기능
 
 - `POST /add`  
   장바구니에 상품 추가 (`bookId`, `quantity` 포함)  
@@ -81,7 +81,7 @@
 
 ---
 
-## 💳 Purchase 기능
+##  Purchase 기능
 
 - `POST /direct`  
   도서 상세/목록에서 바로 구매 요청 (`bookId`, `quantity` 포함) → 결제 페이지 이동  
