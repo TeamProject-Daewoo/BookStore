@@ -3,6 +3,7 @@
 Manager
 ___
 도서 관리 기능 (BookAdmin과 동일)
+
 GET /insertform: 도서 등록 폼으로 이동
 
 POST /insert: 도서 등록
@@ -31,11 +32,13 @@ GET /managerdelete?id={id}: 회원 삭제
 User
 ___
 도서 기능
+
 GET /booklist: 도서 목록 조회 (검색어 포함 가능)
 
 GET /bookdetail?id={id}: 도서 상세 정보 조회
 
 회원 관련 기능
+
 GET /registerform: 사용자 회원가입 폼
 
 POST /register: 사용자 회원가입 처리
@@ -45,6 +48,7 @@ GET /adminregisterform: 관리자 회원가입 폼
 POST /adminregister: 관리자 회원가입 처리
 
 로그인/로그아웃
+
 GET /loginform: 로그인 폼
 
 GET /login?error=true: 로그인 실패 시 메시지 포함
