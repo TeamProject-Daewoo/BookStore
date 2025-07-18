@@ -5,44 +5,34 @@
 <head>
   <meta charset="UTF-8" />
   <title>책 목록</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-	<style>
-	body {
-		font-family: sans-serif;
-	}	
-	  .custom-table {
-	    border-radius: 10px;
-	    overflow: hidden;
-	  }
-	  .custom-table tbody tr {
-	    cursor: pointer;
-	    transition: background-color 0.2s;
-	  }
-	  .custom-table tbody tr:hover {
-	    background-color: #f1f1f1;
-	  }
-	</style>
-  <script>
-    // Check for flash attributes and display alerts
-    window.onload = function() {
-        var successMessage = "${successMessage}";
-        var errorMessage = "${errorMessage}";
-
-        if (successMessage && successMessage !== "") {
-            alert(successMessage);
-        }
-        if (errorMessage && errorMessage !== "") {
-            alert(errorMessage);
-        }
-    };
-  </script>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    .book-card {
+      cursor: pointer;
+      transition: box-shadow 0.3s;
+      margin-bottom: 1.5rem;
+    }
+    .book-card:hover {
+      box-shadow: 0 0 11px rgba(33,33,33,.2);
+    }
+    .book-img {
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .book-info {
+      margin-top: 0.5rem;
+    }
+  </style>
 </head>
 <body>
 
 <div class="container my-5">
-
-  <!-- 제목 -->
   <h2 class="text-center mb-4 fw-bold">📚 책 목록</h2>
 
   <!-- 검색창 -->
@@ -55,44 +45,29 @@
     </div>
   </div>
 
-  <!-- 책 목록 테이블 -->
-  <div class="table-responsive">
-    <table style="table-layout: fixed; width: 100%;"  class="table table-striped table-bordered align-middle text-center custom-table table-hover">
-      <thead class="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>책 이름</th>
-          <th>글쓴이</th>
-          <th>가격</th>
-          <th>재고</th>
-          <th>설명</th>
-          <th>이미지</th>
-        </tr>
-      </thead>
-      <tbody>
-        <c:forEach var="book" items="${pageList.list}">
-          <tr onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?id=${book.id}'">
-            <td>${book.id}</td>
-            <td>${book.title}</td>
-            <td>${book.author}</td>
-            <td>${book.price}</td>
-            <td>${book.stock}</td>
-            <td><c:out value="${book.description}" default="없음"/></td>
-            <td>
-              <c:if test="${not empty book.img}">
-                <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 이미지" class="img-thumbnail" style="max-width: 80px;">
-              </c:if>
-              <c:if test="${empty book.img}">
-                <span class="text-muted">이미지 없음</span>
-              </c:if>
-            </td>
-          </tr>
-        </c:forEach>
-      </tbody>
-    </table>
+  <!-- 책 목록 카드 -->
+  <div class="row">
+    <c:forEach var="book" items="${pageList.list}">
+      <div class="col-12 col-md-4">
+        <div class="card book-card" onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?id=${book.id}'">
+          <c:if test="${not empty book.img}">
+            <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 이미지" class="card-img-top book-img">
+          </c:if>
+          <c:if test="${empty book.img}">
+            <div class="d-flex justify-content-center align-items-center" style="height:180px; background:#f8f9fa; color:#6c757d;">
+              이미지 없음
+            </div>
+          </c:if>
+          <div class="card-body book-info text-center">
+            <h5 class="card-title">${book.title}</h5>
+            <p class="card-text mb-1">글쓴이: ${book.author}</p>
+            <p class="card-text fw-bold">가격: ${book.price}원</p>
+          </div>
+        </div>
+      </div>
+    </c:forEach>
   </div>
 </div>
-
 
 </body>
 </html>

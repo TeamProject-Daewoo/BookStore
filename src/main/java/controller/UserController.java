@@ -110,6 +110,15 @@ public class UserController {
 //        redirectAttributes.addFlashAttribute("errorMessage", "아이디 또는 비번이 틀렸습니다.");
 //		return "redirect:/"+MAIN_URL+"loginform";
 //	}
+	
+	@GetMapping("login")
+	public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+	    if (error != null) {
+	        model.addAttribute("loginError", "아이디 또는 비밀번호가 잘못되었습니다.");
+	    }
+	    model.addAttribute("page", MAIN_URL + "loginform");
+		return "index";
+	}
 
 
 	@RequestMapping("logout")

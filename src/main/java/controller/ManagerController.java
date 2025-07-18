@@ -32,9 +32,9 @@ public class ManagerController {
     public String insertBook(@ModelAttribute Book book, RedirectAttributes redirectAttributes) {
         try {
             managerService.saveBook(book);
-            redirectAttributes.addFlashAttribute("successMessage", "책이 성공적으로 추가되었습니다.");
+            redirectAttributes.addFlashAttribute("successMessage", "책을 성공적으로 추가하였습니다.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "책 추가 중 오류가 발생했습니다: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "책 추가 중 오류가 발생하였습니다: " + e.getMessage());
         }
         return "redirect:/"+MAIN_URL+"booklist";
     }
@@ -57,7 +57,7 @@ public class ManagerController {
             managerService.updateBook(book);
             redirectAttributes.addFlashAttribute("successMessage", "책 정보가 성공적으로 수정되었습니다.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "책 정보 수정 중 오류가 발생했습니다: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "책 정보 수정 중 오류가 발생하였습니다: " + e.getMessage());
         }
         return "redirect:/"+MAIN_URL+"booklist";
     }
@@ -68,7 +68,7 @@ public class ManagerController {
             managerService.deleteBook(id);
             redirectAttributes.addFlashAttribute("successMessage", "책이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "책 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "책 삭제 중 오류가 발생하였습니다: " + e.getMessage());
         }
         return "redirect:/"+MAIN_URL+"booklist";
     }
@@ -90,14 +90,14 @@ public class ManagerController {
     @GetMapping("/managerview")
 	public String managerList(Model model) {
 	    model.addAttribute("members", managerService.getMemberList());
-	    return MAIN_URL+"managerview";  // managerview.jsp만 반환
+	    return MAIN_URL+"managerview";  // managerview.jsp留� 諛섑솚
 	}
 	
 	@GetMapping("/managereditform")
     public String managerEditForm(@RequestParam("id") int id, Model model, RedirectAttributes redirectAttributes) {
         Member member = managerService.getMember(id);
         if (member == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "계정 정보를 찾을 수 없습니다.");
+            redirectAttributes.addFlashAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
             return "redirect:/"+MAIN_URL+"booklist";
         }
         model.addAttribute("member", member);
@@ -108,32 +108,32 @@ public class ManagerController {
 	@PostMapping("/manageredit")
 	    public String managerEdit(@ModelAttribute Member member, RedirectAttributes redirectAttributes, javax.servlet.http.HttpSession session) {
 		try {
-	        // 1. 기존 회원 정보 조회
+	        // 1. 湲곗〈 �쉶�썝 �젙蹂� 議고쉶
 	        Member existingMember = managerService.getMember(member.getId());
 
 	        if (existingMember == null) {
-	            redirectAttributes.addFlashAttribute("errorMessage", "계정 정보를 찾을 수 없습니다.");
+	            redirectAttributes.addFlashAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
 	            return "redirect:/"+MAIN_URL+"booklist";
 	        }
 
-	        // 2. 비밀번호 변경 여부 확인
+	        // 2. 鍮꾨�踰덊샇 蹂�寃� �뿬遺� �솗�씤
 	        String newPassword = member.getPassword();
 	        if (newPassword == null || newPassword.trim().isEmpty()) {
-	            // 비어있으면 기존 비밀번호 유지
+	            // 鍮꾩뼱�엳�쑝硫� 湲곗〈 鍮꾨�踰덊샇 �쑀吏�
 	            member.setPassword(existingMember.getPassword());
 	        }
 
-	        // 4. 업데이트
+	        // 4. �뾽�뜲�씠�듃
 	        managerService.updateMember(member);
 	        
 	        Member updated = managerService.getMember(member.getId());
 	        session.setAttribute("login", updated);
 	        
-	        redirectAttributes.addFlashAttribute("successMessage", "계정 정보가 성공적으로 수정되었습니다.");
+	        redirectAttributes.addFlashAttribute("successMessage", "회원 정보가 성공적으로 수정되었습니다.");
 	        return "redirect:/"+MAIN_URL+"booklist";
 
 	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "계정 정보 수정 중 오류가 발생했습니다: " + e.getMessage());
+	        redirectAttributes.addFlashAttribute("errorMessage", "회원 정보 수정 중 오류가 발생하였습니다: " + e.getMessage());
 	        return "redirect:/"+MAIN_URL+"managereditform";
 	    }
 		
@@ -145,10 +145,10 @@ public class ManagerController {
         try {
             managerService.deleteMember(id);
 	        
-            redirectAttributes.addFlashAttribute("successMessage", "계정이 성공적으로 삭제되었습니다.");
+            redirectAttributes.addFlashAttribute("successMessage", "회원이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "계정 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "회원 삭제 중 오류가 발생하였습니다: " + e.getMessage());
         }
-        return "redirect:/"+MAIN_URL+"loginform";
+        return "redirect:/"+MAIN_URL+"booklist";
     }
 }

@@ -12,12 +12,19 @@ body {
 }
 
 .login-container {
-	width: 300px;
+	width: 500px;
 	margin: 100px auto;
 	padding: 20px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
 }
+
+.login-error{
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+
 
 .login-container h2 {
 	text-align: center;
@@ -56,7 +63,7 @@ body {
 
 	<div class="login-container">
 		<c:if test="${not empty loginError}">
-			<div style="color: red">${loginError}</div>
+			<div class="login-error"style="color: red">${loginError}</div>
 		</c:if>
 		<h2>로그인</h2>
 		<form action="<c:url value='/login'/>" method="post">
