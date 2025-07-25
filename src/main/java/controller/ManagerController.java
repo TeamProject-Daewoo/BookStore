@@ -151,4 +151,11 @@ public class ManagerController {
         }
         return "redirect:/"+MAIN_URL+"booklist";
     }
+    
+    @GetMapping("/salesview")
+	public String salesview(Model model) {
+	    model.addAttribute("purchaseList", managerService.getPurchaseView());
+	    return MAIN_URL+"salesview";  // managerview.jsp留� 諛섑솚
+	}
+    
 }

@@ -1,9 +1,9 @@
 package service;
 
-import vo.Member;
-
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,12 +12,16 @@ import repository.BookMapper;
 import repository.CartMapper;
 import repository.MemberMapper;
 import repository.PurchaseMapper;
-import vo.*;
+import vo.Book;
+import vo.Cart;
+import vo.Member;
+import vo.Purchase;
+import vo.PurchaseView;
 
 @Service
 public class ManagerService {
 
-	// member 
+	// member
 	@Autowired
 	private MemberMapper memberMapper;
 
@@ -59,7 +63,7 @@ public class ManagerService {
 		return memberMapper.delete(id);
 	}
 
-	// book 
+	// book
 	@Autowired
 	private BookMapper bookMapper;
 
@@ -83,7 +87,7 @@ public class ManagerService {
 		return bookMapper.delete(id);
 	}
 
-	// cart 
+	// cart
 	@Autowired
 	private CartMapper cartMapper;
 
@@ -107,7 +111,7 @@ public class ManagerService {
 		return cartMapper.delete(id);
 	}
 
-	// purchase 
+	// purchase
 	@Autowired
 	private PurchaseMapper purchaseMapper;
 
@@ -132,21 +136,35 @@ public class ManagerService {
 	}
 
 	public List<PurchaseView> getPurchaseView() {
-		List<PurchaseView> result = new ArrayList<PurchaseView>();
-		//PurchaseView 데이터로 가공해서 전달
+
+		Map<Integer, PurchaseView> viewMap = new LinkedHashMap<>();
+
 		for (Purchase p : purchaseMapper.findAll()) {
-			result.add(
-				PurchaseView.builder()
-				.id(p.getId())
-				.member_id(p.getMember_id())
-				.member_name(memberMapper.findById(p.getMember_id()).getName())
-				.book_id(p.getBook_id())
-				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
-				.quantity(p.getQuantity())
-				.order_date(p.getOrder_date())
-				.build()
-			);
+			int id = p.getId();
+
+			if (!viewMap.containsKey(id)) {
+				PurchaseView view = 
+						PurchaseView.builder()
+						.id(p.getId())
+						.member_id(p.getMember_id())
+						.member_name(memberMapper.findById(p.getMember_id())
+						.getName()).order_date(p.getOrder_date())
+						.total_price(purchaseMapper.getTotalPrice(id))
+						.build();
+				
+				viewMap.put(id, view);
+			}
+			
+			PurchaseView.BookDetail bookDetail = 
+					PurchaseView.BookDetail.builder()
+					.book_id(p.getBook_id())
+					.book_title(bookMapper.findById(p.getBook_id()).getTitle())
+					.quantity(p.getQuantity())
+					.build();
+
+			viewMap.get(id).getBookList().add(bookDetail);
 		}
-		return result;
+
+		return new ArrayList<>(viewMap.values());
 	}
 }

@@ -1,9 +1,12 @@
 package vo;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Data;
+import vo.PurchaseView.BookDetail;
 
 /**
  * # PurchaseViewDTO<br>
@@ -15,14 +18,24 @@ import lombok.Data;
  * quantity<br>
  * order_date
  */
+
 @Builder
 @Data
 public class PurchaseView {
 	private int id;
     private int member_id;
     private String member_name;
-    private int book_id;
-    private String book_title;
-    private int quantity;
     private Date order_date;
+    private int total_price;
+    
+    @Builder.Default
+    private List<BookDetail> bookList = new ArrayList<>();
+    
+    @Data
+    @Builder
+    public static class BookDetail {
+        private int book_id;
+        private String book_title;
+        private int quantity;
+    }
 }

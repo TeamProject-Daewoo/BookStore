@@ -166,34 +166,37 @@
             alert(errorMessage);
         }
 
-        const accountTab = document.getElementById('accountTab');
         const container = document.getElementById('content-container');
+        const tabs = document.querySelectorAll('.tabs ul li');
 
-        if(accountTab) {
-            accountTab.addEventListener('click', function(e) {
-                e.preventDefault();  // 페이지 이동 막기
-
-                // Ajax로 계정 정보 내용만 로드
-                fetch(this.href)
-                .then(resp => {
-                    if (!resp.ok) throw new Error('네트워크 오류');
-                    return resp.text();
-                })
-                .then(html => {
-                    container.innerHTML = html;
-
-                    // 탭 활성화 클래스 처리 (책 목록 탭은 비활성, 계정 탭은 활성)
-                    const tabs = document.querySelectorAll('.tabs ul li');
-                    tabs.forEach(li => li.classList.remove('active'));
-                    this.parentElement.classList.add('active');
-                })
-                .catch(err => {
-                    container.innerHTML = '<p class="text-danger">내용 로드 실패</p>';
-                    console.error(err);
+        function setupTabClick(tabId) {
+            const tab = document.getElementById(tabId);
+            if (tab) {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fetch(this.href)
+                        .then(resp => {
+                            if (!resp.ok) throw new Error('네트워크 오류');
+                            return resp.text();
+                        })
+                        .then(html => {
+                            container.innerHTML = html;
+                            tabs.forEach(li => li.classList.remove('active'));
+                            this.parentElement.classList.add('active');
+                        })
+                        .catch(err => {
+                            container.innerHTML = '<p class="text-danger">내용 로드 실패</p>';
+                            console.error(err);
+                        });
                 });
-            });
+            }
         }
+
+        // 계정정보 + 구매내역 탭 모두 적용
+        setupTabClick('accountTab');
+        setupTabClick('salesview');
     });
+
     </script>
 </head>
 <body>
@@ -201,6 +204,7 @@
    <div class="tabs">
         <ul>
         <br>
+        <li><a href="${pageContext.request.contextPath}/manager/salesview" id="salesview"">판매 현황</a></li>
           <li class="active"><a href="${pageContext.request.contextPath}/manager/booklist">책 목록</a></li>
             <li><a href="${pageContext.request.contextPath}/manager/managerview" id="accountTab">회원 목록</a></li>
         </ul>

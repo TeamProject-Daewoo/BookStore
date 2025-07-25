@@ -19,7 +19,7 @@
   }
 
   thead {
-    background-color: #f8f9fa;
+    background-color: #black ;
     border-bottom: 2px solid #dee2e6;
   }
 

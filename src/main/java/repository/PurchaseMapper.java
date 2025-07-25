@@ -37,4 +37,7 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	@Override
 	@Delete("delete from purchase where id=#{id}")
 	int delete(int id);
+	
+	@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.id = #{id} GROUP BY p.id")
+	public int getTotalPrice(int id);
 } 
