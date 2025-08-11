@@ -149,7 +149,7 @@ public class ManagerService {
 						.member_id(p.getMember_id())
 						.member_name(memberMapper.findById(p.getMember_id())
 						.getName()).order_date(p.getOrder_date())
-						.total_price(purchaseMapper.getTotalPrice(id))
+						.total_price(purchaseMapper.getTotalPrice(purchaseMapper.getOrder_idById(id)))
 						.build();
 				
 				viewMap.put(id, view);
@@ -172,9 +172,9 @@ public class ManagerService {
 		int totalsum = 0;
 		
 		for(Purchase p : purchaseMapper.findAll()) {
-			int id = p.getId();
+			int order_id = p.getOrder_id();
 			
-			totalsum += purchaseMapper.getTotalPrice(id);
+			totalsum += purchaseMapper.getTotalPrice(order_id);
 		}
 		
 		return totalsum;

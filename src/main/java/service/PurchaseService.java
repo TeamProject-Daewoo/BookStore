@@ -22,9 +22,17 @@ public class PurchaseService {
 
     @Autowired
     private CartService cartService; // To clear cart after purchase
+    
+    private int generateOrderId() {
+		
+		return (int)(System.currentTimeMillis() / 1000);
+	}
 
     @Transactional
     public void directPurchase(int memberId, int bookId, int quantity) {
+    	
+    	int orderId = generateOrderId();
+    	
         Book book = bookMapper.findById(bookId);
         if (book == null) {
             throw new IllegalArgumentException("Book not found.");
@@ -38,6 +46,7 @@ public class PurchaseService {
         purchase.setMember_id(memberId);
         purchase.setBook_id(bookId);
         purchase.setQuantity(quantity);
+        purchase.setOrder_id(orderId);
         // order_date will be set by SYSDATE in mapper
 
         purchaseMapper.save(purchase);
@@ -47,9 +56,14 @@ public class PurchaseService {
         bookMapper.update(book);
     }
 
-    @Transactional
+    
+
+	@Transactional
     public void cartPurchase(int memberId) {
         List<CartItem> cartItems = cartService.getCartItems(memberId);
+        
+        int orderId = generateOrderId();
+        
         if (cartItems.isEmpty()) {
             throw new IllegalArgumentException("Cart is empty.");
         }
@@ -67,6 +81,7 @@ public class PurchaseService {
             purchase.setMember_id(memberId);
             purchase.setBook_id(book.getId());
             purchase.setQuantity(quantity);
+            purchase.setOrder_id(orderId);
             // order_date will be set by SYSDATE in mapper
 
             purchaseMapper.save(purchase);

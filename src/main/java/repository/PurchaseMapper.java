@@ -15,7 +15,7 @@ import vo.Purchase;
 public interface PurchaseMapper extends BaseMapper<Purchase> {
 	
 	@Override
-	@Insert("insert into purchase(id, member_id, book_id, quantity, order_date) values(#{id}, #{member_id}, #{book_id}, #{quantity}, SYSDATE)")
+	@Insert("insert into purchase(id, member_id, book_id, quantity, order_date, order_id) values(#{id}, #{member_id}, #{book_id}, #{quantity}, SYSDATE, #{order_id})")
 	@SelectKey(statement = "SELECT purchase_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Purchase purchase);
 	
@@ -31,13 +31,17 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	List<Purchase> findByUserId(int id);
 	
 	@Override
-	@Update("update purchase set member_id=#{member_id}, book_id=#{book_id}, quantity=#{quantity} where id=#{id}")
+	@Update("update purchase set member_id=#{member_id}, book_id=#{book_id}, quantity=#{quantity}, order_id=#{order_id} where id=#{id}")
 	int update(Purchase purchase);
 	
 	@Override
 	@Delete("delete from purchase where id=#{id}")
 	int delete(int id);
 	
-	@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.id = #{id} GROUP BY p.id")
-	public int getTotalPrice(int id);
+	@Select("SELECT p.order_id, SUM(p.quantity * b.price) AS total_priceFROM purchase p JOIN book b ON p.book_id = b.id WHERE p.order_id = #{orderId} GROUP BY p.order_id")
+	public int getTotalPrice(int order_id);
+
+	@Select("select order_id from purchase where id=#{id}")
+	public int getOrder_idById(int id);
+
 } 
