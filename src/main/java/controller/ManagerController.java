@@ -155,7 +155,8 @@ public class ManagerController {
     @GetMapping("/salesview")
 	public String salesview(Model model) {
 	    model.addAttribute("purchaseList", managerService.getPurchaseView());
-	    return MAIN_URL+"salesview";  // managerview.jsp留� 諛섑솚
+	    model.addAttribute("totalsum", managerService.getTotalSum());
+	    return MAIN_URL+"salesview";
 	}
     
 }

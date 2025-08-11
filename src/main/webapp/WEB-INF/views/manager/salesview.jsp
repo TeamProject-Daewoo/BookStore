@@ -51,10 +51,26 @@ th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3), th:nth-child
 tbody tr:hover {
 	background-color: #eef5ff;
 }
+
+.total-sum {
+    width: 95%;
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 48px;       /* 크게 */
+    font-weight: bold;
+    text-align: center;    /* 가운데 정렬 */
+    color: #2a5298;        /* 예쁜 파란색 계열 */
+}
+
 </style>
 
 
 <h2>판매 현황</h2>
+
+<div class="total-sum">
+    전체 판매 합계: <strong>${totalsum}</strong> 원
+</div>
 
 <table>
 	<thead>

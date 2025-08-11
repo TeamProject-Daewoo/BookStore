@@ -167,4 +167,16 @@ public class ManagerService {
 
 		return new ArrayList<>(viewMap.values());
 	}
+
+	public int getTotalSum() {
+		int totalsum = 0;
+		
+		for(Purchase p : purchaseMapper.findAll()) {
+			int id = p.getId();
+			
+			totalsum += purchaseMapper.getTotalPrice(id);
+		}
+		
+		return totalsum;
+	}
 }
