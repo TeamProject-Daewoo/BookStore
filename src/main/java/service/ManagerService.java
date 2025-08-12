@@ -17,6 +17,7 @@ import vo.Cart;
 import vo.Member;
 import vo.Purchase;
 import vo.PurchaseView;
+import vo.SalesView;
 
 @Service
 public class ManagerService {
@@ -178,5 +179,9 @@ public class ManagerService {
 		}
 		
 		return totalsum;
+	}
+
+	public SalesView getSalesView() {
+		return new SalesView(getPurchaseView(), getTotalSum());
 	}
 }

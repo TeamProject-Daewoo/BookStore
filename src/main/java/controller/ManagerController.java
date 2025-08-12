@@ -138,7 +138,6 @@ public class ManagerController {
 	    }
 		
 	 }
-	 
 
     @GetMapping("/managerdelete")
     public String mangerDelete(@RequestParam("id") int id, RedirectAttributes redirectAttributes, javax.servlet.http.HttpSession session) {
@@ -154,8 +153,8 @@ public class ManagerController {
     
     @GetMapping("/salesview")
 	public String salesview(Model model) {
-	    model.addAttribute("purchaseList", managerService.getPurchaseView());
-	    model.addAttribute("totalsum", managerService.getTotalSum());
+	    //model.addAttribute("purchaseList", managerService.getPurchaseView());
+	    //model.addAttribute("totalsum", managerService.getTotalSum());
 	    return MAIN_URL+"salesview";
 	}
     

@@ -84,6 +84,7 @@ tbody tr:hover {
 		</tr>
 	</thead>
 	<tbody>
+	<!--
 		<c:forEach var="purchase" items="${purchaseList}">
 			<tr>
 				<td>${purchase.id}</td>
@@ -98,5 +99,63 @@ tbody tr:hover {
 						pattern="yyyy-MM-dd" /></td>
 			</tr>
 		</c:forEach>
+		-->
 	</tbody>
 </table>
+<script>
+	const socket = new WebSocket("ws://localhost:8888/salesSocket");
+	function render() {
+		fetch("/api/renderSalesList", {
+			method: 'GET',
+			headers : {"Accept": "application/json"}
+		})
+		.then(response => response.json())
+		.then(result => {
+			console.log(result);
+			//총합계
+			document.getElementsByClassName("total-sum")[0].textContent = result.totalSum;
+			
+			const tbody = document.querySelector("tbody");
+		    tbody.innerHTML = "";
+		    result.purchase.forEach(purchase => {
+		      const tr = document.createElement("tr");
+	
+		      // id
+		      let td = document.createElement("td");
+		      td.textContent = purchase.id;
+		      tr.appendChild(td);
+	
+		      // member_name
+		      td = document.createElement("td");
+		      td.textContent = purchase.member_name;
+		      tr.appendChild(td);
+	
+		      // bookList 내부
+		      purchase.bookList.forEach(book => {
+		        let bookTitleTd = document.createElement("td");
+		        bookTitleTd.textContent = book.book_title;
+		        tr.appendChild(bookTitleTd);
+	
+		        let quantityTd = document.createElement("td");
+		        quantityTd.textContent = book.quantity;
+		        tr.appendChild(quantityTd);
+		      });
+	
+		      // total_price
+		      td = document.createElement("td");
+		      td.textContent = purchase.total_price;
+		      tr.appendChild(td);
+	
+		      // order_date 변환 (timestamp → yyyy-MM-dd)
+		      td = document.createElement("td");
+		      const dateObj = new Date(purchase.order_date);
+		      td.textContent = dateObj.toISOString().split("T")[0];
+		      tr.appendChild(td);
+	
+		      tbody.appendChild(tr);
+		    });
+		});
+	}
+	socket.onstart = () => render();
+	socket.onmessage = (message) => render();
+</script>
