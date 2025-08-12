@@ -175,18 +175,20 @@
                     e.preventDefault();
                     fetch(this.href)
                         .then(resp => {
+                        	console.log(tabId +""+this.href);
                             if (!resp.ok) throw new Error('네트워크 오류');
                             return resp.text();
                         })
                         .then(html => {
                             container.innerHTML = html;
                             //script 태그 실행
-                            container.querySelectorAll("script").forEach(oldScript => {
+                            const uri = this.href.split('/');
+                            container.querySelectorAll("script").forEach(script => {
                             	const newScript = document.createElement("script");
-                            	newScript.textContent = oldScript.textContent;
+                            	newScript.textContent = script.textContent;
                             	document.body.appendChild(newScript);
+                            	document.body.removeChild(newScript);
                             });
-                            const newScript = document.createElement("script");
                             tabs.forEach(li => li.classList.remove('active'));
                             this.parentElement.classList.add('active');
                         })

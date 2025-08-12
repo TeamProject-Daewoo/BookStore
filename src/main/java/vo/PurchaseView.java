@@ -27,6 +27,7 @@ public class PurchaseView {
     private String member_name;
     private Date order_date;
     private int total_price;
+    private int order_id;
     
     @Builder.Default
     private List<BookDetail> bookList = new ArrayList<>();

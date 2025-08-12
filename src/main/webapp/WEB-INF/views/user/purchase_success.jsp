@@ -21,7 +21,6 @@ body {
 <script>
 const socket = new WebSocket("ws://localhost:8888/salesSocket");
  socket.onopen = () => {
-     console.log("============================");
      socket.send("소켓 전달");
  };
 </script>

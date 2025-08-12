@@ -39,9 +39,7 @@
                     <th>ID</th>
                     <th>구매자ID</th>
                     <th>구매자명</th>
-                    <th>상품ID</th>
-                    <th>제목</th>
-                    <th>수량</th>
+                    <th>책 제목(수량)</th>
                     <th>구매날짜</th>
                 </tr>
             </thead>
@@ -51,9 +49,11 @@
                         <td>${purchase.id}</td>
                         <td>${purchase.member_id}</td>
                         <td>${purchase.member_name}</td>
-                        <td>${purchase.book_id}</td>
-                        <td>${purchase.book_title}</td>
-                        <td>${purchase.quantity}</td>
+                        <td>
+                        <c:forEach var="book" items="${purchase.bookList}">
+                        	${book.book_title}(${book.quantity})<br>
+                        </c:forEach>
+                        </td>
                        	<td><fmt:formatDate value="${purchase.order_date}" pattern="yyyy-MM-dd" /></td>
                     </tr>
                 </c:forEach>
