@@ -141,18 +141,22 @@ public class ManagerService {
 
 		for (Purchase p : purchaseMapper.findAll()) {
 			int id = p.getId();
-
-			if (!viewMap.containsKey(id)) {
-				PurchaseView view = 
+			int orderId = p.getOrder_id();
+			
+			PurchaseView view = viewMap.get(orderId);
+			
+			if(view == null) {
+					view = 
 						PurchaseView.builder()
 						.id(p.getId())
 						.member_id(p.getMember_id())
 						.member_name(memberMapper.findById(p.getMember_id())
 						.getName()).order_date(p.getOrder_date())
-						.total_price(purchaseMapper.getTotalPrice(purchaseMapper.getOrder_idById(id)))
+						.total_price(purchaseMapper.getPurchasePrice(purchaseMapper.findById(id).getOrder_id()))
+						.order_id(purchaseMapper.findById(id).getOrder_id())
 						.build();
 				
-				viewMap.put(id, view);
+				viewMap.put(orderId, view);
 			}
 			
 			PurchaseView.BookDetail bookDetail = 
@@ -162,9 +166,8 @@ public class ManagerService {
 					.quantity(p.getQuantity())
 					.build();
 
-			viewMap.get(id).getBookList().add(bookDetail);
+			view.getBookList().add(bookDetail);
 		}
-
 		return new ArrayList<>(viewMap.values());
 	}
 
@@ -172,9 +175,9 @@ public class ManagerService {
 		int totalsum = 0;
 		
 		for(Purchase p : purchaseMapper.findAll()) {
-			int order_id = p.getOrder_id();
+			int id = p.getId();
 			
-			totalsum += purchaseMapper.getTotalPrice(order_id);
+			totalsum += purchaseMapper.getTotalPrice(id);
 		}
 		
 		return totalsum;

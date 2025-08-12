@@ -53,23 +53,22 @@ tbody tr:hover {
 }
 
 .total-sum {
-    width: 95%;
-    max-width: 1200px;
-    margin: 0 auto 30px auto;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 48px;       /* 크게 */
-    font-weight: bold;
-    text-align: center;    /* 가운데 정렬 */
-    color: #2a5298;        /* 예쁜 파란색 계열 */
+	width: 95%;
+	max-width: 1200px;
+	margin: 0 auto 30px auto;
+	font-family: 'Segoe UI', sans-serif;
+	font-size: 48px; /* 크게 */
+	font-weight: bold;
+	text-align: center; /* 가운데 정렬 */
+	color: #2a5298; /* 예쁜 파란색 계열 */
 }
-
 </style>
 
 
 <h2>판매 현황</h2>
 
 <div class="total-sum">
-    전체 판매 합계: <strong>${totalsum}</strong> 원
+	전체 판매 합계: <strong>${totalsum}</strong> 원
 </div>
 
 <table>
@@ -78,7 +77,6 @@ tbody tr:hover {
 			<th>ID</th>
 			<th>구매자명</th>
 			<th>제목</th>
-			<th>수량</th>
 			<th>합계 가격</th>
 			<th>구매날짜</th>
 		</tr>
@@ -86,16 +84,14 @@ tbody tr:hover {
 	<tbody>
 		<c:forEach var="purchase" items="${purchaseList}">
 			<tr>
-				<td>${purchase.id}</td>
+				<td>${purchase.order_id}</td>
 				<td>${purchase.member_name}</td>
-				
-    		<c:forEach var="book" items="${purchase.bookList}">
-				<td>${book.book_title}</td>
-				<td>${book.quantity}</td>
-			</c:forEach>
+
+				<td><c:forEach var="book" items="${purchase.bookList}">
+    ${book.book_title} ( ${book.quantity} 개 )<br />
+					</c:forEach></td>
 				<td>${purchase.total_price}</td>
-				<td><fmt:formatDate value="${purchase.order_date}"
-						pattern="yyyy-MM-dd" /></td>
+				<td><fmt:formatDate value="${purchase.order_date}" pattern="yyyy-MM-dd" /></td>
 			</tr>
 		</c:forEach>
 	</tbody>
