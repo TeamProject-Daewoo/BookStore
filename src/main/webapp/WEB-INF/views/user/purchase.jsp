@@ -181,7 +181,7 @@
             			<option value="기타">기타 (직접 입력)</option>
         				</select>
     			</div>
-    			<textarea id="deliveryMessage" name="deliveryMessage" style="width:100%;margin-top:10px;"></textarea>
+    			<textarea id="deliveryMessage" name="deliveryMessage" style="width:100%;margin-top:10px;"><c:out value="${delivery != null ? delivery.deliveryMessage : ''}"/></textarea>
 				</div>
                 <button type="submit" class="btn-confirm-purchase">결제하기</button>
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
