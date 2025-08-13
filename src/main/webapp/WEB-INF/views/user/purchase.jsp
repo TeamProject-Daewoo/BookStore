@@ -156,18 +156,18 @@
                 </c:if>
                 <div class="form-group">
     				<label for="receiverName">받는 사람:</label>
-    				<input type="text" id="receiverName" name="receiverName" required
-           					value="${memberInfo != null ? memberInfo.receiverName : ''}">
+    				<input type="text" id="receiverName" name="receiverName" 
+           				value="${delivery != null ? delivery.receiverName : ''}" required>
 				</div>
 				<div class="form-group">
     				<label for="address">주소:</label>
-    				<input type="text" id="address" name="address" required
-           					value="${memberInfo != null ? memberInfo.address : ''}">
+    				<input type="text" id="address" name="address" 
+           				value="${delivery != null ? delivery.address : ''}" required>
 				</div>
 				<div class="form-group">
     				<label for="phoneNumber">연락처:</label>
-    				<input type="text" id="phoneNumber" name="phoneNumber" required
-           					value="${memberInfo != null ? memberInfo.phoneNumber : ''}">
+    				<input type="text" id="phoneNumber" name="phoneNumber" 
+           				value="${delivery != null ? delivery.phoneNumber : ''}" required>
 				</div>
                 <div class="form-group">
     			<div style="display: flex; align-items: center; gap: 10px;">

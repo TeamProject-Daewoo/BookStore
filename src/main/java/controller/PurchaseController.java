@@ -14,6 +14,7 @@ import repository.CartMapper;
 import repository.MemberMapper;
 import vo.Book;
 import vo.CartItem;
+import vo.Delivery;
 import service.CartService;
 
 import javax.servlet.http.HttpSession;
@@ -121,6 +122,15 @@ public class PurchaseController {
             return "redirect:/books";
         }
 
+        // 최근 주문 ID 조회 (PurchaseService에 구현 필요)
+        Integer recentOrderId = purchaseService.getMostRecentOrderIdByMemberId(memberId);
+
+        Delivery delivery = null;
+        if (recentOrderId != null) {
+            delivery = purchaseService.getDeliveryInfoByOrderId(recentOrderId);
+        }
+        model.addAttribute("delivery", delivery);
+
         model.addAttribute("itemsToPurchase", itemsToPurchase);
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("purchaseType", type);
@@ -133,20 +143,31 @@ public class PurchaseController {
     public String confirmPurchase(@RequestParam("purchaseType") String purchaseType,
                                   @RequestParam(value = "bookId", required = false) Integer bookId,
                                   @RequestParam(value = "quantity", required = false) Integer quantity,
+                                  @RequestParam("receiverName") String receiverName,
+                                  @RequestParam("address") String address,
+                                  @RequestParam("phoneNumber") String phoneNumber,
+                                  @RequestParam(value = "deliveryMessage", required = false) String deliveryMessage,
                                   // Add address parameters here
                                   Principal user,
                                   RedirectAttributes redirectAttributes) {
         int memberId = getLoginedMemberId(user);
         try {
-            if ("direct".equals(purchaseType) && bookId != null && quantity != null) {
-                purchaseService.directPurchase(memberId, bookId, quantity);
-                cartService.removeItemFromCart(memberId, bookId);
-            } else if ("cart".equals(purchaseType)) {
-                purchaseService.cartPurchase(memberId);
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters for confirmation.");
-                return "redirect:/books";
-            }
+        	
+        	int orderId;
+        	
+        	if ("direct".equals(purchaseType) && bookId != null && quantity != null) {
+        	    orderId = purchaseService.directPurchase(memberId, bookId, quantity);
+        	    cartService.removeItemFromCart(memberId, bookId);
+        	} else if ("cart".equals(purchaseType)) {
+        	    orderId = purchaseService.cartPurchase(memberId);
+        	} else {
+        	    redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters for confirmation.");
+        	    return "redirect:/books";
+        	}
+            
+            // 배송 정보 저장
+            purchaseService.saveOrUpdateDelivery(new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage));
+            
             redirectAttributes.addFlashAttribute("successMessage", "Purchase completed successfully!");
             return "redirect:/purchase/success";
         } catch (IllegalArgumentException e) {

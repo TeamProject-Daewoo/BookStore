@@ -7,6 +7,7 @@ import repository.BookMapper;
 import repository.PurchaseMapper;
 import vo.Book;
 import vo.CartItem;
+import vo.Delivery;
 import vo.Purchase;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class PurchaseService {
 	}
 
     @Transactional
-    public void directPurchase(int memberId, int bookId, int quantity) {
+    public int directPurchase(int memberId, int bookId, int quantity) {
     	
     	int orderId = generateOrderId();
     	
@@ -54,12 +55,14 @@ public class PurchaseService {
         // Update book stock
         book.setStock(book.getStock() - quantity);
         bookMapper.update(book);
+        
+        return orderId;
     }
 
     
 
 	@Transactional
-    public void cartPurchase(int memberId) {
+    public int cartPurchase(int memberId) {
         List<CartItem> cartItems = cartService.getCartItems(memberId);
         
         int orderId = generateOrderId();
@@ -93,5 +96,27 @@ public class PurchaseService {
 
         // Clear the cart after successful purchase
         cartService.clearCart(memberId);
+        
+        return orderId;
+    }
+	
+	
+
+    public Delivery getDeliveryInfoByOrderId(int orderId) {
+        return purchaseMapper.findByOrderId(orderId);
+    }
+
+    @Transactional
+    public void saveOrUpdateDelivery(Delivery deliveryInfo) {
+        Delivery existing = purchaseMapper.findByOrderId(deliveryInfo.getOrderId());
+        if (existing != null) {
+        	purchaseMapper.deliveryupdate(deliveryInfo);
+        } else {
+        	purchaseMapper.deliveryinsert(deliveryInfo);
+        }
+    }
+
+    public Integer getMostRecentOrderIdByMemberId(int memberId) {
+        return purchaseMapper.findMostRecentOrderIdByMemberId(memberId);
     }
 }

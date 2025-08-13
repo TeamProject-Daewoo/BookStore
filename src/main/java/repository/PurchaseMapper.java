@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 
+import vo.Delivery;
 import vo.Purchase;
 
 @Mapper
@@ -44,4 +45,18 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.id = #{Id} GROUP BY p.id")
 	public int getTotalPrice(int id);
 
+	
+	@Select("SELECT * FROM delivery_info WHERE order_id = #{orderId}")
+    Delivery findByOrderId(int orderId);
+
+    @Insert("INSERT INTO delivery_info(id, order_id, receiver_name, address, phone_number, delivery_message) " +
+            "VALUES (delivery_info_seq.nextval, #{orderId}, #{receiverName}, #{address}, #{phoneNumber}, #{deliveryMessage})")
+    void deliveryinsert(Delivery deliveryInfo);
+
+    @Update("UPDATE delivery_info SET receiver_name = #{receiverName}, address = #{address}, phone_number = #{phoneNumber}, " +
+            "delivery_message = #{deliveryMessage} WHERE order_id = #{orderId}")
+    void deliveryupdate(Delivery deliveryInfo);
+    
+    @Select("SELECT order_id FROM (SELECT order_id FROM purchase WHERE member_id = #{memberId} ORDER BY order_date DESC) WHERE ROWNUM = 1")
+    Integer findMostRecentOrderIdByMemberId(int memberId);
 } 
