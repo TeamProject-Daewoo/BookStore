@@ -85,8 +85,7 @@ public class ManagerController {
     @RequestMapping("/purchaselist")
     public String buyList(Model model) {
         model.addAttribute("purchaseList", managerService.getPurchaseView());
-        model.addAttribute("page", MAIN_URL+"purchaselist");
-        return "index";
+        return MAIN_URL+"purchaselist";
     }
     
     @GetMapping("/managerview")
