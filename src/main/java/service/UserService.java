@@ -148,6 +148,7 @@ public class UserService {
 			
 			result.add(
 				MyPurchaseView.builder()
+				.price(purchaseMapper.getTotalPrice(p.getId()))
 				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
 				.quantity(p.getQuantity())
 				.img(bookMapper.findById(p.getBook_id()).getImg())
