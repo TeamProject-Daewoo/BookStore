@@ -77,6 +77,8 @@ public class ManagerController {
     public String bookList(Model model) {
         model.addAttribute("list", managerService.getBookList());
         model.addAttribute("page", MAIN_URL+"booklist");
+        model.addAttribute("activeTab", "booklist");
+        
         return "index";
     }
     
@@ -90,7 +92,9 @@ public class ManagerController {
     @GetMapping("/managerview")
 	public String managerList(Model model) {
 	    model.addAttribute("members", managerService.getMemberList());
-	    return MAIN_URL+"managerview";  // managerview.jsp留� 諛섑솚
+	    model.addAttribute("page", MAIN_URL+"managerview");
+	    model.addAttribute("activeTab", "managerview");
+	    return "index";
 	}
 	
 	@GetMapping("/managereditform")
@@ -151,9 +155,14 @@ public class ManagerController {
         return "redirect:/"+MAIN_URL+"booklist";
     }
     
+    
     @GetMapping("/salesview")
-	public String salesview() {
-    	return MAIN_URL+"salesview";
-	}
+    public String dashboard(Model model) {
+        model.addAttribute("purchaseList", managerService.getPurchaseView());
+        model.addAttribute("totalsum", managerService.getTotalSum());
+        model.addAttribute("page", MAIN_URL+"salesview");
+        model.addAttribute("activeTab", "salesview");
+        return "index";
+    }
     
 }
