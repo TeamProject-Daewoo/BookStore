@@ -154,28 +154,51 @@
                     <input type="hidden" name="bookId" value="${itemsToPurchase[0].book.id}">
                     <input type="hidden" name="quantity" value="${itemsToPurchase[0].quantity}">
                 </c:if>
-
                 <div class="form-group">
-                    <label for="receiverName">받는 사람:</label>
-                    <input type="text" id="receiverName" name="receiverName" required>
-                </div>
+    				<label for="receiverName">받는 사람:</label>
+    				<input type="text" id="receiverName" name="receiverName" required
+           					value="${memberInfo != null ? memberInfo.receiverName : ''}">
+				</div>
+				<div class="form-group">
+    				<label for="address">주소:</label>
+    				<input type="text" id="address" name="address" required
+           					value="${memberInfo != null ? memberInfo.address : ''}">
+				</div>
+				<div class="form-group">
+    				<label for="phoneNumber">연락처:</label>
+    				<input type="text" id="phoneNumber" name="phoneNumber" required
+           					value="${memberInfo != null ? memberInfo.phoneNumber : ''}">
+				</div>
                 <div class="form-group">
-                    <label for="address">주소:</label>
-                    <input type="text" id="address" name="address" required>
-                </div>
-                <div class="form-group">
-                    <label for="phoneNumber">연락처:</label>
-                    <input type="text" id="phoneNumber" name="phoneNumber" required>
-                </div>
-                <div class="form-group">
-                    <label for="deliveryMessage">배송 메시지 (선택 사항):</label>
-                    <textarea id="deliveryMessage" name="deliveryMessage"></textarea>
-                </div>
-
+    			<div style="display: flex; align-items: center; gap: 10px;">
+        				<label for="deliveryMessage" style="margin: 0;">배송 메시지 (선택 사항):</label>
+        				<select id="deliveryMessageSelect">
+           				<option value="">-- 선택하세요 --</option>
+            			<option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
+            			<option value="경비실에 맡겨주세요">경비실에 맡겨주세요</option>
+            			<option value="배송 전 연락 부탁드립니다">배송 전 연락 부탁드립니다</option>
+            			<option value="파손 주의">파손 주의</option>
+            			<option value="기타">기타 (직접 입력)</option>
+        				</select>
+    			</div>
+    			<textarea id="deliveryMessage" name="deliveryMessage" style="width:100%;margin-top:10px;"></textarea>
+				</div>
                 <button type="submit" class="btn-confirm-purchase">결제하기</button>
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
             </form>
         </div>
     </div>
+    <script>
+    document.getElementById('deliveryMessageSelect').addEventListener('change', function() {
+        const textarea = document.getElementById('deliveryMessage');
+        if (this.value === '기타' || this.value === '') {
+            textarea.value = ''; // 기타나 빈 값이면 직접 입력
+            textarea.readOnly = false;
+        } else {
+            textarea.value = this.value; // 선택한 메시지를 textarea에 채움
+            textarea.readOnly = true;    // 수정 못 하게 잠금
+        }
+    });
+    </script>
 </body>
 </html>
