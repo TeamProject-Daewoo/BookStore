@@ -18,6 +18,7 @@ import lombok.Data;
 @Builder
 @Data
 public class MyPurchaseView {
+	private int price;
     private String book_title;
     private String img;
     private int quantity;
