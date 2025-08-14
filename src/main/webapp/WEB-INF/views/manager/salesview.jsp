@@ -17,6 +17,10 @@
     width:95%; max-width:1200px; margin:0 auto 30px; font-family:sans-serif;
     font-size:48px; font-weight:bold; text-align:center; color:#2a5298;
   }
+  .empty-list {
+    width:95%; max-width:1200px; margin:100px auto; padding: 100; font-family:sans-serif;
+    font-size:48px; font-weight:bold; text-align:center; color:#FF2F2F;
+  }
   .dash-grid {
     width:95%; max-width:1200px; margin:32px auto; display:grid; grid-template-columns:1fr 1fr; gap:24px;
   }
@@ -24,19 +28,18 @@
     background:#fff; border:1px solid #eee; border-radius:16px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.04);
   }
   .card h3 { margin:0 0 12px; color:#333; text-align:left; font-family:sans-serif; }
+  
   canvas { width:100%; height:360px; }
 </style>
 
+<div class="container">
 <h2>판매 현황</h2>
 
 <div class="total-sum">
-  전체 판매 합계:
-  <strong><fmt:formatNumber value="${totalsum}" type="number"/></strong> 원
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<c:if test="${not empty purchaseList}">
   <div class="dash-grid">
     <div class="card">
       <h3>최근 7일 일별 판매금액</h3>
@@ -47,7 +50,6 @@
       <canvas id="topBooks"></canvas>
     </div>
   </div>
-</c:if>
 
 <table>
   <thead>
@@ -59,109 +61,143 @@
       <th>구매날짜</th>
     </tr>
   </thead>
-  <tbody>
-    <c:forEach var="purchase" items="${purchaseList}">
-      <tr>
-        <td>${purchase.order_id}</td>
-        <td><c:out value="${purchase.member_name}"/></td>
-        <td>
-          <c:forEach var="book" items="${purchase.bookList}">
-            <c:out value="${book.book_title}"/> ( ${book.quantity} 개 )<br/>
-          </c:forEach>
-        </td>
-        <td><fmt:formatNumber value="${purchase.total_price}" type="number"/></td>
-        <td><fmt:formatDate value="${purchase.order_date}" pattern="yyyy-MM-dd"/></td>
-      </tr>
-    </c:forEach>
-  </tbody>
+  <tbody></tbody>
 </table>
+</div>
 
-<c:if test="${not empty purchaseList}">
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  // JSP -> JS 배열 (order_ts: epoch ms)
-  var purchases = [
-    <c:forEach var="p" items="${purchaseList}" varStatus="st">
-      {
-        order_id: ${p.order_id},
-        member_name: "<c:out value='${p.member_name}'/>",
-        total_price: ${p.total_price},
-        order_ts: ${p.order_date.time},
-        bookList: [
-          <c:forEach var="b" items="${p.bookList}" varStatus="st2">
-            { book_title: "<c:out value='${b.book_title}'/>", quantity: ${b.quantity} }<c:if test="${!st2.last}">,</c:if>
-          </c:forEach>
-        ]
-      }<c:if test="${!st.last}">,</c:if>
-    </c:forEach>
-  ];
+const socket = new WebSocket("ws://localhost:8888/salesSocket");
+function getBookInfor(books, td) {
+	  books.forEach((book, index) => {
+	    const textNode = document.createTextNode(
+	      book.book_title+"("+book.quantity+"권)"
+	    );
+	    td.appendChild(textNode);
+	    if(index < books.length-1)
+	    	td.appendChild(document.createElement("br"));
+	});
+}
+let charts = [];
+function render() {
+	fetch("/api/renderSalesList", {
+		method: 'GET',
+		headers : {"Accept": "application/json"}
+	})
+	.then(response => response.json())
+	.then(result => {
+		console.log(result);
+		
+		//총합계
+		document.getElementsByClassName("total-sum")[0].textContent = "전체 판매 합계:"+result.totalSum;
+		
+		//1) 표 랜더링
+	    const tbody = document.querySelector("tbody");
+	    tbody.innerHTML = "";
+	    if(result.purchase.length === 0) {
+	    	const tbody = document.getElementsByClassName("container")[0].innerHTML = "<h3 class='empty-list'>판매된 책이 없습니다!</h3>";
+	    	return;
+	    }
+	    result.purchase.forEach(purchase => {
+	      const tr = document.createElement("tr");
 
-  // 최근 7일 YYYY-MM-DD 라벨 (템플릿 리터럴 사용 안함)
-  var today = new Date();
-  var days = [];
-  for (var i = 6; i >= 0; i--) {
-    var d = new Date(today);
-    d.setDate(today.getDate() - i);
-    var y  = d.getFullYear();
-    var m  = String(d.getMonth() + 1).padStart(2, '0');
-    var dd = String(d.getDate()).padStart(2, '0');
-    days.push(y + '-' + m + '-' + dd);
-  }
+	      // id
+	      let td = document.createElement("td");
+	      td.textContent = purchase.id;
+	      tr.appendChild(td);
 
-  // 1) 일별 판매금액 합계
-  var dailyAmountMap = {};
-  for (var k = 0; k < days.length; k++) dailyAmountMap[days[k]] = 0;
+	      // member_name
+	      td = document.createElement("td");
+	      td.textContent = purchase.member_name;
+	      tr.appendChild(td);
 
-  purchases.forEach(function (p) {
-    var d = new Date(p.order_ts);
-    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    if (dailyAmountMap.hasOwnProperty(key)) {
-      dailyAmountMap[key] += Number(p.total_price || 0);
-    }
-  });
+	      // bookList 내부
+	      td = document.createElement("td");
+		  getBookInfor(purchase.bookList, td);
+		  tr.appendChild(td);
 
-  var dailyLabels  = days.map(function (d) { return d.slice(5); }); // MM-DD
-  var dailyAmounts = days.map(function (d) { return dailyAmountMap[d]; });
+	      // total_price
+	      td = document.createElement("td");
+	      td.textContent = purchase.total_price;
+	      tr.appendChild(td);
 
-  // 2) 책별 판매량(수량) Top5
-  var bookQtyMap = {};
-  purchases.forEach(function (p) {
-    (p.bookList || []).forEach(function (b) {
-      var t = b.book_title || '제목없음';
-      var q = Number(b.quantity || 0);
-      bookQtyMap[t] = (bookQtyMap[t] || 0) + q;
-    });
-  });
-  var topEntries = Object.keys(bookQtyMap).map(function (k) { return [k, bookQtyMap[k]]; })
-                 .sort(function (a,b) { return b[1]-a[1]; }).slice(0,5);
-  var topLabels = topEntries.map(function (e) { return e[0]; });
-  var topQty    = topEntries.map(function (e) { return e[1]; });
+	      // order_date 변환 (timestamp → yyyy-MM-dd)
+	      td = document.createElement("td");
+	      const dateObj = new Date(purchase.order_date);
+	      td.textContent = dateObj.toISOString().split("T")[0];
+	      tr.appendChild(td);
 
-  // 차트 렌더
-  var el1 = document.getElementById('dailyAmount');
-  if (el1) {
-    new Chart(el1.getContext('2d'), {
-      type: 'line',
-      data: { labels: dailyLabels, datasets: [{ label: '판매금액', data: dailyAmounts, tension: 0.3, fill: true }] },
-      options: {
-        plugins: { tooltip: { callbacks: { label: function (i) { return '₩ ' + Number(i.raw || 0).toLocaleString(); } } } },
-        scales:  { y: { ticks: { callback: function (v) { return '₩ ' + Number(v).toLocaleString(); } } } }
-      }
-    });
-  }
+	      tbody.appendChild(tr);
+	    });
+	 	// 최근 7일 YYYY-MM-DD 라벨 (템플릿 리터럴 사용 안함)
+	    var today = new Date();
+	    var days = [];
+	    for (var i = 6; i >= 0; i--) {
+	      var d = new Date(today);
+	      d.setDate(today.getDate() - i);
+	      var y  = d.getFullYear();
+	      var m  = String(d.getMonth() + 1).padStart(2, '0');
+	      var dd = String(d.getDate()).padStart(2, '0');
+	      days.push(y + '-' + m + '-' + dd);
+	    }
 
-  var el2 = document.getElementById('topBooks');
-  if (el2) {
-    new Chart(el2.getContext('2d'), {
-      type: 'bar',
-      data: { labels: topLabels, datasets: [{ label: '판매수량', data: topQty }] },
-      options: {
-        indexAxis: 'y',
-        plugins: { tooltip: { callbacks: { label: function (i) { return Number(i.raw || 0).toLocaleString() + ' 개'; } } } },
-        scales:  { x: { ticks: { callback: function (v) { return Number(v).toLocaleString() + ' 개'; } } } }
-      }
-    });
-  }
-});
+	    // 2) 일별 판매금액 합계
+	    var dailyAmountMap = {};
+	    for (var k = 0; k < days.length; k++) dailyAmountMap[days[k]] = 0;
+
+	    result.purchase.forEach(function (p) {
+	      var d = new Date(p.order_date);
+	      var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+	      if (dailyAmountMap.hasOwnProperty(key)) {
+	        dailyAmountMap[key] += Number(p.total_price || 0);
+	      }
+	    });
+
+	    var dailyLabels  = days.map(function (d) { return d.slice(5); }); // MM-DD
+	    var dailyAmounts = days.map(function (d) { return dailyAmountMap[d]; });
+
+	    // 3) 책별 판매량(수량) Top5
+	    var bookQtyMap = {};
+	    result.purchase.forEach(function (p) {
+	      (p.bookList || []).forEach(function (b) {
+	        var t = b.book_title || '제목없음';
+	        var q = Number(b.quantity || 0);
+	        bookQtyMap[t] = (bookQtyMap[t] || 0) + q;
+	      });
+	    });
+	    var topEntries = Object.keys(bookQtyMap).map(function (k) { return [k, bookQtyMap[k]]; })
+	                   .sort(function (a,b) { return b[1]-a[1]; }).slice(0,5);
+	    var topLabels = topEntries.map(function (e) { return e[0]; });
+	    var topQty    = topEntries.map(function (e) { return e[1]; });
+
+	    //차트 랜더링 정보
+	    const renderData = [
+	    	{
+		        type: 'line',
+		        data: { labels: dailyLabels, datasets: [{ label: '판매금액', data: dailyAmounts, tension: 0.3, fill: true }] },
+		        options: {
+		          plugins: { tooltip: { callbacks: { label: function (i) { return '₩ ' + Number(i.raw || 0).toLocaleString(); } } } },
+		          scales:  { y: { ticks: { callback: function (v) { return '₩ ' + Number(v).toLocaleString(); } } } }
+		        }
+	    	},
+	    	{
+		      type: 'bar',
+		      data: { labels: topLabels, datasets: [{ label: '판매수량', data: topQty }] },
+		      options: {
+		        indexAxis: 'y',
+		        plugins: { tooltip: { callbacks: { label: function (i) { return Number(i.raw || 0).toLocaleString() + ' 개'; } } } },
+		        scales:  { x: { ticks: { callback: function (v) { return Number(v).toLocaleString() + ' 개'; } } } }
+		      }
+		    }]
+	    // 차트 렌더링
+	    let chartDiv;
+	    ['dailyAmount', 'topBooks'].forEach((ele, i) => {
+	    	if(chartDiv = document.getElementById(ele)) {
+	    		if(charts[i]) charts[i].destroy();
+	    		charts[i] = new Chart(chartDiv.getContext('2d'), renderData[i]);
+	    	}
+	    });
+	});
+}
+render();
+socket.onmessage = (message) => render();
 </script>
-</c:if>

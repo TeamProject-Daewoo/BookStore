@@ -78,7 +78,6 @@ public class ManagerController {
         model.addAttribute("list", managerService.getBookList());
         model.addAttribute("page", MAIN_URL+"booklist");
         model.addAttribute("activeTab", "booklist");
-        
         return "index";
     }
     
@@ -157,8 +156,8 @@ public class ManagerController {
     
     @GetMapping("/salesview")
     public String dashboard(Model model) {
-        model.addAttribute("purchaseList", managerService.getPurchaseView());
-        model.addAttribute("totalsum", managerService.getTotalSum());
+        //model.addAttribute("purchaseList", managerService.getPurchaseView());
+        //model.addAttribute("totalsum", managerService.getTotalSum());
         model.addAttribute("page", MAIN_URL+"salesview");
         model.addAttribute("activeTab", "salesview");
         return "index";
