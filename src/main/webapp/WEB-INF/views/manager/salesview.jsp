@@ -163,7 +163,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
-socket.onstart = () => render();
-socket.onmessage = (message) => render();
 </script>
 </c:if>
