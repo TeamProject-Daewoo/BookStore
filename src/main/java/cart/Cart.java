@@ -1,4 +1,4 @@
-package vo;
+package cart;
 
 import lombok.Data;
 

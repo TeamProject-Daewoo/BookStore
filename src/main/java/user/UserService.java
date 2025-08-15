@@ -1,4 +1,4 @@
-package service;
+package user;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +8,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import repository.BookMapper;
-import repository.CartMapper;
-import repository.MemberMapper;
-import repository.PurchaseMapper;
-import vo.Book;
-import vo.Cart;
-import vo.Member;
-import vo.MyPurchaseView;
-import vo.Purchase;
+import cart.Cart;
+import cart.CartMapper;
+import data.Book;
+import data.BookMapper;
+import purchase.MyPurchaseView;
+import purchase.Purchase;
+import purchase.PurchaseMapper;
 
 @Service
 public class UserService {

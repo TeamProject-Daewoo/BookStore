@@ -1,4 +1,4 @@
-package controller;
+package user;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import service.UserService;
-import vo.Book;
-import vo.Member;
+import data.Book;
 
 @Controller
 @RequestMapping("user")		//index 페이지 없을 시 추가

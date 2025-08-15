@@ -1,4 +1,4 @@
-package repository;
+package data;
 
 import java.util.List;
 

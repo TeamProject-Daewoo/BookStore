@@ -1,4 +1,4 @@
-package repository;
+package data;
 
 import java.util.List;
 
@@ -8,8 +8,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
-
-import vo.Book;
 
 @Mapper
 public interface BookMapper extends BaseMapper<Book> {

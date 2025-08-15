@@ -1,8 +1,7 @@
-package vo;
+package purchase;
 
 import java.util.Date;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**

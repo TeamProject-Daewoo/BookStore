@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import service.ManagerService;
-import vo.SalesView;
+import manager.ManagerService;
+import purchase.SalesView;
 
 @RestController
 @RequestMapping("api")

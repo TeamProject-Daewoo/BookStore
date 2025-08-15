@@ -1,4 +1,4 @@
-package repository;
+package purchase;
 
 import java.util.List;
 
@@ -9,8 +9,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 
-import vo.Delivery;
-import vo.Purchase;
+import data.BaseMapper;
 
 @Mapper
 public interface PurchaseMapper extends BaseMapper<Purchase> {

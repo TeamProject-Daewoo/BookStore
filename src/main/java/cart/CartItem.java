@@ -1,5 +1,6 @@
-package vo;
+package cart;
 
+import data.Book;
 import lombok.Data;
 
 @Data

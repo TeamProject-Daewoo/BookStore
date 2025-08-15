@@ -1,4 +1,4 @@
-package vo;
+package purchase;
 
 import java.util.List;
 

@@ -1,4 +1,9 @@
-package controller;
+package purchase;
+
+import java.security.Principal;
+import java.util.ArrayList; // For List.of() alternative if Java < 9
+import java.util.Collections; // For List.of() alternative if Java < 9
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -8,21 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import service.PurchaseService;
-import repository.BookMapper;
-import repository.CartMapper;
-import repository.MemberMapper;
-import vo.Book;
-import vo.CartItem;
-import vo.Delivery;
-import service.CartService;
 
-import javax.servlet.http.HttpSession;
-import java.util.List;
-import java.util.Arrays; // For List.of() alternative if Java < 9
-import java.util.Collections; // For List.of() alternative if Java < 9
-import java.security.Principal;
-import java.util.ArrayList; // For List.of() alternative if Java < 9
+import cart.CartItem;
+import cart.CartMapper;
+import cart.CartService;
+import data.Book;
+import data.BookMapper;
+import user.MemberMapper;
 
 @Controller
 @RequestMapping("/purchase")
@@ -130,7 +127,7 @@ public class PurchaseController {
             delivery = purchaseService.getDeliveryInfoByOrderId(recentOrderId);
         }
         model.addAttribute("delivery", delivery);
-
+        
         model.addAttribute("itemsToPurchase", itemsToPurchase);
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("purchaseType", type);

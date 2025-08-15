@@ -1,8 +1,6 @@
-package vo;
+package user;
 
 import java.util.Date;
-
-import org.apache.ibatis.annotations.SelectKey;
 
 import lombok.Data;
 

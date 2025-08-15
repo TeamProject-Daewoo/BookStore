@@ -1,4 +1,4 @@
-package service;
+package manager;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -8,16 +8,16 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import repository.BookMapper;
-import repository.CartMapper;
-import repository.MemberMapper;
-import repository.PurchaseMapper;
-import vo.Book;
-import vo.Cart;
-import vo.Member;
-import vo.Purchase;
-import vo.PurchaseView;
-import vo.SalesView;
+import cart.Cart;
+import cart.CartMapper;
+import data.Book;
+import data.BookMapper;
+import purchase.Purchase;
+import purchase.PurchaseMapper;
+import purchase.PurchaseView;
+import purchase.SalesView;
+import user.Member;
+import user.MemberMapper;
 
 @Service
 public class ManagerService {

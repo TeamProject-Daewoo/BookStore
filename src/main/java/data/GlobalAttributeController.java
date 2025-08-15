@@ -1,4 +1,4 @@
-package controller;
+package data;
 
 import java.security.Principal;
 
@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import repository.MemberMapper;
-import service.CartService;
-import vo.Member;
+import cart.CartService;
+import user.Member;
+import user.MemberMapper;
 
 /**
  * 전역 Controller<br>

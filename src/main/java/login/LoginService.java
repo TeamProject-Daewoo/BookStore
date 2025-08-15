@@ -14,8 +14,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import repository.MemberMapper;
-import vo.Member;
+import user.Member;
+import user.MemberMapper;
 
 @Service("loginService")
 public class LoginService implements UserDetailsService{
