@@ -28,7 +28,8 @@
     background:#fff; border:1px solid #eee; border-radius:16px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.04);
   }
   .card h3 { margin:0 0 12px; color:#333; text-align:left; font-family:sans-serif; }
-  
+  .chart-buttons button { border: 1px solid #ccc; background-color: #f0f0f0; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em; }
+  .chart-buttons button.active { background-color: #6c7ae0; color: white; border-color: #6c7ae0; font-weight: bold; }
   canvas { width:100%; height:360px; }
 </style>
 
@@ -41,8 +42,13 @@
 
   <div class="dash-grid">
     <div class="card">
-      <h3>최근 7일 일별 판매금액</h3>
-      <canvas id="dailyAmount"></canvas>
+      <h3 class="salesChartTitle">최근 7일 일별 판매금액</h3>
+      <div class="chart-buttons">
+      	  <!-- 통계 추가할 때 클래스명 'chartType-btn'으로 하기(script에서 동적 처리) -->
+          <button id="daily-btn" onclick="changeChartType('daily')">일별</button>
+          <button id="month-btn" onclick="changeChartType('month')">월별</button>
+      </div>
+      <canvas id="recentSale"></canvas>
     </div>
     <div class="card">
       <h3>책별 판매량 Top5 (수량)</h3>
@@ -78,8 +84,146 @@ function getBookInfor(books, td) {
 	    	td.appendChild(document.createElement("br"));
 	});
 }
+
+function recentSalesRender(result, chartType) {
+	// 1. 차트 데이터를 담을 공통 변수 선언
+	let labels, amounts, datasetLabel;
+
+	// 2. chartType에 따라 변수에 데이터 할당
+	switch(chartType) {
+		case "daily": {
+			datasetLabel = '일별 판매금액';
+
+			// 최근 7일 날짜 배열 생성
+			const today = new Date();
+			const days = [];
+			for (let i = 6; i >= 0; i--) {
+				const d = new Date(today);
+				d.setDate(today.getDate() - i);
+				const y  = d.getFullYear();
+				const m  = String(d.getMonth() + 1).padStart(2, '0');
+				const dd = String(d.getDate()).padStart(2, '0');
+				days.push(y + '-' + m + '-' + dd);
+			}
+
+			// 일별 매출 집계
+			const dailyAmountMap = {};
+			for (const day of days) dailyAmountMap[day] = 0;
+
+			result.purchase.forEach(function (p) {
+				const d = new Date(p.order_date);
+				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+				if (dailyAmountMap.hasOwnProperty(key)) {
+					dailyAmountMap[key] += Number(p.total_price || 0);
+				}
+			});
+
+			// 최종 데이터 할당
+			labels  = days.map(d => d.slice(5)); // 'MM-DD' 형식
+			amounts = days.map(d => dailyAmountMap[d]);
+			break;
+		}
+		case "month": {
+			datasetLabel = '월별 판매금액';
+
+			// 최근 7개월 배열 생성
+			const today = new Date();
+			const months = [];
+			for (let i = 6; i >= 0; i--) {
+				const d = new Date(today);
+				d.setMonth(today.getMonth() - i);
+				const y = d.getFullYear();
+				const m = String(d.getMonth() + 1).padStart(2, '0');
+				months.push(y + '-' + m);
+			}
+
+			// 월별 매출 집계
+			const monthlyAmountMap = {};
+			for (const month of months) monthlyAmountMap[month] = 0;
+
+			result.purchase.forEach(function (p) {
+				const d = new Date(p.order_date);
+				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+				if (monthlyAmountMap.hasOwnProperty(key)) {
+					monthlyAmountMap[key] += Number(p.total_price || 0);
+				}
+			});
+		
+			//최종 데이터 할당
+			labels = months; // 'YYYY-MM' 형식
+			amounts = months.map(m => monthlyAmountMap[m]);
+			break;
+		}
+	}
+
+   	let chartDiv = document.getElementById('recentSale');
+   	if(charts[0]) charts[0].destroy();
+   	charts[0] = new Chart(chartDiv.getContext('2d'), {
+		type: 'line',
+		data: {
+			labels: labels,
+			datasets: [{ 
+				label: datasetLabel,
+				data: amounts,
+				tension: 0.3, 
+				fill: true 
+			}]
+		},
+		options: {
+			plugins: { tooltip: { callbacks: { label: function (i) { return '₩ ' + Number(i.raw || 0).toLocaleString(); } } } },
+			scales:  { y: { ticks: { callback: function (v) { return '₩ ' + Number(v).toLocaleString(); } } } }
+		}
+  	});
+}
+
+function topBooksRender(result) {
+	var bookQtyMap = {};
+    result.purchase.forEach(function (p) {
+      (p.bookList || []).forEach(function (b) {
+        var t = b.book_title || '제목없음';
+        var q = Number(b.quantity || 0);
+        bookQtyMap[t] = (bookQtyMap[t] || 0) + q;
+      });
+    });
+    var topEntries = Object.keys(bookQtyMap).map(function (k) { return [k, bookQtyMap[k]]; })
+                   .sort(function (a,b) { return b[1]-a[1]; }).slice(0,5);
+    var topLabels = topEntries.map(function (e) { return e[0]; });
+    var topQty    = topEntries.map(function (e) { return e[1]; });
+
+    // 차트 렌더링
+    let chartDiv = document.getElementById('topBooks');
+		if(charts[1]) charts[1].destroy();
+		charts[1] = new Chart(chartDiv.getContext('2d'), {
+		      type: 'bar',
+		      data: { labels: topLabels, datasets: [{ label: '판매수량', data: topQty }] },
+		      options: {
+		        indexAxis: 'y',
+		        plugins: { tooltip: { callbacks: { label: function (i) { return Number(i.raw || 0).toLocaleString() + ' 개'; } } } },
+		        scales:  { x: { ticks: { callback: function (v) { return Number(v).toLocaleString() + ' 개'; } } } }
+		      }
+		});
+}
+
 let charts = [];
-function render() {
+//초기 활성화 시킬 버튼
+let chartType = "daily";
+document.getElementById(chartType+"-btn").classList.toggle("active", true);
+function changeChartType(newType) {
+	chartType = newType;
+	const titleEl = document.getElementsByClassName("salesChartTitle")[0];
+	//newType에 맞는 버튼만 활성화 표시
+    document.getElementById("daily-btn").classList.toggle("active", chartType === "daily");
+    document.getElementById("month-btn").classList.toggle("active", chartType === "month");
+    titleEl.textContent = (chartType === "daily") ? '최근 7일 일별 판매금액' : '최근 7개월 월별 판매금액';
+    render(true);
+}
+/**
+ * 합계, 차트, 테이블 모두 랜더링  
+ *
+ * @param {boolean} onlyrecentSale 최근 판매 현황 차트만 랜더링 여부
+ * @return {void}
+ */
+function render(onlyrecentSale) {
 	fetch("/api/renderSalesList", {
 		method: 'GET',
 		headers : {"Accept": "application/json"}
@@ -132,78 +276,16 @@ function render() {
 
 	      tbody.appendChild(tr);
 	    });
-	 	// 최근 7일 YYYY-MM-DD 라벨 (템플릿 리터럴 사용 안함)
-	    var today = new Date();
-	    var days = [];
-	    for (var i = 6; i >= 0; i--) {
-	      var d = new Date(today);
-	      d.setDate(today.getDate() - i);
-	      var y  = d.getFullYear();
-	      var m  = String(d.getMonth() + 1).padStart(2, '0');
-	      var dd = String(d.getDate()).padStart(2, '0');
-	      days.push(y + '-' + m + '-' + dd);
-	    }
-
-	    // 2) 일별 판매금액 합계
-	    var dailyAmountMap = {};
-	    for (var k = 0; k < days.length; k++) dailyAmountMap[days[k]] = 0;
-
-	    result.purchase.forEach(function (p) {
-	      var d = new Date(p.order_date);
-	      var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-	      if (dailyAmountMap.hasOwnProperty(key)) {
-	        dailyAmountMap[key] += Number(p.total_price || 0);
-	      }
-	    });
-
-	    var dailyLabels  = days.map(function (d) { return d.slice(5); }); // MM-DD
-	    var dailyAmounts = days.map(function (d) { return dailyAmountMap[d]; });
-
-	    // 3) 책별 판매량(수량) Top5
-	    var bookQtyMap = {};
-	    result.purchase.forEach(function (p) {
-	      (p.bookList || []).forEach(function (b) {
-	        var t = b.book_title || '제목없음';
-	        var q = Number(b.quantity || 0);
-	        bookQtyMap[t] = (bookQtyMap[t] || 0) + q;
-	      });
-	    });
-	    var topEntries = Object.keys(bookQtyMap).map(function (k) { return [k, bookQtyMap[k]]; })
-	                   .sort(function (a,b) { return b[1]-a[1]; }).slice(0,5);
-	    var topLabels = topEntries.map(function (e) { return e[0]; });
-	    var topQty    = topEntries.map(function (e) { return e[1]; });
-
-	    //차트 랜더링 정보
-	    const renderData = [
-	    	{
-		        type: 'line',
-		        data: { labels: dailyLabels, datasets: [{ label: '판매금액', data: dailyAmounts, tension: 0.3, fill: true }] },
-		        options: {
-		          plugins: { tooltip: { callbacks: { label: function (i) { return '₩ ' + Number(i.raw || 0).toLocaleString(); } } } },
-		          scales:  { y: { ticks: { callback: function (v) { return '₩ ' + Number(v).toLocaleString(); } } } }
-		        }
-	    	},
-	    	{
-		      type: 'bar',
-		      data: { labels: topLabels, datasets: [{ label: '판매수량', data: topQty }] },
-		      options: {
-		        indexAxis: 'y',
-		        plugins: { tooltip: { callbacks: { label: function (i) { return Number(i.raw || 0).toLocaleString() + ' 개'; } } } },
-		        scales:  { x: { ticks: { callback: function (v) { return Number(v).toLocaleString() + ' 개'; } } } }
-		      }
-		    }]
-	    // 차트 렌더링
-	    let chartDiv;
-	    ['dailyAmount', 'topBooks'].forEach((ele, i) => {
-	    	if(chartDiv = document.getElementById(ele)) {
-	    		if(charts[i]) charts[i].destroy();
-	    		charts[i] = new Chart(chartDiv.getContext('2d'), renderData[i]);
-	    	}
-	    });
+	    
+	    //최근 판매 현황
+	 	recentSalesRender(result, chartType);
+	    //일별/월별 판매만 랜더링
+	 	if(onlyrecentSale) return;
+	 	topBooksRender(result);
 	});
   }
 
 //render();
-socket.onmessage = (message) => render();
+socket.onmessage = (message) => render(false);
 
 </script>
