@@ -35,8 +35,7 @@
 <div class="container">
 <h2>판매 현황</h2>
 
-<div class="total-sum">
-</div>
+<div class="total-sum"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -64,8 +63,10 @@
   <tbody></tbody>
 </table>
 </div>
+<h3 class='empty-list' style="display: none">판매된 책이 없습니다!</h3>
 
 <script>
+
 const socket = new WebSocket("ws://localhost:8888/salesSocket");
 function getBookInfor(books, td) {
 	  books.forEach((book, index) => {
@@ -85,18 +86,21 @@ function render() {
 	})
 	.then(response => response.json())
 	.then(result => {
-		console.log(result);
-		
-		//총합계
-		document.getElementsByClassName("total-sum")[0].textContent = "전체 판매 합계:"+result.totalSum;
-		
-		//1) 표 랜더링
-	    const tbody = document.querySelector("tbody");
-	    tbody.innerHTML = "";
+		//console.log(result);
 	    if(result.purchase.length === 0) {
-	    	const tbody = document.getElementsByClassName("container")[0].innerHTML = "<h3 class='empty-list'>판매된 책이 없습니다!</h3>";
+	    	document.getElementsByClassName("container")[0].style.display = "none";
+	    	document.getElementsByClassName("empty-list")[0].style.display = "block";
 	    	return;
+	    } else {
+	    	document.getElementsByClassName("container")[0].style.display = "block";
+	    	document.getElementsByClassName("empty-list")[0].style.display = "none";
 	    }
+	    
+		const tbody = document.querySelector("tbody");
+	    tbody.textContent = "";
+	  	//총합계
+	  	document.getElementsByClassName("total-sum")[0].textContent = "전체 판매 합계:"+result.totalSum;
+		
 	    result.purchase.forEach(purchase => {
 	      const tr = document.createElement("tr");
 
@@ -197,7 +201,9 @@ function render() {
 	    	}
 	    });
 	});
-}
-render();
+  }
+
+//render();
 socket.onmessage = (message) => render();
+
 </script>
