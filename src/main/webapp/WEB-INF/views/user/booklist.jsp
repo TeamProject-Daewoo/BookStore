@@ -28,11 +28,44 @@
     .book-info {
       margin-top: 0.5rem;
     }
+	.carousel-control-prev-icon,
+	.carousel-control-next-icon {
+	  filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+	}
+
   </style>
 </head>
 <body>
+  <!-- 자동 배너 시작 -->
+  <div id="bannerCarousel" class="carousel slide mb-5 mx-auto" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+		<a href="/user/bookdetail?id=1">
+        	<img src="/resources/images/banner1.jpg" class="d-block w-100" alt="배너1" style="height:500px; object-fit:cover; background:#e9ecef;">
+		</a>
+      </div>
+      <div class="carousel-item">
+		<a href="/user/bookdetail?id=1">
+        	<img src="/resources/images/banner2.jpg" class="d-block w-100" alt="배너2" style="height:500px; object-fit:cover; background:#e9ecef;">
+		</a>
+      </div>
+      <div class="carousel-item">
+		<a href="/user/bookdetail?id=1">
+        	<img src="/resources/images/banner3.jpg" class="d-block w-100" alt="배너3" style="height:500px; object-fit:cover; background:#e9ecef;">
+		</a>
+      </div>
+    </div>
 
-<div class="container my-5">
+    <!-- 좌우 버튼 -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+  <!-- 자동 배너 끝 -->
+  <div class="container my-5">
   <h2 class="text-center mb-4 fw-bold">📚 책 목록</h2>
 
   <!-- 검색창 -->
@@ -69,5 +102,6 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
