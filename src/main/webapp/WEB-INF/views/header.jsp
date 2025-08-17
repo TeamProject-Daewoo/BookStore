@@ -17,71 +17,122 @@
       border-radius: 50%;
       margin-left: 4px;
     }
+	#categoryMenu {
+	  display: none;          /* 기본 숨김 */
+	  position: absolute;     
+	  background: white;
+	  list-style: none;
+	  padding: 0.5rem 0;
+	  margin: 0;
+	  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+	  z-index: 3000;
+	}
+
+	#categoryMenu li a {
+	  display: block;
+	  padding: 0.5rem 1rem;
+	  text-decoration: none;
+	  color: black;
+	}
+
+	#categoryMenu li a:hover {
+	  background-color: #f1f1f1;
+	}
+
   </style>
 </head>
 <body>
-<header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-    <a class="navbar-brand fw-bold" href="<c:url value='/user/booklist'/>">📚 BookStore</a>
+	<header>
+	  <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
+	    <!-- 왼쪽 로고 -->
+	    <a class="navbar-brand fw-bold" href="<c:url value='/user/booklist'/>">📚 BookStore</a>
 
-    <!-- 모바일 토글 버튼 -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+	    <!-- 모바일 토글 버튼 -->
+	    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+	            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+	      <span class="navbar-toggler-icon"></span>
+	    </button>
 
-    <div id="mainNav" class="collapse navbar-collapse justify-content-end">
-      <ul class="navbar-nav align-items-center gap-3">
+	    <div id="mainNav" class="collapse navbar-collapse justify-content-between">
+	      
+	      <!-- 가운데 메뉴 -->
+	      <ul class="navbar-nav me-auto gap-3">
+	        <!-- 카테고리 드롭다운 -->
+			<li class="nav-item" id="categoryDropdown">
+			    <a href="#" class="nav-link">카테고리 ▼</a>
+			    <ul class="dropdown-menu" id="categoryMenu">
+			      <li><a class="dropdown-item" href="<c:url value='/category/novel'/>">소설</a></li>
+			      <li><a class="dropdown-item" href="<c:url value='/category/it'/>">IT/컴퓨터</a></li>
+			      <li><a class="dropdown-item" href="<c:url value='/category/economy'/>">경제/경영</a></li>
+			      <li><hr class="dropdown-divider"></li>
+			      <li><a class="dropdown-item" href="<c:url value='/category/etc'/>">기타</a></li>
+			    </ul>
+			  </li>
 
-        <sec:authorize access="isAuthenticated()">
-          <li class="nav-item">
-            <span class="navbar-text">
-              안녕하세요, <sec:authentication property="name" />님
-            </span>
-          </li>
-          <li class="nav-item">
-            <form id="logoutForm" action="<c:url value='/logout' />" method="post" class="d-inline">
-              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-              <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;" class="nav-link">로그아웃</a>
-            </form>
-          </li>
+	        <!-- 베스트셀러 -->
+	        <li class="nav-item">
+	          <a class="nav-link" href="<c:url value='/book/bestseller'/>">베스트셀러</a>
+	        </li>
 
-          <sec:authorize access="hasRole('ROLE_ADMIN')">
-            <li class="nav-item">
-              <a class="nav-link" href="<c:url value='/manager/booklist'/>">관리자 페이지</a>
-            </li>
-          </sec:authorize>
-        </sec:authorize>
+	        <!-- 게시판 -->
+	        <li class="nav-item">
+	          <a class="nav-link" href="<c:url value='/board/main'/>">게시판</a>
+	        </li>
+	      </ul>
 
-        <sec:authorize access="!isAuthenticated()">
-          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/loginform'/>">로그인</a></li>
-          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/registerform'/>">회원가입</a></li>
-        </sec:authorize>
+	      <!-- 오른쪽 메뉴 -->
+	      <ul class="navbar-nav align-items-center gap-3">
 
-        <sec:authorize access="hasRole('ROLE_ADMIN')">
-          <li class="nav-item"><a class="nav-link" href="<c:url value='/manager/purchaselist'/>">구매내역</a></li>
-        </sec:authorize>
+	        <sec:authorize access="isAuthenticated()">
+	          <li class="nav-item">
+	            <span class="navbar-text">
+	              안녕하세요, <sec:authentication property="name" />님
+	            </span>
+	          </li>
+	          <li class="nav-item">
+	            <form id="logoutForm" action="<c:url value='/logout' />" method="post" class="d-inline">
+	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+	              <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;" class="nav-link">로그아웃</a>
+	            </form>
+	          </li>
 
-        <!-- 관리자는 '내 구매내역' 숨김 -->
-        <sec:authorize access="!hasRole('ROLE_ADMIN') and isAuthenticated()">
-          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/mypurchaselist'/>">내 구매내역</a></li>
-        </sec:authorize>
+	          <sec:authorize access="hasRole('ROLE_ADMIN')">
+	            <li class="nav-item">
+	              <a class="nav-link" href="<c:url value='/manager/booklist'/>">관리자 페이지</a>
+	            </li>
+	          </sec:authorize>
+	        </sec:authorize>
 
-        <li class="nav-item position-relative">
-          <a href="<c:url value='/cart'/>" class="nav-link d-flex align-items-center">
-            🛒 장바구니
-            <span class="cart-count"><c:out value="${cartCount}" /></span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+	        <sec:authorize access="!isAuthenticated()">
+	          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/loginform'/>">로그인</a></li>
+	          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/registerform'/>">회원가입</a></li>
+	        </sec:authorize>
 
-  <!-- 관리자 영역일 때만 공통 탭 노출 -->
-  <c:if test="${page != null and fn:startsWith(page, 'manager/')}">
-    <jsp:include page="/WEB-INF/views/manager/_tabs.jsp" />
-  </c:if>
-</header>
+	        <sec:authorize access="hasRole('ROLE_ADMIN')">
+	          <li class="nav-item"><a class="nav-link" href="<c:url value='/manager/purchaselist'/>">구매내역</a></li>
+	        </sec:authorize>
+
+	        <!-- 관리자는 '내 구매내역' 숨김 -->
+	        <sec:authorize access="!hasRole('ROLE_ADMIN') and isAuthenticated()">
+	          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/mypurchaselist'/>">내 구매내역</a></li>
+	        </sec:authorize>
+
+	        <li class="nav-item position-relative">
+	          <a href="<c:url value='/cart'/>" class="nav-link d-flex align-items-center">
+	            🛒 장바구니
+	            <span class="cart-count"><c:out value="${cartCount}" /></span>
+	          </a>
+	        </li>
+	      </ul>
+	    </div>
+	  </nav>
+
+	  <!-- 관리자 영역일 때만 공통 탭 노출 -->
+	  <c:if test="${page != null and fn:startsWith(page, 'manager/')}">
+	    <jsp:include page="/WEB-INF/views/manager/_tabs.jsp" />
+	  </c:if>
+	</header>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -117,6 +168,18 @@ document.addEventListener('click', function (e) {
       console.error(err);
     });
 });
+
+const dropdown = document.getElementById('categoryDropdown');
+const menu = document.getElementById('categoryMenu');
+
+dropdown.addEventListener('mouseenter', () => {
+  menu.style.display = 'block';
+});
+
+dropdown.addEventListener('mouseleave', () => {
+  menu.style.display = 'none';
+});
+
 </script>
 </body>
 </html>

@@ -7,34 +7,33 @@
     <meta charset="UTF-8">
     <title>게시판</title>
     <style>
-        body {
+        #pageBody {
             font-family: Arial, sans-serif;
-            margin: 30px;
             background-color: #f4f4f4;
         }
-        h1, h2 {
+        #pageTitle, #formTitle {
             text-align: center;
         }
-        table {
+        #boardTable {
             width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
             background: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        th, td {
+        #boardTable th, #boardTable td {
             padding: 12px;
             border: 1px solid #ddd;
             text-align: center;
         }
-        th {
+        #boardTable th {
             background-color: #4CAF50;
             color: white;
         }
-        tr:nth-child(even) {
+        #boardTable tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        form {
+        #writeForm {
             width: 60%;
             margin: 20px auto;
             background: #fff;
@@ -42,19 +41,19 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        label {
+        #writeForm label {
             display: block;
             margin: 10px 0 5px;
             font-weight: bold;
         }
-        input[type="text"], textarea {
+        #titleInput, #contentInput {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             resize: none;
         }
-        button {
+        #submitBtn {
             display: block;
             width: 100%;
             padding: 10px;
@@ -66,16 +65,16 @@
             cursor: pointer;
             border-radius: 4px;
         }
-        button:hover {
+        #submitBtn:hover {
             background-color: #45a049;
         }
     </style>
 </head>
-<body>
-    <h1>게시판</h1>
+<body id="pageBody">
+    <h1 id="pageTitle">게시판</h1>
 
     <!-- 글 목록 -->
-    <table>
+    <table id="boardTable">
         <thead>
             <tr>
                 <th>번호</th>
@@ -95,15 +94,17 @@
     </table>
 
     <!-- 글 작성 폼 -->
-    <h2>글 작성</h2>
-    <form>
-        <label>제목</label>
-        <input type="text" name="title">
-        
-        <label>내용</label>
-        <textarea name="content" rows="5"></textarea>
-        
-        <button type="submit">작성</button>
-    </form>
+    <h2 id="formTitle">글 작성</h2>
+	<div id="formContainer">
+	    <form id="writeForm">
+	        <label for="titleInput">제목</label>
+	        <input type="text" id="titleInput" name="title">
+	        
+	        <label for="contentInput">내용</label>
+	        <textarea id="contentInput" name="content" rows="5"></textarea>
+	        
+	        <button id="submitBtn" type="submit">작성</button>
+    	</form>
+	</div>
 </body>
 </html>
