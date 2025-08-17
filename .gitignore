@@ -1,6 +1,10 @@
 *.class
 
-/target/
+.project
+.classpath
+.settings/
+target/
+.DS_Store
 
 *.log
 
@@ -8,8 +12,6 @@
 .idea/
 *.swp
 *.swo
-.settings/
-.classpath
 .project
 
 .DS_Store
