@@ -90,6 +90,9 @@
 	            </span>
 	          </li>
 	          <li class="nav-item">
+	              <a class="nav-link" href="<c:url value='/user/mypage/${pageContext.request.userPrincipal.name}'/>">내 정보</a>
+	          </li>
+	          <li class="nav-item">
 	            <form id="logoutForm" action="<c:url value='/logout' />" method="post" class="d-inline">
 	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 	              <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;" class="nav-link">로그아웃</a>
