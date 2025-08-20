@@ -115,6 +115,7 @@ body { font-family: sans-serif; }
     
     </div>
 </body>
+
 <script>
 const messageSpan = document.getElementById("passwordMessage");
 
@@ -149,4 +150,5 @@ document.getElementById("registerForm").addEventListener("submit", function(e) {
     }
 });
 </script>
+
 </html>

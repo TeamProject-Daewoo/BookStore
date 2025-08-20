@@ -149,6 +149,7 @@
                 총 결제 금액: ${totalAmount} 원
             </div>
         </div>
+        
         <div class="delivery-address">
             <h4>배송지 정보</h4>
             <form action="${pageContext.request.contextPath}/purchase/confirm" method="post">
