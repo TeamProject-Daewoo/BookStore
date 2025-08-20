@@ -13,6 +13,7 @@
             color: #333;
         }
         .purchase-container {
+       		position: relative;  /* 버튼 위치 기준 */
             max-width: 800px;
             margin: 20px auto;
             background-color: #fff;
@@ -122,7 +123,10 @@
 <body>
     <div class="purchase-container">
         <h3>구매하기</h3>
-
+		<!-- 이전 페이지 버튼 (왼쪽 상단) -->
+		<div style="position: absolute; left: 20px; top: 20px;">
+    		<button type="button" onclick="history.back()" style="padding: 6px 12px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc; background-color: #cce5ff; cursor: pointer;">◀ 결제 취소하기</button>
+		</div>
         <c:if test="${not empty errorMessage}">
             <div class="error-message">${errorMessage}</div>
         </c:if>
@@ -145,6 +149,7 @@
                 총 결제 금액: ${totalAmount} 원
             </div>
         </div>
+        
         <div class="delivery-address">
             <h4>배송지 정보</h4>
             <form action="${pageContext.request.contextPath}/purchase/confirm" method="post">

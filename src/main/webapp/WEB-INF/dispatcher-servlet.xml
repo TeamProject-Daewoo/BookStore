@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 	<import resource="setting.xml"/>
-	<context:component-scan base-package="board,cart,data,login,manager,purchase,restapi,user"/>
+	<context:component-scan base-package="board,cart,data,login,manager,purchase,restapi,user,category"/>
 	
 	<!-- injection하지 않고 메모리 upload되는 bean은 id not use -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

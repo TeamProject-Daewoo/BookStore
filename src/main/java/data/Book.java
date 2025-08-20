@@ -20,5 +20,6 @@ public class Book {
 	private int price; // Changed from String to int
 	private int stock;
 	private String img;
+	private String category;
 	private String description;
 }
