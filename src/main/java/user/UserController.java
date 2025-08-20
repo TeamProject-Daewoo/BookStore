@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import data.Book;
@@ -86,6 +87,7 @@ public class UserController {
 	@RequestMapping("registerform")
 	public String registerForm(Model model) {
 		model.addAttribute("page", MAIN_URL + "registerform");
+		model.addAttribute("checkIdUrl", "/user/checkId");
 		return "index";
 	}
 
@@ -164,5 +166,14 @@ public class UserController {
 		model.addAttribute("purchaseList", service.getMyPurchaseView(id));
 		model.addAttribute("page", MAIN_URL + "mypurchaselist");
 		return "index";
+	}
+	
+	@GetMapping("checkId")
+	@ResponseBody
+	public Map<String, Boolean> checkId(@RequestParam String user_id) {
+	    boolean exists = service.isUserIdExist(user_id);  // UserService에서 DB 조회
+	    Map<String, Boolean> result = new HashMap<>();
+	    result.put("exists", exists);
+	    return result;
 	}
 }
