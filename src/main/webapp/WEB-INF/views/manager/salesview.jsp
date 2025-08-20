@@ -18,8 +18,8 @@
     font-size:48px; font-weight:bold; text-align:center; color:#2a5298;
   }
   .empty-list {
-    width:95%; max-width:1200px; margin:100px auto; padding: 100; font-family:sans-serif;
-    font-size:48px; font-weight:bold; text-align:center; color:#FF2F2F;
+    width:95%; max-width:1200px; font-family:sans-serif;
+    font-size:30px; font-weight:bold; text-align:center; color:#FF2F2F;
   }
   .dash-grid {
     width:95%; max-width:1200px; margin:32px auto; display:grid; grid-template-columns:1fr 1fr; gap:24px;
@@ -30,6 +30,68 @@
   .card h3 { margin:0 0 12px; color:#333; text-align:left; font-family:sans-serif; }
   .chart-buttons button { border: 1px solid #ccc; background-color: #f0f0f0; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em; }
   .chart-buttons button.active { background-color: #6c7ae0; color: white; border-color: #6c7ae0; font-weight: bold; }
+  #orderSelect {
+	  height: 40px;
+	  background-size: 20px;
+	  padding: 5px 30px 5px 10px;
+	  border-radius: 4px;
+	  margin-right: 5px;
+	  outline: 0 none;
+	}
+	#orderSelect option {padding: 3px 0;}
+	.table-container {
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	}
+	.table-header {
+	  width: 95%;
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  margin-bottom: 10px;
+	}
+	#orderToggle {
+		height: 40px; display: flex; align-items:center; gap:.5rem;
+		border:1px solid #ddd; border-radius:10px; margin-right:10px;
+		background:#fff; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06);
+		font-family: sans-serif;
+	}
+	#orderToggle:hover  {
+		background:#eee;
+	}
+	.search-box {
+	    display: flex;
+	    gap: 8px;
+	    width: 100%;
+	    max-width: 400px;
+	    padding: 6px 10px;
+	    background: #fff;
+	    border: 1px solid #ddd;
+	    border-radius: 99px;
+	    box-shadow: 0 2px 6px rgba(0,0,0,.05);
+	 }
+ 	.search-box input {
+	    flex: 1;
+	    border: none;
+	    outline: none;
+	    font-size: 14px;
+	    padding: 8px 10px;
+	    border-radius: 99px;
+	  }
+  .search-box input::placeholder {color: #aaa;}
+  .search-box button {
+    border: none;
+    background: #2563eb;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .search-box button:hover {background: #1d4ed8;}
   canvas { width:100%; height:360px; }
 </style>
 
@@ -55,23 +117,58 @@
       <canvas id="topBooks"></canvas>
     </div>
   </div>
-
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>구매자명</th>
-      <th>제목</th>
-      <th>합계 가격</th>
-      <th>구매날짜</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <div class="table-container">
+	<div class="table-header">
+	<select id="orderSelect">
+	  <option value="p.order_date">날짜</option>
+	  <option value="p.id">ID</option>
+	  <option value="b.price">가격</option>
+	</select>
+	<button id="orderToggle" type="button" data-order="desc">
+	  <span id="orderText">▼내림차순</span>
+	</button>
+	<div class="search-box">
+	  	<input type="text" name="keyword" placeholder="제목 또는 구매자명 검색">
+	    <button>검색</button>
+    </div>
+	</div>
+	<table>
+	  <thead>
+	    <tr>
+	      <th>ID</th>
+	      <th>구매자명</th>
+	      <th>제목</th>
+	      <th>합계 가격</th>
+	      <th>구매날짜</th>
+	    </tr>
+	  </thead>
+	  <tbody></tbody>
+	</table>
+  </div>
 </div>
-<h3 class='empty-list' style="display: none">판매된 책이 없습니다!</h3>
+
+<input type="hidden" id="_csrf" name="_csrf" value="${_csrf.token}">
+<input type="hidden" id="_csrf_header" value="${_csrf.headerName}">
+
 
 <script>
+const toggle = document.getElementById('orderToggle');
+const orderSelect = document.getElementById('orderSelect');
+orderSelect.addEventListener('change', () => {
+	render({recentSales:false, topBooks:false, table:true});
+});
+const searchBtn = document.querySelector('.search-box button');
+searchBtn.addEventListener('click', () => {
+	render({recentSales:false, topBooks:false, table:true});
+});
+const inputBox = document.querySelector('.search-box input[name=keyword]');
+toggle.addEventListener('click', () => {
+    const current = toggle.dataset.order;
+    const next = current === 'asc' ? 'desc' : 'asc';
+    toggle.dataset.order = next;
+    toggle.textContent = current === 'asc' ? '▲오름차순' : '▼내림차순';
+    render({recentSales:false, topBooks:false, table:true});
+});
 
 const socket = new WebSocket("ws://localhost:8888/salesSocket");
 function getBookInfor(books, td) {
@@ -204,48 +301,24 @@ function topBooksRender(result) {
 		});
 }
 
-let charts = [];
-//초기 활성화 시킬 버튼
-let chartType = "daily";
-document.getElementById(chartType+"-btn").classList.toggle("active", true);
-function changeChartType(newType) {
-	chartType = newType;
-	const titleEl = document.getElementsByClassName("salesChartTitle")[0];
-	//newType에 맞는 버튼만 활성화 표시
-    document.getElementById("daily-btn").classList.toggle("active", chartType === "daily");
-    document.getElementById("month-btn").classList.toggle("active", chartType === "month");
-    titleEl.textContent = (chartType === "daily") ? '최근 7일 일별 판매금액' : '최근 7개월 월별 판매금액';
-    render(true);
-}
-/**
- * 합계, 차트, 테이블 모두 랜더링  
- *
- * @param {boolean} onlyrecentSale 최근 판매 현황 차트만 랜더링 여부
- * @return {void}
- */
-function render(onlyrecentSale) {
-	fetch("/api/renderSalesList", {
-		method: 'GET',
-		headers : {"Accept": "application/json"}
-	})
-	.then(response => response.json())
-	.then(result => {
-		//console.log(result);
-	    if(result.purchase.length === 0) {
-	    	document.getElementsByClassName("container")[0].style.display = "none";
-	    	document.getElementsByClassName("empty-list")[0].style.display = "block";
-	    	return;
-	    } else {
-	    	document.getElementsByClassName("container")[0].style.display = "block";
-	    	document.getElementsByClassName("empty-list")[0].style.display = "none";
-	    }
-	    
-		const tbody = document.querySelector("tbody");
-	    tbody.textContent = "";
-	  	//총합계
-	  	document.getElementsByClassName("total-sum")[0].textContent = "전체 판매 합계:"+result.totalSum;
-		
-	    result.purchase.forEach(purchase => {
+function tableRender(result) {
+	const tbody = document.querySelector("tbody");
+    tbody.textContent = "";
+    
+    if(result.purchase.length === 0) {
+    	const tr = document.createElement('tr');
+        tr.className = 'empty-list';
+
+        const td = document.createElement('td');
+        td.setAttribute('colspan', '5');
+        td.textContent = '해당하는 구매내역이 없습니다!';
+        td.style.textAlign = 'center';
+
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+    }
+	result.purchase.forEach(purchase => {
 	      const tr = document.createElement("tr");
 
 	      // id
@@ -276,16 +349,64 @@ function render(onlyrecentSale) {
 
 	      tbody.appendChild(tr);
 	    });
+}
+
+let charts = [];
+//초기 활성화 시킬 버튼
+let chartType = "daily";
+document.getElementById(chartType+"-btn").classList.toggle("active", true);
+function changeChartType(newType) {
+	chartType = newType;
+	const titleEl = document.getElementsByClassName("salesChartTitle")[0];
+	//newType에 맞는 버튼만 활성화 표시
+    document.getElementById("daily-btn").classList.toggle("active", chartType === "daily");
+    document.getElementById("month-btn").classList.toggle("active", chartType === "month");
+    titleEl.textContent = (chartType === "daily") ? '최근 7일 일별 판매금액' : '최근 7개월 월별 판매금액';
+    render({recentSales:true, topBooks:false, table:false});
+}
+/**
+ * 합계, 차트, 테이블 모두 랜더링  
+ *
+ * @param {{recentSales:boolean, topBooks:boolean, table:boolean}} 랜더링할 항목들 객체 형태로 전달
+ * @return {void}
+ */
+function render(renderElements) {
+	 const csrfToken = document.getElementById("_csrf").value;
+	 const csrfHeader = document.getElementById("_csrf_header").value;
+	 
+	fetch("/api/renderSalesList", {
+		method: 'POST',
+		headers : {
+			"Content-Type": "application/json",
+		    "Accept": "application/json",
+		    [csrfHeader]: csrfToken
+		},
+		body: JSON.stringify({ 
+			"keyword":inputBox.value, 
+			"orderItem":orderSelect.value, 
+			"order":toggle.dataset.order
+		})
+	})
+	.then(response => response.json())
+	.then(result => {
+		//console.log(result);
+	  	//총합계
+	  	document.getElementsByClassName("total-sum")[0].textContent = "전체 판매 합계:"+result.totalSum;
+		
+	  	if(renderElements.table) 
+	    	tableRender(result);
 	    
 	    //최근 판매 현황
-	 	recentSalesRender(result, chartType);
+	    if(renderElements.recentSales)
+	 		recentSalesRender(result, chartType);
 	    //일별/월별 판매만 랜더링
-	 	if(onlyrecentSale) return;
-	 	topBooksRender(result);
+	 	if(renderElements.topBooks)
+	 		topBooksRender(result);
 	});
+	
   }
 
 //render();
-socket.onmessage = (message) => render(false);
+socket.onmessage = (message) => render({recentSales:true, topBooks:true, table:true});
 
 </script>

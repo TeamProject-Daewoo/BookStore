@@ -1,9 +1,13 @@
 package manager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import purchase.Purchase;
 import purchase.PurchaseMapper;
 import purchase.PurchaseView;
 import purchase.SalesView;
+import restapi.SearchRequest;
 import user.Member;
 import user.MemberMapper;
 
@@ -137,10 +142,23 @@ public class ManagerService {
 	}
 
 	public List<PurchaseView> getPurchaseView() {
-
+	    // 매개변수 없이 호출하면 기본값으로 새로운 DTO를 넘겨서 호출
+	    return getPurchaseView(new SearchRequest());
+	}
+	//fetch POST 요청
+	public List<PurchaseView> getPurchaseView(SearchRequest searchReq) {
+		//SQL Injection 검증
+		//System.out.println(searchReq);
+		Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
+		if(!checkList.contains(searchReq.getOrderItem()) || 
+			(!searchReq.getOrder().equals("asc") && !searchReq.getOrder().equals("desc"))) {
+			throw new IllegalArgumentException("Invaild");
+		}
+		List<Purchase> purchases = purchaseMapper.getOrderedList(searchReq);
+		
 		Map<Integer, PurchaseView> viewMap = new LinkedHashMap<>();
-
-		for (Purchase p : purchaseMapper.findAll()) {
+		
+		for (Purchase p : purchases) {
 			int id = p.getId();
 			int orderId = p.getOrder_id();
 			
@@ -184,7 +202,7 @@ public class ManagerService {
 		return totalsum;
 	}
 
-	public SalesView getSalesView() {
-		return new SalesView(getPurchaseView(), getTotalSum());
+	public SalesView getSalesView(SearchRequest searchReq) {
+		return new SalesView(getPurchaseView(searchReq), getTotalSum());
 	}
 }

@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 
 import data.BaseMapper;
+import restapi.SearchRequest;
 
 @Mapper
 public interface PurchaseMapper extends BaseMapper<Purchase> {
@@ -58,4 +59,8 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     
     @Select("SELECT order_id FROM (SELECT order_id FROM purchase WHERE member_id = #{memberId} ORDER BY order_date DESC) WHERE ROWNUM = 1")
     Integer findMostRecentOrderIdByMemberId(int memberId);
+
+    @Select("SELECT * FROM purchase p JOIN book b on p.book_id=b.id JOIN member m on p.member_id=m.id "
+    		+ "where b.title LIKE '%'||#{keyword}||'%' OR b.author LIKE '%'||#{keyword}||'%' order by ${orderItem} ${order}")
+	public List<Purchase> getOrderedList(SearchRequest searchReq);
 } 
