@@ -37,7 +37,8 @@ body { font-family: sans-serif; }
     border-radius: 4px;
     box-sizing: border-box;
 }
-#checkPasswordBtn {
+#checkPasswordBtn,
+#checkIdBtn {
     margin-left: 10px;
     padding: 5px 10px;
     cursor: pointer;
@@ -77,6 +78,11 @@ body { font-family: sans-serif; }
         <div class="form-group">
             <label for="user_id">아이디:</label>
             <input type="text" id="user_id" name="user_id" required>
+            <button type="button" id="checkIdBtn">중복 확인</button>
+        </div>
+        <!-- 메시지 출력용 span -->
+		<div class="form-group" style="margin-left:160px;">
+            <span id="idMessage" class="message" ></span>
         </div>
 
         <div class="form-group">
@@ -138,11 +144,51 @@ document.getElementById("checkPasswordBtn").addEventListener("click", function()
  }
 });
 
-//폼 제출 시에는 alert만
+//아이디 중복 확인 메시지
+const idMessage = document.getElementById("idMessage");
+
+//ID 중복 확인
+document.getElementById("checkIdBtn").addEventListener("click", function () {
+    const userId = document.getElementById("user_id").value;
+    const idMessage = document.getElementById("idMessage");
+
+    if (!userId) {
+    	idMessage.style.color = "red";
+        idMessage.textContent = "아이디를 입력하세요.";
+        return;
+    }
+
+    fetch("${checkIdUrl}?user_id=" + encodeURIComponent(userId))
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists) {
+        	idMessage.style.color = "red";
+            idMessage.textContent = "이미 사용 중인 아이디입니다.";
+        } else {
+        	idMessage.style.color = "green";
+            idMessage.textContent = "사용 가능한 아이디입니다.";
+        }
+    })
+    .catch(() => {
+        idMessage.textContent = "아이디 확인 중 오류가 발생했습니다.";
+    });
+});
+
+
+//폼 제출
 document.getElementById("registerForm").addEventListener("submit", function(e) {
+	const userId = document.getElementById("user_id").value.trim();
     const password = document.getElementById("password").value;
     const confirm = document.getElementById("passwordConfirm").value;
 
+ 	// 아이디 중복 확인 여부 검사
+    if (!idChecked) {
+        e.preventDefault();
+        alert("아이디 중복 확인을 해주세요.");
+        return;
+    }
+    
+ 	// 비밀번호 검사
     if(password === "" || confirm === "" || password !== confirm){
         e.preventDefault();
         alert("비밀번호가 비어있거나 일치하지 않습니다.");
