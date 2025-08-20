@@ -27,10 +27,16 @@ public interface BoardMapper {
     int insert(Board post);
 
     // 페이징
+    /* Oracle 12g 이상 문법
     @Select("SELECT id, title, author, content, created_at AS createdAt, user_id " +
             "FROM board " +
             "ORDER BY id DESC " +
-            "OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY")
+            "OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY")*/
+    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id FROM "
+    		+ "(SELECT a.*, ROWNUM rnum FROM "
+    		+ "(SELECT id, title, author, content, created_at, user_id FROM board ORDER BY id DESC) a "
+    		+ "WHERE ROWNUM <= #{offset} + #{limit}) "
+    		+ "WHERE rnum > #{offset}")
     List<Board> selectPage(@Param("offset") int offset, @Param("limit") int limit);
 
     @Select("SELECT COUNT(*) FROM board")

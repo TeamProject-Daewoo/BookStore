@@ -25,6 +25,11 @@
             text-decoration: none;
         }
         #writeBtn:hover { background-color: #45a049; }
+        .disabled {
+        	pointer-events: none;
+        	color: gray;
+        	text-decoration: none;
+        }
     </style>
 </head>
 <body id="pageBody">
@@ -67,7 +72,7 @@
 
 <div style="text-align:center; margin:20px 0;">
     <c:if test="${totalPages > 1}">
-        <a href="${pageContext.request.contextPath}/board/main?page=${prevPage}&size=${size}">&laquo; 이전</a>
+        <a id="prePage" href="${pageContext.request.contextPath}/board/main?page=${currentPage-1}&size=${size}">&laquo; 이전</a>
         <c:forEach var="i" begin="1" end="${totalPages}">
             <c:choose>
                 <c:when test="${i == currentPage}">
@@ -79,7 +84,7 @@
                 </c:otherwise>
             </c:choose>
         </c:forEach>
-        <a href="${pageContext.request.contextPath}/board/main?page=${nextPage}&size=${size}">다음 &raquo;</a>
+        <a id="nextPage" href="${pageContext.request.contextPath}/board/main?page=${currentPage+1}&size=${size}">다음 &raquo;</a>
     </c:if>
 </div>
 
@@ -91,5 +96,16 @@
   <a id="writeBtn" href="#" onclick="alert('로그인이 필요합니다.'); return false;">작성</a>
 </sec:authorize>
 
+<script>
+if(${totalPages} > 1) {
+	const pre = document.getElementById("prePage");
+	if(${currentPage} <= 1) pre.classList.add("disabled");
+	else pre.classList.remove("disabled");
+	
+	const next = document.getElementById("nextPage");
+	if(${currentPage} >= ${totalPages}) next.classList.add("disabled");
+	else next.classList.remove("disabled");
+}
+</script>
 </body>
 </html>
