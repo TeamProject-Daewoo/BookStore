@@ -149,12 +149,17 @@ public class ManagerService {
 	public List<PurchaseView> getPurchaseView(SearchRequest searchReq) {
 		//SQL Injection 검증
 		//System.out.println(searchReq);
-		Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
-		if(!checkList.contains(searchReq.getOrderItem()) || 
-			(!searchReq.getOrder().equals("asc") && !searchReq.getOrder().equals("desc"))) {
-			throw new IllegalArgumentException("Invaild");
+		List<Purchase> purchases;
+		if(searchReq.getKeyword() == null)
+			purchases = purchaseMapper.findAll();
+		else {
+			Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
+			if(!checkList.contains(searchReq.getOrderItem()) || 
+				(!searchReq.getOrder().equals("asc") && !searchReq.getOrder().equals("desc"))) {
+				throw new IllegalArgumentException("Invaild");
+			}
+			purchases = purchaseMapper.getOrderedList(searchReq);
 		}
-		List<Purchase> purchases = purchaseMapper.getOrderedList(searchReq);
 		
 		Map<Integer, PurchaseView> viewMap = new LinkedHashMap<>();
 		
