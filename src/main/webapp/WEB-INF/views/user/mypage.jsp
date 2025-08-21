@@ -2,6 +2,7 @@
    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -135,12 +136,32 @@ body {
 
     <!-- 좌측 메뉴 -->
 <div class="sidebar">
-    <!-- 프로필 영역 -->
-    <div class="sidebar-profile" style="text-align:center; margin-bottom:20px;">
-        <h3>${username}님</h3>
-        <a href="<c:url value='/user/checkPasswordform'/>" class="btn-edit" style="padding:5px 10px; font-size:12px;">개인정보 수정</a>
-    </div>
-	<br><br>
+    <!-- 사이드바 프로필 영역 -->
+<div class="sidebar-profile" style="margin-bottom:20px; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:1px solid #dee2e6;">
+    
+    <!-- 프로필 이미지 -->
+    <img src="/resources/images/기본 프로필 사진.jpg"
+         alt="프로필 이미지" 
+         style="width:100px; height:100px; border-radius:50%; object-fit:cover; 
+                display:block; margin:0 auto 10px auto;"/>
+    
+    <!-- 이름 -->
+    <h3 style="text-align:center; margin-bottom:20px;">${user.name}님</h3>
+    
+    <!-- 추가 정보 -->
+    <p style="margin:6px 0; font-size:13px;">아이디: <strong>${user.user_id}</strong></p>
+    <p style="margin:6px 0; font-size:13px;">전화번호: <strong>${user.phone_number}</strong></p>
+    <p style="margin:6px 0; font-size:13px;">이메일: <strong>${user.email}</strong></p>
+    <p style="margin:6px 0; font-size:13px;">가입일: <strong><fmt:formatDate value="${user.created_at}" pattern="yyyy-MM-dd"/></strong></p>
+    
+   <!-- 개인정보 수정 버튼 -->
+	<a href="<c:url value='/user/checkPasswordform'/>" 
+   		class="btn-edit" 
+   		style="display:block; width:120px; text-align:center; margin:10px auto 0 auto; padding:5px 10px; font-size:12px;">
+   		개인정보 수정
+	</a>
+</div>
+	<br>
     <h3>마이페이지</h3>
     	<ul>
         	<li><a href="#">프로필</a></li>

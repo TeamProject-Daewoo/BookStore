@@ -6,12 +6,9 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import data.Book;
-import login.CustomUserDetailsService;
 
 @Controller
 @RequestMapping("user")		//index 페이지 없을 시 추가
@@ -32,12 +28,6 @@ public class UserController {
 	@Autowired
 	UserService service;
 	final static String MAIN_URL = "user/";
-	
-	@Autowired
-	private CustomUserDetailsService userDetailsService;
-	
-	@Autowired
-    private PasswordEncoder passwordEncoder;
 	
 //	@RequestMapping("index")
 //	public String index(Model model) {
@@ -201,65 +191,21 @@ public class UserController {
 	        // 예외 또는 기타 처리
 	    	name = authentication.getName(); // 보통 이 경우에도 username이 들어 있음
 	    }
-	    int id = service.findByUsername(username).getId();
+	    int id = service.findId(name);
+	    // DB에서 Member 객체 가져오기
+	    Member user = service.findById(id); // UserService에 구현 필요
+	    model.addAttribute("user", user); // Member 전체를 JSP에 전달
 	    model.addAttribute("purchaseList", service.getMyPurchaseView(id));
-	
-	    model.addAttribute("id", id);
-		model.addAttribute("username", service.findById(id).getUser_id());
+		model.addAttribute("username", username);
 		model.addAttribute("page", MAIN_URL + "mypage");
 		return "index";
 	}
 	
-	@RequestMapping("checkPasswordform")
-	public String confirmPassword(Model model) {
+	@RequestMapping("editform/{username}")
+	public String edit(@PathVariable("username") String username, Model model) {
 		
-		model.addAttribute("page", MAIN_URL + "checkPasswordform");
-		return "index";
-	}
-	
-	@RequestMapping("/checkPassword")
-    public String checkPassword(@RequestParam("currentPassword") String currentPassword,
-                                Authentication authentication,
-                                RedirectAttributes redirectAttributes) {
-		
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        
-        int id = service.findId(userDetails.getUsername());
-
-        if (!passwordEncoder.matches(currentPassword, userDetails.getPassword())) {
-            redirectAttributes.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
-            return "redirect:/user/checkPasswordform";
-        }
-
-        return "redirect:/user/editform/" + id;
-    }
-	
-	@RequestMapping("editform/{id}")
-	public String edit(@PathVariable("id") int id, Model model) {
-		model.addAttribute("user", service.findById(id));
-		model.addAttribute("checkIdUrl", "/user/checkId");
 		model.addAttribute("page", MAIN_URL + "editform");
 		return "index";
-	}
-	
-	@RequestMapping("infoupdate")
-	public String infoupdate(@ModelAttribute Member member, RedirectAttributes redirectAttributes) throws UsernameNotFoundException {
-		service.updateMember(member);
-		
-		UserDetails updatedUser = userDetailsService.loadUserByUsername(member.getUser_id());
-
-	    // 3. 새로운 Authentication 생성 및 세션 갱신
-	    Authentication newAuth = 
-	        new UsernamePasswordAuthenticationToken(updatedUser, null, updatedUser.getAuthorities());
-	    SecurityContextHolder.getContext().setAuthentication(newAuth);
-	    
-		//삽입 결과에 따라 메세지와 페이지 결정
-		redirectAttributes.addFlashAttribute("message", "개인정보 수정이 완료되었습니다");
-		redirectAttributes.addAttribute("username", service.findById(member.getId()).getUser_id());
-		
-		 
-		    
-		return "redirect:/"+MAIN_URL+ "mypage/{username}";
 	}
 	
 }
