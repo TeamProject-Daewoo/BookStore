@@ -16,7 +16,8 @@ public class Review {
 	private Integer reviewId;      // review_id
     private int bookId;        // book_id
     private String userId;      // user_id
-    private int rating;         // 평점 1~5
-    private String content;     // 리뷰 내용
-    private Date createdAt;  // 생성일시
+    private int rating;         // �룊�젏 1~5
+    private String content;     // 由щ럭 �궡�슜
+    private Date createdAt;  // �깮�꽦�씪�떆
+
 }

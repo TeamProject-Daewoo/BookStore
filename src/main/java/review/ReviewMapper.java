@@ -14,13 +14,13 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface ReviewMapper{
 
-    // 리뷰 등록
+    // 由щ럭 �벑濡�
     @Insert("INSERT INTO review (review_id, book_id, user_id, rating, content) " +
             "VALUES (#{reviewId}, #{bookId}, #{userId}, #{rating}, #{content})")
     @SelectKey(statement = "SELECT review_seq.NEXTVAL FROM dual", keyProperty = "reviewId", before = true, resultType = Integer.class)
     int insertReview(Review review);
 
-    // 책별 리뷰 조회
+    // 梨낅퀎 由щ럭 議고쉶
     @Select("SELECT * FROM review WHERE book_id = #{bookId} ORDER BY created_at DESC")
     @Results({
         @Result(column="review_id", property="reviewId"),
@@ -30,7 +30,7 @@ public interface ReviewMapper{
     })
     List<Review> findByBookId(Integer bookId);
 
-    // 리뷰 삭제
+    // 由щ럭 �궘�젣
     @Delete("DELETE FROM review WHERE review_id = #{reviewId}")
     int deleteReview(int reviewId);
 
@@ -39,7 +39,7 @@ public interface ReviewMapper{
         @Result(column="review_id", property="reviewId"),
         @Result(column="book_id", property="bookId"),
         @Result(column="user_id", property="userId"),
-        @Result(column="created_at", property="createdAt")
+        @Result(column="created_at", property="createdAt"),
     })
     Review findById(int reviewId);
 

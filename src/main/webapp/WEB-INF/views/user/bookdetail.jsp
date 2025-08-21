@@ -275,7 +275,7 @@
 
        <!-- 로그인 사용자만 리뷰 작성 가능 -->
        <sec:authorize access="isAuthenticated()">
-           <form action="/user/addReview" method="post" style="margin-bottom: 30px;">
+           <form action="/user/addReview?${_csrf.parameterName}=${_csrf.token}" method="post" style="margin-bottom: 30px;">
                <input type="hidden" name="bookId" value="${book.id}">
                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
@@ -308,9 +308,9 @@
 	       <div style="display: flex; gap: 16px; padding: 12px; border-bottom: 1px solid #eee;">
 	           <!-- 왼쪽: 프로필 이미지 -->
 	           <div style="flex-shrink: 0;">
-	               <img src="/resources/images/기본 프로필 사진.jpg"
-	                    alt="프로필 이미지"
-	                    style="width:80px; height:80px; border-radius:50%; object-fit:cover;" />
+	               <img src="<c:url value='/user/profileImageByUsername/${review.userId}' />"
+     				alt="프로필 이미지"
+     				style="width:70px; height:70px; border-radius:50%; object-fit:cover;">
 	           </div>
 
 			   <!-- 오른쪽: 리뷰 내용 -->

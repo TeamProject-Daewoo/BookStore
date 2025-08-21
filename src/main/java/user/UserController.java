@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,7 @@ import review.Review;
 import review.ReviewService;
 
 @Controller
-@RequestMapping("user")		//index 페이지 없을 시 추가
+@RequestMapping("user")		//index �럹�씠吏� �뾾�쓣 �떆 異붽�
 public class UserController {
 	
 	@Autowired
@@ -74,12 +76,12 @@ public class UserController {
 	
 	@RequestMapping("bookdetail")
 	public String bookDetail(@RequestParam int id, Model model, Authentication authentication) {
-		// id로 책 정보를 조회
+		// id濡� 梨� �젙蹂대�� 議고쉶
 	    Book book = service.getBook(id);
 	    List<Review> reviews = reviewService.getReviewsByBookId(id);
 	    
-	    // 이미지 경로 생성 (static/images/ 경로와 책 이미지 파일명 결합)
-	    String imagePath = "/static/images/" + book.getImg();  // "혼모.jpg"와 결합하여 /static/images/혼모.jpg로 만듦
+	    // �씠誘몄� 寃쎈줈 �깮�꽦 (static/images/ 寃쎈줈�� 梨� �씠誘몄� �뙆�씪紐� 寃고빀)
+	    String imagePath = "/static/images/" + book.getImg();  // "�샎紐�.jpg"�� 寃고빀�븯�뿬 /static/images/�샎紐�.jpg濡� 留뚮벀
 	    
 	    if(authentication != null) {
 	        model.addAttribute("user", authentication.getName());
@@ -87,24 +89,24 @@ public class UserController {
 	    
 	    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + reviews);
 	    
-	    // 책 정보와 이미지 경로, 페이지 정보를 모델에 추가
+	    // 梨� �젙蹂댁� �씠誘몄� 寃쎈줈, �럹�씠吏� �젙蹂대�� 紐⑤뜽�뿉 異붽�
 	    model.addAttribute("book", book);
 	    model.addAttribute("reviews", reviews);
-	    model.addAttribute("imagePath", imagePath);  // 이미지 경로 추가
+	    model.addAttribute("imagePath", imagePath);  // �씠誘몄� 寃쎈줈 異붽�
 	    model.addAttribute("page", MAIN_URL + "bookdetail");
 	    
-	    // imagePath를 확인하기 위해 로그 출력
-	    System.out.println("Image Path: " + imagePath);  // 콘솔에서 경로 확인
+	    // imagePath瑜� �솗�씤�븯湲� �쐞�빐 濡쒓렇 異쒕젰
+	    System.out.println("Image Path: " + imagePath);  // 肄섏넄�뿉�꽌 寃쎈줈 �솗�씤
 	    
-	    return "index";  // index.jsp에서 bookdetail.jsp를 include하도록 처리
+	    return "index";  // index.jsp�뿉�꽌 bookdetail.jsp瑜� include�븯�룄濡� 泥섎━
 	}
 	
 	@RequestMapping("addReview")
-    public String addReview(@ModelAttribute Review review, Authentication authentication) {
-        review.setUserId(authentication.getName());
-        reviewService.saveReview(review);
-        return "redirect:/user/bookdetail?id=" + review.getBookId();
-    }
+	public String addReview(@ModelAttribute Review review, Authentication authentication) throws IOException {
+	    review.setUserId(authentication.getName());
+	    reviewService.saveReview(review);
+	    return "redirect:/user/bookdetail?id=" + review.getBookId();
+	}
 	
 	@RequestMapping("/reviewDelete")
     public String deleteReview(@RequestParam int reviewId) {
@@ -121,7 +123,7 @@ public class UserController {
         return "index"; 
     }
 
-    // 리뷰 수정 처리
+    // 由щ럭 �닔�젙 泥섎━
     @PostMapping("/reviewEdit")
     public String editReview(@ModelAttribute Review review) {
         reviewService.updateReview(review);
@@ -162,23 +164,23 @@ public class UserController {
 //		if (member != null) {
 //			if(member.getRole().equals("ROLE_ADMIN")) {
 //				session.setAttribute("login", member);
-//	            redirectAttributes.addFlashAttribute("successMessage", "관리자 " + member.getName() +"님 어서오세요.");
+//	            redirectAttributes.addFlashAttribute("successMessage", "愿�由ъ옄 " + member.getName() +"�떂 �뼱�꽌�삤�꽭�슂.");
 //				return "redirect:/"+"manager/"+"booklist";
 //			}
 //			else if(member.getRole().equals("ROLE_USER")) {
 //				session.setAttribute("login", member);
-//	            redirectAttributes.addFlashAttribute("successMessage", member.getName() +"님 어서오세요.");
+//	            redirectAttributes.addFlashAttribute("successMessage", member.getName() +"�떂 �뼱�꽌�삤�꽭�슂.");
 //				return "redirect:/"+MAIN_URL+"booklist";
 //			}
 //		}
-//        redirectAttributes.addFlashAttribute("errorMessage", "아이디 또는 비번이 틀렸습니다.");
+//        redirectAttributes.addFlashAttribute("errorMessage", "�븘�씠�뵒 �삉�뒗 鍮꾨쾲�씠 ���졇�뒿�땲�떎.");
 //		return "redirect:/"+MAIN_URL+"loginform";
 //	}
 	
 	@GetMapping("login")
 	public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
 	    if (error != null) {
-	        model.addAttribute("loginError", "아이디 또는 비밀번호가 잘못되었습니다.");
+	        model.addAttribute("loginError", "�븘�씠�뵒 �삉�뒗 鍮꾨�踰덊샇媛� �옒紐삳릺�뿀�뒿�땲�떎.");
 	    }
 	    model.addAttribute("page", MAIN_URL + "loginform");
 		return "index";
@@ -195,8 +197,8 @@ public class UserController {
 	@RequestMapping("register")
 	public String register(@ModelAttribute Member member, RedirectAttributes redirectAttributes) {
 		boolean registered = service.registerMember(member);
-		String result = (registered) ? "회원가입이 완료되었습니다. 로그인해주세요." : "이미 존재하는 아이디입니다. 다른 아이디를 사용해주세요.";
-		//삽입 결과에 따라 메세지와 페이지 결정
+		String result = (registered) ? "�쉶�썝媛��엯�씠 �셿猷뚮릺�뿀�뒿�땲�떎. 濡쒓렇�씤�빐二쇱꽭�슂." : "�씠誘� 議댁옱�븯�뒗 �븘�씠�뵒�엯�땲�떎. �떎瑜� �븘�씠�뵒瑜� �궗�슜�빐二쇱꽭�슂.";
+		//�궫�엯 寃곌낵�뿉 �뵲�씪 硫붿꽭吏��� �럹�씠吏� 寃곗젙
 		redirectAttributes.addFlashAttribute("result", result);
 		return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "registerform");
 	}
@@ -218,13 +220,13 @@ public class UserController {
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		    String username = "";
 
-		    // 인증 객체에서 사용자 이름 추출
+		    // �씤利� 媛앹껜�뿉�꽌 �궗�슜�옄 �씠由� 異붿텧
 		    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
 		        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 		        username = userDetails.getUsername();
 		    } else {
-		        // 예외 또는 기타 처리
-		        username = authentication.getName(); // 보통 이 경우에도 username이 들어 있음
+		        // �삁�쇅 �삉�뒗 湲고� 泥섎━
+		        username = authentication.getName(); // 蹂댄넻 �씠 寃쎌슦�뿉�룄 username�씠 �뱾�뼱 �엳�쓬
 		    }
 		    int id = service.findId(username);
 		model.addAttribute("purchaseList", service.getMyPurchaseView(id));
@@ -235,7 +237,7 @@ public class UserController {
 	@GetMapping("checkId")
 	@ResponseBody
 	public Map<String, Boolean> checkId(@RequestParam String user_id) {
-	    boolean exists = service.isUserIdExist(user_id);  // UserService에서 DB 조회
+	    boolean exists = service.isUserIdExist(user_id);  // UserService�뿉�꽌 DB 議고쉶
 	    Map<String, Boolean> result = new HashMap<>();
 	    result.put("exists", exists);
 	    return result;
@@ -246,22 +248,22 @@ public class UserController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	    String name = "";
 
-	    // 인증 객체에서 사용자 이름 추출
+	    // �씤利� 媛앹껜�뿉�꽌 �궗�슜�옄 �씠由� 異붿텧
 	    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
 	        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 	        name = userDetails.getUsername();
 	    } else {
-	        // 예외 또는 기타 처리
-	    	name = authentication.getName(); // 보통 이 경우에도 username이 들어 있음
+	        // �삁�쇅 �삉�뒗 湲고� 泥섎━
+	    	name = authentication.getName(); // 蹂댄넻 �씠 寃쎌슦�뿉�룄 username�씠 �뱾�뼱 �엳�쓬
 	    }
 	    
 	    Member member = service.findByUsername(name);
 	    
 	    int id = member.getId();
 	    
-	    // DB에서 Member 객체 가져오기
-	    Member user = service.findById(id); // UserService에 구현 필요
-	    model.addAttribute("user", user); // Member 전체를 JSP에 전달
+	    // DB�뿉�꽌 Member 媛앹껜 媛��졇�삤湲�
+	    Member user = service.findById(id); // UserService�뿉 援ы쁽 �븘�슂
+	    model.addAttribute("user", user); // Member �쟾泥대�� JSP�뿉 �쟾�떖
 	    model.addAttribute("purchaseList", service.getMyPurchaseView(id));
 	
 	    model.addAttribute("id", id);
@@ -289,11 +291,11 @@ public class UserController {
         int id = service.findId(userDetails.getUsername());
         String encodedPassword = service.findByUsername(userDetails.getUsername()).getPassword();
         
-        System.out.println("현재 비밀번호 =============================" + currentPassword);
-        System.out.println("기존 비밀번호 =============================" + encodedPassword);
+        System.out.println("�쁽�옱 鍮꾨�踰덊샇 =============================" + currentPassword);
+        System.out.println("湲곗〈 鍮꾨�踰덊샇 =============================" + encodedPassword);
 
         if (!passwordEncoder.matches(currentPassword, encodedPassword)) {
-            redirectAttributes.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
+            redirectAttributes.addFlashAttribute("error", "鍮꾨�踰덊샇媛� �씪移섑븯吏� �븡�뒿�땲�떎.");
             return "redirect:/user/checkPasswordform";
         }
 
@@ -314,14 +316,14 @@ public class UserController {
 	                         RedirectAttributes redirectAttributes) throws UsernameNotFoundException, IOException {
 		
 		if (member.getId() == null) {
-	        redirectAttributes.addFlashAttribute("error", "잘못된 요청입니다. ID가 없습니다.");
+	        redirectAttributes.addFlashAttribute("error", "�옒紐삳맂 �슂泥��엯�땲�떎. ID媛� �뾾�뒿�땲�떎.");
 	        return "redirect:/user/mypage/" + member.getUser_id();
 	    }
 		
 		if (profileImageFile != null && !profileImageFile.isEmpty()) {
 		    member.setProfileImage(profileImageFile.getBytes());
 		} else if (member.getProfileImage() == null) {
-		    // 기본 이미지 넣기
+		    // 湲곕낯 �씠誘몄� �꽔湲�
 		    ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
 		    member.setProfileImage(FileCopyUtils.copyToByteArray(defaultImg.getInputStream()));
 		}
@@ -334,13 +336,13 @@ public class UserController {
 	            updatedUser, null, updatedUser.getAuthorities());
 	    SecurityContextHolder.getContext().setAuthentication(newAuth);
 
-	    redirectAttributes.addFlashAttribute("message", "개인정보 수정이 완료되었습니다");
+	    redirectAttributes.addFlashAttribute("message", "媛쒖씤�젙蹂� �닔�젙�씠 �셿猷뚮릺�뿀�뒿�땲�떎");
 	    redirectAttributes.addAttribute("username", service.findById(member.getId()).getUser_id());
 
 	    return "redirect:/"+MAIN_URL+ "mypage/{username}";
 	}
 	
-	//프로필 사진 적용 : 마이페이지 및 수정페이지에 적용하기 위해 사용
+	//�봽濡쒗븘 �궗吏� �쟻�슜 : 留덉씠�럹�씠吏� 諛� �닔�젙�럹�씠吏��뿉 �쟻�슜�븯湲� �쐞�빐 �궗�슜
 	@GetMapping("profileImage/{id}")
 	@ResponseBody
 	public ResponseEntity<byte[]> getProfileImage(@PathVariable("id") int id) {
@@ -351,7 +353,7 @@ public class UserController {
 	        if(user != null && user.getProfileImage() != null) {
 	            imageBytes = user.getProfileImage();
 	        } else {
-	            // DB에 이미지 없으면 기본 이미지 제공
+	            // DB�뿉 �씠誘몄� �뾾�쑝硫� 湲곕낯 �씠誘몄� �젣怨�
 	            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
 	            imageBytes = FileCopyUtils.copyToByteArray(defaultImg.getInputStream());
 	        }
@@ -364,7 +366,7 @@ public class UserController {
 	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
 	}
 	
-	//프로필 사진 적용 : 헤더에 적용하기 위함
+	//�봽濡쒗븘 �궗吏� �쟻�슜 : �뿤�뜑�뿉 �쟻�슜�븯湲� �쐞�븿
 	@GetMapping("profileImageByUsername/{username}")
 	@ResponseBody
 	public ResponseEntity<byte[]> getProfileImageByUsername(@PathVariable String username) throws IOException {
@@ -386,6 +388,5 @@ public class UserController {
 	    headers.setContentType(MediaType.IMAGE_JPEG);
 	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
 	}
-
 	
 }
