@@ -1,11 +1,17 @@
 package user;
 
+import java.io.IOException;
+import org.springframework.http.HttpHeaders;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,12 +20,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import data.Book;
@@ -152,7 +160,7 @@ public class UserController {
 	public String adminregisterForm(Model model) {
 		model.addAttribute("page", MAIN_URL + "adminregisterform");
 		return "index";
-	}
+	} 
 	
 	@RequestMapping("adminregister")
 	public String adminregister(@ModelAttribute Member member) {
@@ -201,7 +209,10 @@ public class UserController {
 	        // 예외 또는 기타 처리
 	    	name = authentication.getName(); // 보통 이 경우에도 username이 들어 있음
 	    }
-	    int id = service.findByUsername(username).getId();
+	    
+	    Member member = service.findByUsername(name);
+	    
+	    int id = member.getId();
 	    
 	    // DB에서 Member 객체 가져오기
 	    Member user = service.findById(id); // UserService에 구현 필요
@@ -253,23 +264,82 @@ public class UserController {
 	}
 	
 	@RequestMapping("infoupdate")
-	public String infoupdate(@ModelAttribute Member member, RedirectAttributes redirectAttributes) throws UsernameNotFoundException {
-		service.updateMember(member);
+	public String infoupdate(@ModelAttribute Member member,
+	                         @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
+	                         RedirectAttributes redirectAttributes) throws UsernameNotFoundException, IOException {
 		
-		UserDetails updatedUser = userDetailsService.loadUserByUsername(member.getUser_id());
+		if (member.getId() == null) {
+	        redirectAttributes.addFlashAttribute("error", "잘못된 요청입니다. ID가 없습니다.");
+	        return "redirect:/user/mypage/" + member.getUser_id();
+	    }
+		
+		if (profileImageFile != null && !profileImageFile.isEmpty()) {
+		    member.setProfileImage(profileImageFile.getBytes());
+		} else if (member.getProfileImage() == null) {
+		    // 기본 이미지 넣기
+		    ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
+		    member.setProfileImage(FileCopyUtils.copyToByteArray(defaultImg.getInputStream()));
+		}
 
-	    // 3. 새로운 Authentication 생성 및 세션 갱신
-	    Authentication newAuth = 
-	        new UsernamePasswordAuthenticationToken(updatedUser, null, updatedUser.getAuthorities());
+	    service.updateMember(member);
+
+	    UserDetails updatedUser = userDetailsService.loadUserByUsername(member.getUser_id());
+
+	    Authentication newAuth = new UsernamePasswordAuthenticationToken(
+	            updatedUser, null, updatedUser.getAuthorities());
 	    SecurityContextHolder.getContext().setAuthentication(newAuth);
-	    
-		//삽입 결과에 따라 메세지와 페이지 결정
-		redirectAttributes.addFlashAttribute("message", "개인정보 수정이 완료되었습니다");
-		redirectAttributes.addAttribute("username", service.findById(member.getId()).getUser_id());
-		
-		 
-		    
-		return "redirect:/"+MAIN_URL+ "mypage/{username}";
+
+	    redirectAttributes.addFlashAttribute("message", "개인정보 수정이 완료되었습니다");
+	    redirectAttributes.addAttribute("username", service.findById(member.getId()).getUser_id());
+
+	    return "redirect:/"+MAIN_URL+ "mypage/{username}";
+	}
+	
+	//프로필 사진 적용 : 마이페이지 및 수정페이지에 적용하기 위해 사용
+	@GetMapping("profileImage/{id}")
+	@ResponseBody
+	public ResponseEntity<byte[]> getProfileImage(@PathVariable("id") int id) {
+	    Member user = service.findById(id);
+	    byte[] imageBytes = null;
+
+	    try {
+	        if(user != null && user.getProfileImage() != null) {
+	            imageBytes = user.getProfileImage();
+	        } else {
+	            // DB에 이미지 없으면 기본 이미지 제공
+	            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
+	            imageBytes = FileCopyUtils.copyToByteArray(defaultImg.getInputStream());
+	        }
+	    } catch(IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.IMAGE_JPEG);
+	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+	}
+	
+	//프로필 사진 적용 : 헤더에 적용하기 위함
+	@GetMapping("profileImageByUsername/{username}")
+	@ResponseBody
+	public ResponseEntity<byte[]> getProfileImageByUsername(@PathVariable String username) throws IOException {
+	    Member user = service.findByUsername(username);
+	    byte[] imageBytes;
+	    System.out.println("username: " + username);
+	    System.out.println("user object: " + user);
+	    if(user != null) {
+	        System.out.println("profileImage: " + user.getProfileImage());
+	    }
+	    if (user != null && user.getProfileImage() != null) {
+	        imageBytes = user.getProfileImage();
+	    } else {
+	        ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
+	        imageBytes = FileCopyUtils.copyToByteArray(defaultImg.getInputStream());
+	    }
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.IMAGE_JPEG);
+	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
 	}
 	
 }

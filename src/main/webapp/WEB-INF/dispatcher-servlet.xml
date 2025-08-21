@@ -18,10 +18,11 @@
     </bean>
     
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="defaultEncoding" value="UTF-8"></property>
 	<property name="maxUploadSize" value="10485760"></property>
 	<property name="maxInMemorySize" value="4096"></property>
 	</bean>
-
+	
 	<!-- 
 	/webapp/static/image/*.png, *.gif
 	img태그에서 src=/imge/file.png일 경우 실제경로는 location주소+src주소가 결합

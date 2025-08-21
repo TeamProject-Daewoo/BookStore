@@ -17,7 +17,7 @@ import lombok.Data;
  */
 @Data
 public class Member {
-	private Integer id;		//sequence 사용 및 @SelectKey로 주입 시 반드시 Integer로 받기
+	private Integer id;		//sequence �궗�슜 諛� @SelectKey濡� 二쇱엯 �떆 諛섎뱶�떆 Integer濡� 諛쏄린
 	private String user_id;
 	private String name;
 	private String email;
@@ -25,4 +25,16 @@ public class Member {
 	private String phone_number; // Added phone_number
 	private Date created_at;
 	private String role;
+
+	 // 새로 추가
+    private byte[] profileImage;
+
+    // Getter & Setter
+    public byte[] getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(byte[] profileImage) {
+        this.profileImage = profileImage;
+    }
 }

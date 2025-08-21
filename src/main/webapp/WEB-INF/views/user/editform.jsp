@@ -74,7 +74,23 @@ body { font-family: sans-serif; }
     <div class="register-container">
         <h2>개인정보 수정</h2>
         <br>
-    <form id="registerForm" action="${pageContext.request.contextPath}/user/infoupdate" method="post">
+    <form id="registerForm" action="${pageContext.request.contextPath}/user/infoupdate?${_csrf.parameterName}=${_csrf.token}" method="post" enctype="multipart/form-data">
+    	<div class="form-group" style="flex-direction: column; align-items: center;">
+    		<c:choose>
+    		<c:when test="${not empty user.profileImage}">
+        		<img id="profilePreview" src="${pageContext.request.contextPath}/user/profileImage/${user.id}" 
+             		alt="프로필 이미지" style="width:150px; height:150px; border-radius:50%; object-fit:cover; margin-bottom:5px;">
+    		</c:when>
+    		<c:otherwise>
+        		<img id="profilePreview" src="${pageContext.request.contextPath}/resources/profileimage/default.jpg" 
+             		alt="기본 이미지" style="width:150px; height:150px; border-radius:50%; object-fit:cover; margin-bottom:5px;">
+    		</c:otherwise>
+			</c:choose>
+			</div>
+			<div class="form-group" style="flex-direction: column; align-items: center;">
+   		 <input type="file" id="profileImage" name="profileImageFile" accept="image/*">
+   		 </div>
+    	<br>
         <div class="form-group">
             <label for="user_id">아이디:</label>
             <input type="text" id="user_id" name="user_id" value=${user.user_id} required>
@@ -106,14 +122,26 @@ body { font-family: sans-serif; }
         </div>
 		<br>
 		<input type="hidden" name="id" value=${user.id}>
+		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
         <input type="submit" value="개인정보 수정">
-        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
     </form>
     
     </div>
 </body>
 
 <script>
+
+//이미지 미리보기 기능
+document.getElementById("profileImage").addEventListener("change", function(e){
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById("profilePreview").src = ev.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
 
 //현재 로그인한 사용자 ID (서버에서 렌더링해 넣어야 함)
 const currentUserId = "${user.user_id}"; // JSP나 템플릿에서 주입

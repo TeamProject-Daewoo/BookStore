@@ -85,9 +85,19 @@
 
 	        <sec:authorize access="isAuthenticated()">
 	          <li class="nav-item">
+    			<!-- 사용자 이름 -->
 	            <span class="navbar-text">
-	              안녕하세요, <sec:authentication property="name" />님
+	              안녕하세요.  <sec:authentication property="name" />님
 	            </span>
+	          </li>
+	           <li class="nav-item">
+	            <sec:authorize access="isAuthenticated()">
+  				<li class="nav-item">
+        			<img src="<c:url value='/user/profileImageByUsername/${pageContext.request.userPrincipal.name}' />"
+         			alt="프로필 이미지"
+         			style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+  				</li>
+				</sec:authorize>
 	          </li>
 	          <li class="nav-item">
 	              <a class="nav-link" href="<c:url value='/user/mypage/${pageContext.request.userPrincipal.name}'/>">내 정보</a>
