@@ -178,6 +178,7 @@ public class UserController {
 	    return result;
 	}
 	
+<<<<<<< HEAD
 	@RequestMapping("mypage/{username}")
 	public String mypage(@PathVariable("username") String username, Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -204,4 +205,9 @@ public class UserController {
 		
 		model.addAttribute("page", MAIN_URL + "editform");
 		return "index";
+=======
+	public void pulltest() {
+		
+	}
+>>>>>>> branch 'merge-branch' of https://github.com/TeamProject-Daewoo/BookStore.git
 }
