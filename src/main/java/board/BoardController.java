@@ -47,11 +47,11 @@ public class BoardController {
     // 작성 저장
     @PostMapping("/write")
     public String writeSubmit(@RequestParam String title,
-                              @RequestParam(required=false) String author,
+                              @RequestParam String author,
                               @RequestParam String content,
                               java.security.Principal principal) {
     	
-    	
+    	System.out.println(author);
         String userId = principal.getName(); // 로그인한 user_id
 
         Board post = Board.builder()
