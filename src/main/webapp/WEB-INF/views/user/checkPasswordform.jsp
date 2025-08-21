@@ -69,6 +69,9 @@ body {
 		<input type="password" id="currentPassword" name="currentPassword" required>
 		
 		<input type="submit" value="확인">
+		<input type="button" value="뒤로가기" 
+		       style="width:100%; padding:10px; margin-top:10px; background-color:#777; color:white; border:none; border-radius:5px; cursor:pointer;"
+		       onclick="history.back()">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 	</form>
 </div>
