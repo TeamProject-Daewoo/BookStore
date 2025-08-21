@@ -27,7 +27,7 @@ body {
 
 /* 좌측 메뉴 */
 .sidebar {
-    width: 220px;
+    width: 300px;
     background-color: #fff;
     border: 1px solid #dee2e6;
     border-radius: 12px;
@@ -65,10 +65,8 @@ body {
 
 /* 메인 영역 */
 .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+
+
 }
 
 /* 프로필 카드 */
@@ -87,10 +85,6 @@ body {
     flex-wrap: wrap;
 }
 
-.profile-main h2 {
-    font-size: 26px;
-    margin: 0;
-}
 
 .btn-edit {
     padding: 8px 16px;
@@ -116,10 +110,10 @@ body {
 }
 
 .purchase-container h1 {
-    font-size: 24px;
+    font-size: 30px;
     margin-bottom: 20px;
     border-bottom: 1px solid #dee2e6;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
 }
 
 /* 반응형 */
@@ -140,33 +134,30 @@ body {
 <div class="page-container">
 
     <!-- 좌측 메뉴 -->
-    <div class="sidebar">
-        <h3>마이페이지</h3>
-        <ul>
-            <li><a href="#">프로필</a></li>
-            <li><a href="#">구매 내역</a></li>
-            <li><a href="#">쿠폰/포인트</a></li>
-            <li><a href="#">설정</a></li>
-        </ul>
+<div class="sidebar">
+    <!-- 프로필 영역 -->
+    <div class="sidebar-profile" style="text-align:center; margin-bottom:20px;">
+        <h3>${username}님</h3>
+        <a href="<c:url value='/user/checkPasswordform'/>" class="btn-edit" style="padding:5px 10px; font-size:12px;">개인정보 수정</a>
     </div>
+	<br><br>
+    <h3>마이페이지</h3>
+    	<ul>
+        	<li><a href="#">프로필</a></li>
+        	<li><a href="#">구매 내역</a></li>
+        	<li><a href="#">쿠폰/포인트</a></li>
+        	<li><a href="#">설정</a></li>
+    	</ul>
+	</div>
 
     <!-- 메인 콘텐츠 -->
     <div class="main-content">
-
-        <!-- 프로필 카드 -->
-        <div class="profile-container">
-            <div class="profile-main">
-                <h2>${username}님</h2>
-                <a href="<c:url value='/user/checkPasswordform'/>" class="btn-edit">개인정보 수정</a>
-            </div>
-        </div>
-
         <!-- 구매 목록 카드 -->
+        
         <div class="purchase-container">
-            <h1>구매 목록</h1>
+        	<h1>구매 내역</h1>
             <jsp:include page="mypurchaselist.jsp" />
         </div>
-
     </div>
 </div>
 
