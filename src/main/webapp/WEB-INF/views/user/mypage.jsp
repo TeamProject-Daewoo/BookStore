@@ -170,6 +170,14 @@ tr:hover {
     }
 }
 </style>
+<c:if test="${not empty message}">
+	<script>
+		window.onload = function() {
+			alert("${message}");
+			location.replace(location.pathname);
+		};
+	</script>
+</c:if>
 </head>
 <body>
 
@@ -182,7 +190,7 @@ tr:hover {
             <h2>${username}님</h2>
             <div class="profile-item"><span>내 포인트:</span> 1200점</div>
         </div>
-        <a href="<c:url value='/user/editform/${username}'/>" class="btn-edit">개인정보 수정</a>
+        <a href="<c:url value='/user/editform/${id}'/>" class="btn-edit">개인정보 수정</a>
     </div>
 </div>
 

@@ -33,7 +33,15 @@ public class UserService {
 		return memberMapper.findAll();
 	}
 	public int updateMember(Member member) {
-		return memberMapper.update(member);
+		
+		Member updatemember = memberMapper.findById(member.getId());
+		
+		updatemember.setUser_id(member.getUser_id());
+		updatemember.setName(member.getName());
+		updatemember.setEmail(member.getEmail());
+		updatemember.setPhone_number(member.getPhone_number());
+		
+		return memberMapper.update(updatemember);
 	}
 	public int deleteMember(int id) {
 		return memberMapper.delete(id);
@@ -75,6 +83,14 @@ public class UserService {
 	
 	public boolean isUserIdExist(String userId) {
 	    return memberMapper.findByUserId(userId) != null;
+	}
+	
+	public Member findByUsername(String username) {
+		return memberMapper.findByUsername(username);
+	}
+	
+	public Member findById(int id) {
+		return memberMapper.findById(id);
 	}
 	
 	//book 
@@ -160,5 +176,7 @@ public class UserService {
 		}
 		return result;
 	}
+
+
 	
 }
