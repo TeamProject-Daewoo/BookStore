@@ -111,15 +111,6 @@
 	          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/registerform'/>">회원가입</a></li>
 	        </sec:authorize>
 
-	        <sec:authorize access="hasRole('ROLE_ADMIN')">
-	          <li class="nav-item"><a class="nav-link" href="<c:url value='/manager/purchaselist'/>">구매내역</a></li>
-	        </sec:authorize>
-
-	        <!-- 관리자는 '내 구매내역' 숨김 -->
-	        <sec:authorize access="!hasRole('ROLE_ADMIN') and isAuthenticated()">
-	          <li class="nav-item"><a class="nav-link" href="<c:url value='/user/mypurchaselist'/>">내 구매내역</a></li>
-	        </sec:authorize>
-
 	        <li class="nav-item position-relative">
 	          <a href="<c:url value='/cart'/>" class="nav-link d-flex align-items-center">
 	            🛒 장바구니

@@ -81,12 +81,6 @@ public class ManagerController {
         return "index";
     }
     
-    @RequestMapping("/purchaselist")
-    public String buyList(Model model) {
-        model.addAttribute("purchaseList", managerService.getPurchaseView());
-        return MAIN_URL+"purchaselist";
-    }
-    
     @GetMapping("/managerview")
 	public String managerList(Model model) {
 	    model.addAttribute("members", managerService.getMemberList());

@@ -201,8 +201,6 @@ th:nth-child(4), td:nth-child(4) {
 </head>
 <body>
 	<div class="container">
-		<h2>구매 목록</h2>
-		<br>
 		<!-- 최근 7일 일별 구매 수량 그래프 -->
   		<c:if test="${not empty purchaseList}">
     		<div class="dash-grid">
