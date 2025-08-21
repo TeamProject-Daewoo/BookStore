@@ -49,12 +49,12 @@
   관리자 회원가입 폼  
 - `POST /adminregister`  
   관리자 회원가입 처리  
-- `GET /mypage/{username}`
-  내 정보
-- `GET /checkPasswordform`
-  내 정보 수정 시 비밀번호 확인 폼
-- `GET /editform/{id}`
-  내 정보 수정 폼
+- `GET /mypage/{username}`  
+  내 정보  
+- `GET /checkPasswordform`  
+  내 정보 수정 시 비밀번호 확인 폼  
+- `GET /editform/{id}`  
+  내 정보 수정 폼  
 
 ### 로그인 / 로그아웃
 - `GET /loginform`  
@@ -117,32 +117,32 @@
 
 ## 카테고리
 
-- `GET /category/{category}`
-  카테고리에 따른 책 목록 
+- `GET /category/{category}`  
+  카테고리에 따른 책 목록  
   
 ---
 
 ## 게시판
 
-- `GET /main`
-  게시글 목록(자신이 작성한 글은 별 표시)
+- `GET /main`  
+  게시글 목록(자신이 작성한 글은 별 표시)  
 
-- `GET /write`
-  게시글 작성(작성자는 아이디로 자동 기입)
+- `GET /write`  
+  게시글 작성(작성자는 아이디로 자동 기입)  
   
-- `POST /write`
-  게시글 작성 처리 
+- `POST /write`  
+  게시글 작성 처리   
 
-- `GET /view?id={id}`
-  게시글 상세보기(자신이 작성한 게시글만 수정,삭제 가능 단, 관리자는 모든 글 삭제 가능)
+- `GET /view?id={id}`  
+  게시글 상세보기(자신이 작성한 게시글만 수정,삭제 가능 단, 관리자는 모든 글 삭제 가능)  
 
-- `POST /edit?id={id}`
-  게시글 수정 폼
+- `POST /edit?id={id}`  
+  게시글 수정 폼  
 
-- `POST /edit`
-  게시글 수정 처리
+- `POST /edit`  
+  게시글 수정 처리  
 
-- `POST /delete`
-  게시글 삭제 처리
+- `POST /delete`  
+  게시글 삭제 처리  
   
  
