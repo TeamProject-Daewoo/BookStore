@@ -228,9 +228,15 @@ public class UserController {
 		
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         
+       
+        
         int id = service.findId(userDetails.getUsername());
+        String encodedPassword = service.findByUsername(userDetails.getUsername()).getPassword();
+        
+        System.out.println("현재 비밀번호 =============================" + currentPassword);
+        System.out.println("기존 비밀번호 =============================" + encodedPassword);
 
-        if (!passwordEncoder.matches(currentPassword, userDetails.getPassword())) {
+        if (!passwordEncoder.matches(currentPassword, encodedPassword)) {
             redirectAttributes.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
             return "redirect:/user/checkPasswordform";
         }
