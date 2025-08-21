@@ -13,8 +13,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import data.Book;
@@ -86,6 +88,7 @@ public class UserController {
 	@RequestMapping("registerform")
 	public String registerForm(Model model) {
 		model.addAttribute("page", MAIN_URL + "registerform");
+		model.addAttribute("checkIdUrl", "/user/checkId");
 		return "index";
 	}
 
@@ -163,6 +166,34 @@ public class UserController {
 		    int id = service.findId(username);
 		model.addAttribute("purchaseList", service.getMyPurchaseView(id));
 		model.addAttribute("page", MAIN_URL + "mypurchaselist");
+		return "index";
+	}
+	
+	@RequestMapping("mypage/{username}")
+	public String mypage(@PathVariable("username") String username, Model model) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String name = "";
+
+	    // 인증 객체에서 사용자 이름 추출
+	    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+	        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+	        name = userDetails.getUsername();
+	    } else {
+	        // 예외 또는 기타 처리
+	    	name = authentication.getName(); // 보통 이 경우에도 username이 들어 있음
+	    }
+	    int id = service.findId(name);
+	    model.addAttribute("purchaseList", service.getMyPurchaseView(id));
+	
+		model.addAttribute("username", username);
+		model.addAttribute("page", MAIN_URL + "mypage");
+		return "index";
+	}
+	
+	@RequestMapping("editform/{username}")
+	public String edit(@PathVariable("username") String username, Model model) {
+		
+		model.addAttribute("page", MAIN_URL + "editform");
 		return "index";
 	}
 }
