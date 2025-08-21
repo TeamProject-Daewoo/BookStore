@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,9 @@ public class UserController {
 	
 	@Autowired
 	private CustomUserDetailsService userDetailsService;
+	
+	@Autowired
+    private PasswordEncoder passwordEncoder;
 	
 //	@RequestMapping("index")
 //	public String index(Model model) {
@@ -205,6 +209,30 @@ public class UserController {
 		model.addAttribute("page", MAIN_URL + "mypage");
 		return "index";
 	}
+	
+	@RequestMapping("checkPasswordform")
+	public String confirmPassword(Model model) {
+		
+		model.addAttribute("page", MAIN_URL + "checkPasswordform");
+		return "index";
+	}
+	
+	@RequestMapping("/checkPassword")
+    public String checkPassword(@RequestParam("currentPassword") String currentPassword,
+                                Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
+		
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        
+        int id = service.findId(userDetails.getUsername());
+
+        if (!passwordEncoder.matches(currentPassword, userDetails.getPassword())) {
+            redirectAttributes.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
+            return "redirect:/user/checkPasswordform";
+        }
+
+        return "redirect:/user/editform/" + id;
+    }
 	
 	@RequestMapping("editform/{id}")
 	public String edit(@PathVariable("id") int id, Model model) {
