@@ -1,6 +1,7 @@
 package user;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
@@ -17,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,6 +26,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import data.Book;
 import login.CustomUserDetailsService;
+import review.Review;
+import review.ReviewService;
 
 @Controller
 @RequestMapping("user")		//index 페이지 없을 시 추가
@@ -38,6 +42,9 @@ public class UserController {
 	
 	@Autowired
     private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private ReviewService reviewService;
 	
 //	@RequestMapping("index")
 //	public String index(Model model) {
@@ -58,15 +65,23 @@ public class UserController {
 	}
 	
 	@RequestMapping("bookdetail")
-	public String bookDetail(@RequestParam int id, Model model) {
+	public String bookDetail(@RequestParam int id, Model model, Authentication authentication) {
 		// id로 책 정보를 조회
 	    Book book = service.getBook(id);
+	    List<Review> reviews = reviewService.getReviewsByBookId(id);
 	    
 	    // 이미지 경로 생성 (static/images/ 경로와 책 이미지 파일명 결합)
 	    String imagePath = "/static/images/" + book.getImg();  // "혼모.jpg"와 결합하여 /static/images/혼모.jpg로 만듦
 	    
+	    if(authentication != null) {
+	        model.addAttribute("user", authentication.getName());
+	    }
+	    
+	    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + reviews);
+	    
 	    // 책 정보와 이미지 경로, 페이지 정보를 모델에 추가
 	    model.addAttribute("book", book);
+	    model.addAttribute("reviews", reviews);
 	    model.addAttribute("imagePath", imagePath);  // 이미지 경로 추가
 	    model.addAttribute("page", MAIN_URL + "bookdetail");
 	    
@@ -75,6 +90,36 @@ public class UserController {
 	    
 	    return "index";  // index.jsp에서 bookdetail.jsp를 include하도록 처리
 	}
+	
+	@RequestMapping("addReview")
+    public String addReview(@ModelAttribute Review review, Authentication authentication) {
+        review.setUserId(authentication.getName());
+        reviewService.saveReview(review);
+        return "redirect:/user/bookdetail?id=" + review.getBookId();
+    }
+	
+	@RequestMapping("/reviewDelete")
+    public String deleteReview(@RequestParam int reviewId) {
+        int bookId = reviewService.findById(reviewId).getBookId();
+        reviewService.deleteReview(reviewId);
+        return "redirect:/user/bookdetail?id=" + bookId;
+    }
+	
+    @GetMapping("/reviewEdit")
+    public String editForm(@RequestParam Integer reviewId, Model model) {
+        Review review = reviewService.findById(reviewId);
+        model.addAttribute("review", review);
+        model.addAttribute("page", MAIN_URL + "reviewedit");
+        return "index"; 
+    }
+
+    // 리뷰 수정 처리
+    @PostMapping("/reviewEdit")
+    public String editReview(@ModelAttribute Review review) {
+        reviewService.updateReview(review);
+        Integer bookId = reviewService.findById(review.getReviewId()).getBookId();
+        return "redirect:/user/bookdetail?id=" + bookId;
+    }
 	
 	@RequestMapping("loginform")
 	public String loginForm(Model model) {
@@ -271,5 +316,6 @@ public class UserController {
 		    
 		return "redirect:/"+MAIN_URL+ "mypage/{username}";
 	}
+
 	
 }
