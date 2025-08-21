@@ -31,6 +31,7 @@
         	text-decoration: none;
         }
     </style>
+    <sec:authentication property="principal.username" var="currentUsername" />
 </head>
 <body id="pageBody">
 <h1 id="pageTitle">게시판</h1>
@@ -60,8 +61,14 @@
                     onmouseover="this.style.backgroundColor='#f5f5f5';"
                     onmouseout="this.style.backgroundColor='';">
                     <td>${p.id}</td>
-                    <td class="title-cell"><c:out value="${p.title}"/></td>
-                    <td><c:out value="${p.author}"/></td>
+                    <td class="title-cell">
+					    <c:out value="${p.title}"/>
+				    </td>
+                    <td>
+                    	<c:if test="${p.author == currentUsername}">
+					      <span>⭐</span>
+					    </c:if>
+					    <c:out value="${p.author}"/></td>
                     <td>${p.createdAt}</td>
                 </tr>
             </c:forEach>
