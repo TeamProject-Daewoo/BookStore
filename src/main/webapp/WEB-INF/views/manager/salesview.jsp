@@ -166,7 +166,7 @@ toggle.addEventListener('click', () => {
     const current = toggle.dataset.order;
     const next = current === 'asc' ? 'desc' : 'asc';
     toggle.dataset.order = next;
-    toggle.textContent = current === 'asc' ? '▲오름차순' : '▼내림차순';
+    toggle.textContent = next === 'asc' ? '▲오름차순' : '▼내림차순';
     render({recentSales:false, topBooks:false, table:true});
 });
 
