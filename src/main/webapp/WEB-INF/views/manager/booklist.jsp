@@ -86,6 +86,7 @@
           <th>재고</th>
           <th>이미지</th>
           <th>설명</th>
+          <th>카테고리</th>
           <th>관리</th>
         </tr>
       </thead>
@@ -99,6 +100,7 @@
             <td>${book.stock}</td>
             <td>${book.img}</td>
             <td>${book.description}</td>
+            <td>${book.category}</td>
             <td class="actions">
               <a href="${pageContext.request.contextPath}/manager/bookeditform?id=${book.id}">수정</a>
               <a href="${pageContext.request.contextPath}/manager/bookdelete?id=${book.id}"

@@ -86,6 +86,15 @@
             <label for="img">이미지 파일명:</label>
             <input type="text" id="img" name="img" value="${book.img}" placeholder="예: book_image.jpg" required>
 
+			<label for="category">카테고리:</label>
+			<select id="category" name="category" required>
+   				<option value="">-- 선택 --</option>
+    			<option value="소설" ${book.category == '소설' ? 'selected' : ''}>소설</option>
+    			<option value="IT/컴퓨터" ${book.category == 'IT/컴퓨터' ? 'selected' : ''}>IT/컴퓨터</option>
+    			<option value="경제/경영" ${book.category == '경제/경영' ? 'selected' : ''}>경제/경영</option>
+    			<option value="기타" ${book.category == '기타' ? 'selected' : ''}>기타</option>
+			</select>
+
             <label for="description">설명:</label>
             <textarea id="description" name="description" rows="5">${book.description}</textarea>
 
