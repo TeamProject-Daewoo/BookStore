@@ -73,6 +73,10 @@ public class UserService {
 		return true; // Registration successful
 	}
 	
+	public boolean isUserIdExist(String userId) {
+	    return memberMapper.findByUserId(userId) != null;
+	}
+	
 	//book 
 	@Autowired
 	private BookMapper bookMapper;

@@ -169,6 +169,15 @@ public class UserController {
 		return "index";
 	}
 	
+	@GetMapping("checkId")
+	@ResponseBody
+	public Map<String, Boolean> checkId(@RequestParam String user_id) {
+	    boolean exists = service.isUserIdExist(user_id);  // UserService에서 DB 조회
+	    Map<String, Boolean> result = new HashMap<>();
+	    result.put("exists", exists);
+	    return result;
+	}
+	
 	@RequestMapping("mypage/{username}")
 	public String mypage(@PathVariable("username") String username, Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -195,5 +204,4 @@ public class UserController {
 		
 		model.addAttribute("page", MAIN_URL + "editform");
 		return "index";
-	}
 }
