@@ -14,8 +14,8 @@ body {
 	font-family: sans-serif;
 }
 .container {
-	width: 90%;
-	margin: 50px auto;
+	width: 100%;
+	margin: 20px auto;
 	padding: 20px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
@@ -75,11 +75,23 @@ th:nth-child(4), td:nth-child(4) {
 }
 
 .dash-grid {
-  width:95%; max-width:1200px; margin:32px auto; display:grid; grid-template-columns:2fr 1fr; gap:24px;
+  width: 100%;             /* 화면 거의 다 차지 */
+  max-width: 1200px;      /* 필요시 조정 */
+  display: grid;
+  grid-template-columns: 2fr 1.2fr; /* 항상 2열 */
+  gap: 24px;
+  margin: 0 auto;          /* 가운데 정렬 */
 }
 
 .card {
-  background:#fff; border:1px solid #eee; border-radius:16px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.04);
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 24px;           /* 기존보다 padding 늘려서 크게 */
+  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+  min-height: 400px;       /* 카드 높이 고정 */
+  display: flex;
+  flex-direction: column;
 }
 .card h3 { 
 	margin:0 0 12px; color:#333; text-align:left; font-family:sans-serif; 
@@ -89,7 +101,7 @@ th:nth-child(4), td:nth-child(4) {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  font-size: 18px;
+  font-size: 186px;
   padding: 50px;
   border-radius: 20px;
   background: linear-gradient(135deg, #6c7ae0, #42a5f5);
@@ -114,14 +126,14 @@ th:nth-child(4), td:nth-child(4) {
 
 .total-label {
   display: block;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 500;
   margin-bottom: 8px;
 }
 
 .total-amount {
   display: block;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: bold;
   letter-spacing: 1px;
 }
@@ -196,7 +208,7 @@ th:nth-child(4), td:nth-child(4) {
     transition: background 0.2s ease;
   }
   .search-box button:hover {background: #1d4ed8;}
-  canvas { width:100%; height:500px; }
+  canvas { width:100%; height:360px;}
 </style>
 </head>
 <body>
