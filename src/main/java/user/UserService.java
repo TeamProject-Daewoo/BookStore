@@ -1,12 +1,15 @@
 package user;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
 import cart.Cart;
 import cart.CartMapper;
@@ -33,15 +36,20 @@ public class UserService {
 		return memberMapper.findAll();
 	}
 	public int updateMember(Member member) {
-		
-		Member updatemember = memberMapper.findById(member.getId());
-		
-		updatemember.setUser_id(member.getUser_id());
-		updatemember.setName(member.getName());
-		updatemember.setEmail(member.getEmail());
-		updatemember.setPhone_number(member.getPhone_number());
-		
-		return memberMapper.update(updatemember);
+		if(member.getId() == null) throw new IllegalArgumentException("Member ID가 null입니다.");
+	    Member updatemember = memberMapper.findById(member.getId());
+	    
+	    updatemember.setUser_id(member.getUser_id());
+	    updatemember.setName(member.getName());
+	    updatemember.setEmail(member.getEmail());
+	    updatemember.setPhone_number(member.getPhone_number());
+
+	    // 프로필 이미지 처리 (member 객체에 이미지 바이트가 들어있다면)
+	    if (member.getProfileImage() != null && member.getProfileImage().length > 0) {
+	        updatemember.setProfileImage(member.getProfileImage());
+	    }
+	    
+	    return memberMapper.update(updatemember);
 	}
 	public int deleteMember(int id) {
 		return memberMapper.delete(id);
@@ -60,18 +68,27 @@ public class UserService {
 	}
 
 	public boolean registerMember(Member member) {
-		// user_id 鈺곕똻�삺占쎈릭筌롳옙 false
+		// user_id �댖怨뺣샍占쎌궨�뜝�럥由�嶺뚮〕�삕 false
 		Member existingMember = memberMapper.findByUserId(member.getUser_id());
 		if(existingMember != null) return false;
 		member.setRole("ROLE_USER");
 		PasswordEncoder pe = new BCryptPasswordEncoder();
 		member.setPassword(pe.encode(member.getPassword() ));
+		// 프로필 이미지 없으면 기본 이미지 넣기
+	    if(member.getProfileImage() == null || member.getProfileImage().length == 0) {
+	        try {
+	            ClassPathResource imgFile = new ClassPathResource("static/profileimage/default.jpg");
+	            member.setProfileImage(FileCopyUtils.copyToByteArray(imgFile.getInputStream()));
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
 		memberMapper.save(member);
 		return true; // Registration successful
 	}
 	
 	public boolean registerAdmin(Member member) {
-		// user_id 鈺곕똻�삺占쎈릭筌롳옙 false
+		// user_id �댖怨뺣샍占쎌궨�뜝�럥由�嶺뚮〕�삕 false
 		Member existingMember = memberMapper.findByUserId(member.getUser_id());
 		if(existingMember != null) return false;
 		member.setRole("ROLE_ADMIN");

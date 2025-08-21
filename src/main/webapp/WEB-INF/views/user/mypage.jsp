@@ -138,13 +138,17 @@ body {
 <div class="sidebar">
     <!-- 사이드바 프로필 영역 -->
 <div class="sidebar-profile" style="margin-bottom:20px; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:1px solid #dee2e6;">
-    
-    <!-- 프로필 이미지 -->
-    <img src="/resources/images/기본 프로필 사진.jpg"
-         alt="프로필 이미지" 
-         style="width:100px; height:100px; border-radius:50%; object-fit:cover; 
-                display:block; margin:0 auto 10px auto;"/>
-    
+    <!-- 프로필 사진 -->
+    		<c:choose>
+    		<c:when test="${not empty user.profileImage}">
+        		<img id="profilePreview" src="${pageContext.request.contextPath}/user/profileImage/${user.id}" 
+             		alt="프로필 이미지" style="display:block; margin:0 auto 10px auto; width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:5px;">
+    		</c:when>
+    		<c:otherwise>
+        		<img id="profilePreview" src="${pageContext.request.contextPath}/resources/profileimage/default.jpg" 
+             		alt="기본 이미지" style="display:block; margin:0 auto 10px auto; width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:5px;">
+    		</c:otherwise>
+			</c:choose>
     <!-- 이름 -->
     <h3 style="text-align:center; margin-bottom:20px;">${user.name}님</h3>
     
