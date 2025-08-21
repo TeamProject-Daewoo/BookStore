@@ -90,7 +90,7 @@ th:nth-child(4), td:nth-child(4) {
   justify-content: center;
   flex-direction: column;
   font-size: 18px;
-  padding: 30px;
+  padding: 50px;
   border-radius: 20px;
   background: linear-gradient(135deg, #6c7ae0, #42a5f5);
   color: white;
@@ -196,7 +196,7 @@ th:nth-child(4), td:nth-child(4) {
     transition: background 0.2s ease;
   }
   .search-box button:hover {background: #1d4ed8;}
-  canvas { width:100%; height:360px; }
+  canvas { width:100%; height:500px; }
 </style>
 </head>
 <body>
@@ -266,10 +266,6 @@ th:nth-child(4), td:nth-child(4) {
 				</c:forEach>
 			</tbody>
 		</table>	
-		<div style="width:95%; max-width:1200px; margin: 0 auto; text-align:left;">
-    		<a class="add-button" href="${pageContext.request.contextPath}/user/booklist">돌아가기</a>
-		</div>
-		<br>
 </div>
 
 <!-- 그래프 JS -->
