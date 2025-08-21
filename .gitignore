@@ -5,6 +5,8 @@
 .settings/
 target/
 .DS_Store
+.factorypath
+.springBeans
 
 *.log
 
@@ -12,9 +14,7 @@ target/
 .idea/
 *.swp
 *.swo
-.project
 
-.DS_Store
 Thumbs.db
 
 !.gitkeep
