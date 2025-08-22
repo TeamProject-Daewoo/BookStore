@@ -213,30 +213,28 @@ th:nth-child(4), td:nth-child(4) {
 </head>
 <body>
 	<div class="container">
-		<!-- 최근 7일 일별 구매 수량 그래프 -->
-  		<c:if test="${not empty purchaseList}">
-    		<div class="dash-grid">
+  		<!-- 최근 7일 일별 구매 수량 그래프 -->
+		<div class="dash-grid">
     		<!-- 그래프 카드 -->
-    			<div class="card">
-      			<h3 id="chartTitle">최근 7일 일별 구매 금액</h3>
-      			<div class="chart-buttons">
-      	  		<!-- 통계 추가할 때 클래스명 'chartType-btn'으로 하기(script에서 동적 처리) -->
-          			<button id="daily-btn" class="chartType-btn active" onclick="changeChartType('daily')">일별</button>
+    		<div class="card">
+        		<h3 id="chartTitle">최근 7일 일별 구매 금액</h3>
+        		<div class="chart-buttons">
+            		<button id="daily-btn" class="chartType-btn active" onclick="changeChartType('daily')">일별</button>
 					<button id="weekly-btn" class="chartType-btn" onclick="changeChartType('weekly')">주별</button>
 					<button id="month-btn" class="chartType-btn" onclick="changeChartType('month')">월별</button>
-      			</div>
-      			<canvas id="dailyAmount"></canvas>
-    			</div>
-    			<!-- 총합 카드 -->
-    			<div class="card total-card">
-  					<div class="total-content">
-    				<div class="total-icon">💰</div>
-    				<span class="total-label">총 구매 금액</span>
-    				<span id="totalAmount" class="total-amount">₩ 0</span>
- 					</div>
-				</div>
-  			</div>
- 		 </c:if>
+        		</div>
+        		<canvas id="dailyAmount"></canvas>
+    		</div>
+
+    		<!-- 총합 카드 -->
+    		<div class="card total-card">
+        		<div class="total-content">
+            		<div class="total-icon">💰</div>
+            		<span class="total-label">총 구매 금액</span>
+            		<span id="totalAmount" class="total-amount" style="white-space: pre-line;">₩ 0</span>
+        		</div>
+    		</div>
+		</div>
  		 </div>
  		 <!-- 검색 -->
   		 <div class="table-container">
@@ -281,10 +279,8 @@ th:nth-child(4), td:nth-child(4) {
 </div>
 
 <!-- 그래프 JS -->
-		<c:if test="${not empty purchaseList}">
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // ====== 그래프 데이터 ======
     var purchases = [
         <c:forEach var="p" items="${purchaseList}" varStatus="st">
         {
@@ -293,6 +289,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }<c:if test="${!st.last}">,</c:if>
         </c:forEach>
     ];
+
+    // 구매 내역이 없을 때 기본값 넣기
+    if (purchases.length === 0) {
+        purchases = [{ amount: 0, order_ts: new Date().getTime() }];
+    }
 
     var ctx = document.getElementById('dailyAmount') ? document.getElementById('dailyAmount').getContext('2d') : null;
     var chart; // Chart.js 인스턴스
@@ -372,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var today = new Date();
             var month = today.getMonth() + 1;
             document.getElementById('totalAmount').textContent =
-                month + '월 전체 합계 ' + agg.total.toLocaleString() + '원';
+                month + '월 전체 합계\n ' + agg.total.toLocaleString() + '원';
         }
 
         // 그래프 제목 업데이트
@@ -477,7 +478,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-</c:if>
 
 </body>
 </html>
