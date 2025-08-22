@@ -255,53 +255,31 @@ public class UserController {
     @RequestMapping("infoupdate")
     public String infoupdate(@ModelAttribute Member member,
                              @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
-                             @RequestParam(value = "currentPassword", required = false) String currentPassword,
-                             @RequestParam(value = "newPassword", required = false) String newPassword,
-                             @RequestParam(value = "confirmPassword", required = false) String confirmPassword,
-                             Authentication authentication,
                              RedirectAttributes redirectAttributes) throws IOException {
 
-        // 프로필 이미지 처리
+        if (member.getId() == null) {
+            redirectAttributes.addFlashAttribute("error", "잘못된 요청입니다. ID가 없습니다.");
+            return "redirect:/user/mypage/" + member.getUser_id();
+        }
+
         if (profileImageFile != null && !profileImageFile.isEmpty()) {
-            // 새 이미지 업로드
             member.setProfileImage(profileImageFile.getBytes());
-        } else {
-            // 기존 DB 이미지 유지
-            Member existingMember = service.findById(member.getId());
-            member.setProfileImage(existingMember.getProfileImage());
+        } else if (member.getProfileImage() == null) {
+            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
+            member.setProfileImage(FileCopyUtils.copyToByteArray(defaultImg.getInputStream()));
         }
 
-        // 비밀번호 변경 처리
-        if (currentPassword != null && !currentPassword.isEmpty()) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            Member currentUser = service.findByUsername(userDetails.getUsername());
-
-            if (!passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
-                redirectAttributes.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
-                return "redirect:/user/editform/" + member.getId();
-            }
-
-            if (newPassword != null && !newPassword.isEmpty()) {
-                if (!newPassword.equals(confirmPassword)) {
-                    redirectAttributes.addFlashAttribute("error", "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
-                    return "redirect:/user/editform/" + member.getId();
-                }
-
-                currentUser.setPassword(passwordEncoder.encode(newPassword));
-                service.updateMember(currentUser);
-
-                // 인증 정보 갱신
-                UserDetails updatedUser = userDetailsService.loadUserByUsername(currentUser.getUser_id());
-                Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, null, updatedUser.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(newAuth);
-            }
-        }
-
-        // 3️⃣ 나머지 정보 업데이트
         service.updateMember(member);
 
-        redirectAttributes.addFlashAttribute("message", "개인정보가 성공적으로 수정되었습니다.");
-        return "redirect:/user/mypage/" + member.getUser_id();
+        UserDetails updatedUser = userDetailsService.loadUserByUsername(member.getUser_id());
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                updatedUser, null, updatedUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        redirectAttributes.addFlashAttribute("message", "회원 정보가 수정되었습니다.");
+        redirectAttributes.addAttribute("username", service.findById(member.getId()).getUser_id());
+
+        return "redirect:/"+MAIN_URL+ "mypage/{username}";
     }
 
     @GetMapping("profileImage/{id}")
