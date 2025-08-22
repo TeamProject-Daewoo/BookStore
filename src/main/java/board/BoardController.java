@@ -68,6 +68,7 @@ public class BoardController {
     // ✅ 상세 보기
     @GetMapping("/view")
     public String view(@RequestParam Long id, Model model) {
+    	boardService.incrementViewCount(id);  // 조회수 증가
         Board post = boardService.findById(id);
         if (post == null) {
             return "redirect:/board/main";

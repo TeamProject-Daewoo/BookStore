@@ -12,15 +12,15 @@ import java.util.List;
 @Mapper
 public interface BoardMapper {
 
-    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id " +
-            "FROM board " +
-            "ORDER BY id DESC")
-    List<Board> selectAll();
+	@Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount " +
+	        "FROM board " +
+	        "ORDER BY id DESC")
+	List<Board> selectAll();
 
-    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id " +
-            "FROM board " +
-            "WHERE id = #{id}")
-    Board selectById(@Param("id") Long id);
+	@Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount " +
+	        "FROM board " +
+	        "WHERE id = #{id}")
+	Board selectById(@Param("id") Long id);
 
     @Insert("INSERT INTO board (id, title, author, content, created_at, user_id) " +
             "VALUES (board_seq.NEXTVAL, #{title}, #{author}, #{content}, SYSDATE, #{user_id})")
@@ -32,11 +32,11 @@ public interface BoardMapper {
             "FROM board " +
             "ORDER BY id DESC " +
             "OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY")*/
-    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id FROM "
-    		+ "(SELECT a.*, ROWNUM rnum FROM "
-    		+ "(SELECT id, title, author, content, created_at, user_id FROM board ORDER BY id DESC) a "
-    		+ "WHERE ROWNUM <= #{offset} + #{limit}) "
-    		+ "WHERE rnum > #{offset}")
+    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount FROM "
+            + "(SELECT a.*, ROWNUM rnum FROM "
+            + "(SELECT id, title, author, content, created_at, user_id, view_count FROM board ORDER BY id DESC) a "
+            + "WHERE ROWNUM <= #{offset} + #{limit}) "
+            + "WHERE rnum > #{offset}")
     List<Board> selectPage(@Param("offset") int offset, @Param("limit") int limit);
 
     @Select("SELECT COUNT(*) FROM board")
@@ -54,4 +54,10 @@ public interface BoardMapper {
     int deleteOwned(@Param("id") Long id, @Param("user_id") String userId);
 
 	int delete(Long id);
+
+	// 조회수 증가
+	@Update("UPDATE board " +
+	        "SET view_count = view_count + 1 " +
+	        "WHERE id = #{id}")
+	void updateViewCount(@Param("id") Long id);
 }

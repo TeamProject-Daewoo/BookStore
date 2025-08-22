@@ -27,4 +27,5 @@ public class Board {
     private String content;          // 내용 (CLOB)
     private String createdAt; // 작성일 (Oracle DATE -> Java LocalDateTime)
     private String user_id;
+    private Integer viewCount;       // 조회수 추가
 }

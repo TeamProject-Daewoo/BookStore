@@ -7,36 +7,134 @@
     <meta charset="UTF-8">
     <title>게시판</title>
     <style>
-        #pageBody { font-family: Arial, sans-serif; background-color: #f4f4f4; }
-        #pageTitle { text-align: center; }
+        /* 기본 페이지 스타일 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1#pageTitle {
+            text-align: center;
+            margin: 30px 0 10px 0;
+            font-size: 2em;
+            color: #333;
+        }
+
+        /* 테이블 스타일 */
         #boardTable {
-            width: 80%; margin: 20px auto; border-collapse: collapse; background: #fff;
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
         }
+
         #boardTable th, #boardTable td {
-            padding: 12px; border: 1px solid #ddd; text-align: center;
+            padding: 12px;
+            text-align: center;
         }
-        #boardTable th { background-color: #4CAF50; color: white; }
-        #boardTable tr:nth-child(even) { background-color: #f9f9f9; }
+
+        #boardTable th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+
+        #boardTable td {
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+
+        #boardTable tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        #boardTable tr:hover {
+            background-color: #e8f5e9;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        /* 컬럼별 너비 조정 */
+        #boardTable th:nth-child(1), #boardTable td:nth-child(1) { width: 60px; }   /* 번호 */
+        #boardTable th:nth-child(2), #boardTable td:nth-child(2) { width: 50%; }    /* 제목 */
+        #boardTable th:nth-child(3), #boardTable td:nth-child(3) { width: 120px; }  /* 작성자 */
+        #boardTable th:nth-child(4), #boardTable td:nth-child(4) { width: 120px; }  /* 작성일 */
+        #boardTable th:nth-child(5), #boardTable td:nth-child(5) { width: 80px; }   /* 조회수 */
+
+        /* 제목 칸 줄임말 처리 */
+        .title-cell {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 작성 버튼 */
         #writeBtn {
-            display: block; width: 120px; margin: 20px auto; padding: 10px;
-            background-color: #4CAF50; border: none; color: white;
-            font-size: 16px; cursor: pointer; border-radius: 4px; text-align: center;
+            display: block;
+            width: 120px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
             text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
         }
-        #writeBtn:hover { background-color: #45a049; }
+
+        #writeBtn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        /* 페이지 네비게이션 */
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 6px 12px;
+            text-decoration: none;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .pagination strong {
+            margin: 0 5px;
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+        }
+
         .disabled {
-        	pointer-events: none;
-        	color: gray;
-        	text-decoration: none;
+            pointer-events: none;
+            color: gray;
+            border-color: gray;
         }
     </style>
     <sec:authentication property="principal.username" var="currentUsername" />
 </head>
-<body id="pageBody">
+<body>
 <h1 id="pageTitle">게시판</h1>
 
-<!-- 글 목록 -->
+<!-- 글 목록 테이블 -->
 <table id="boardTable">
     <thead>
     <tr>
@@ -44,32 +142,31 @@
         <th>제목</th>
         <th>작성자</th>
         <th>작성일</th>
+        <th>조회수</th>
     </tr>
     </thead>
     <tbody>
     <c:choose>
         <c:when test="${empty posts}">
             <tr>
-                <td colspan="4">등록된 글이 없습니다.</td>
+                <td colspan="5">등록된 글이 없습니다.</td>
             </tr>
         </c:when>
         <c:otherwise>
             <c:forEach var="p" items="${posts}">
-                <!-- ✅ 행 전체를 클릭 가능하게 변경 (마우스오버 연회색) -->
-                <tr onclick="location.href='${pageContext.request.contextPath}/board/view?id=${p.id}'"
-                    style="cursor:pointer;"
-                    onmouseover="this.style.backgroundColor='#f5f5f5';"
-                    onmouseout="this.style.backgroundColor='';">
+                <tr onclick="location.href='${pageContext.request.contextPath}/board/view?id=${p.id}'">
                     <td>${p.id}</td>
                     <td class="title-cell">
-					    <c:out value="${p.title}"/>
-				    </td>
+                        <c:out value="${p.title}"/>
+                    </td>
                     <td>
-                    	<c:if test="${p.author == currentUsername}">
-					      <span>⭐</span>
-					    </c:if>
-					    <c:out value="${p.author}"/></td>
+                        <c:if test="${p.author == currentUsername}">
+                            <span>⭐</span>
+                        </c:if>
+                        <c:out value="${p.author}"/>
+                    </td>
                     <td>${p.createdAt}</td>
+                    <td>${p.viewCount}</td>
                 </tr>
             </c:forEach>
         </c:otherwise>
@@ -77,17 +174,17 @@
     </tbody>
 </table>
 
-<div style="text-align:center; margin:20px 0;">
+<!-- 페이지 네비게이션 -->
+<div class="pagination">
     <c:if test="${totalPages > 1}">
         <a id="prePage" href="${pageContext.request.contextPath}/board/main?page=${currentPage-1}&size=${size}">&laquo; 이전</a>
         <c:forEach var="i" begin="1" end="${totalPages}">
             <c:choose>
                 <c:when test="${i == currentPage}">
-                    <strong style="margin:0 6px;">${i}</strong>
+                    <strong>${i}</strong>
                 </c:when>
                 <c:otherwise>
-                    <a style="margin:0 6px;"
-                       href="${pageContext.request.contextPath}/board/main?page=${i}&size=${size}">${i}</a>
+                    <a href="${pageContext.request.contextPath}/board/main?page=${i}&size=${size}">${i}</a>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
@@ -95,24 +192,24 @@
     </c:if>
 </div>
 
-<!-- 작성 페이지로 이동하는 버튼 -->
+<!-- 작성 버튼 -->
 <sec:authorize access="isAuthenticated()">
-  <a id="writeBtn" href="${pageContext.request.contextPath}/board/write">작성</a>
+    <a id="writeBtn" href="${pageContext.request.contextPath}/board/write">작성</a>
 </sec:authorize>
 <sec:authorize access="!isAuthenticated()">
-  <a id="writeBtn" href="#" onclick="alert('로그인이 필요합니다.'); return false;">작성</a>
+    <a id="writeBtn" href="#" onclick="alert('로그인이 필요합니다.'); return false;">작성</a>
 </sec:authorize>
 
 <script>
-if(${totalPages} > 1) {
-	const pre = document.getElementById("prePage");
-	if(${currentPage} <= 1) pre.classList.add("disabled");
-	else pre.classList.remove("disabled");
-	
-	const next = document.getElementById("nextPage");
-	if(${currentPage} >= ${totalPages}) next.classList.add("disabled");
-	else next.classList.remove("disabled");
-}
+    if(${totalPages} > 1) {
+        const pre = document.getElementById("prePage");
+        if(${currentPage} <= 1) pre.classList.add("disabled");
+        else pre.classList.remove("disabled");
+
+        const next = document.getElementById("nextPage");
+        if(${currentPage} >= ${totalPages}) next.classList.add("disabled");
+        else next.classList.remove("disabled");
+    }
 </script>
 </body>
 </html>

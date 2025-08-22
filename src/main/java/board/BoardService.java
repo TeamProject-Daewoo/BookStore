@@ -48,4 +48,9 @@ public class BoardService {
     public int deleteOwned(Long id, String currentUserId) {
         return boardMapper.deleteOwned(id, currentUserId); // 성공:1, 실패:0
     }
+
+    @Transactional
+    public void incrementViewCount(Long id) {
+        boardMapper.updateViewCount(id);
+    }
 }
