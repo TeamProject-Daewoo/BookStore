@@ -1,10 +1,12 @@
 package purchase;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
@@ -63,4 +65,9 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     @Select("SELECT * FROM purchase p JOIN book b on p.book_id=b.id JOIN member m on p.member_id=m.id "
     		+ "where b.title LIKE '%'||#{keyword}||'%' OR b.author LIKE '%'||#{keyword}||'%' order by ${orderItem} ${order}")
 	public List<Purchase> getOrderedList(SearchRequest searchReq);
+
+    
+    @Select("SELECT * FROM purchase WHERE order_date BETWEEN #{startDate} AND #{endDate}")
+    List<Purchase> findByDateRange(@Param("startDate") LocalDateTime startDate,
+                                   @Param("endDate") LocalDateTime endDate);
 } 
