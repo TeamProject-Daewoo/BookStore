@@ -149,11 +149,11 @@ body {
              		alt="기본 이미지" style="display:block; margin:0 auto 10px auto; width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:5px;">
     		</c:otherwise>
 			</c:choose>
-    <!-- 이름 -->
-    <h3 style="text-align:center; margin-bottom:20px;">${user.name}님</h3>
+    <!-- 아이디 -->
+    <h3 style="text-align:center; margin-bottom:20px;">${user.user_id}님</h3>
     
     <!-- 추가 정보 -->
-    <p style="margin:6px 0; font-size:13px;">아이디: <strong>${user.user_id}</strong></p>
+    <p style="margin:6px 0; font-size:13px;">이름: <strong>${user.name}</strong></p>
     <p style="margin:6px 0; font-size:13px;">전화번호: <strong>${user.phone_number}</strong></p>
     <p style="margin:6px 0; font-size:13px;">이메일: <strong>${user.email}</strong></p>
     <p style="margin:6px 0; font-size:13px;">가입일: <strong><fmt:formatDate value="${user.created_at}" pattern="yyyy-MM-dd"/></strong></p>
