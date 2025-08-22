@@ -71,7 +71,11 @@
 
 	        <!-- 베스트셀러 -->
 	        <li class="nav-item">
+<<<<<<< HEAD
 	          <a class="nav-link" href="<c:url value='/book/bestseller'/>">베스트셀러</a>
+=======
+	          <a class="nav-link" href="<c:url value='/bestseller/main'/>">베스트셀러</a>
+>>>>>>> 0480e12 (bestseller 구현)
 	        </li>
 
 	        <!-- 게시판 -->
