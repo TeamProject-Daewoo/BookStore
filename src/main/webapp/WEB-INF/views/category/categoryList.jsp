@@ -4,7 +4,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>책 목록 :「경제/경영」</title>
+  <title>책 목록</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
@@ -51,26 +51,37 @@
 
   <!-- 책 목록 카드 -->
   <div class="row">
-    <c:forEach var="book" items="${pageList.list}">
-      <div class="col-12 col-md-4">
-        <div class="card book-card" onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?id=${book.id}'">
-          <c:if test="${not empty book.img}">
-            <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 이미지" class="card-img-top book-img">
-          </c:if>
-          <c:if test="${empty book.img}">
-            <div class="d-flex justify-content-center align-items-center" style="height:180px; background:#f8f9fa; color:#6c757d;">
-              이미지 없음
-            </div>
-          </c:if>
-          <div class="card-body book-info text-center">
-            <h5 class="card-title">${book.title}</h5>
-            <p class="card-text mb-1">글쓴이: ${book.author}</p>
-            <p class="card-text fw-bold">가격: ${book.price}원</p>
+  <c:if test="${empty pageList.list}">
+    <div class="col-12 text-center py-5">
+      <p class="text-muted fs-5">해당 카테고리에 등록된 책이 없습니다.</p>
+    </div>
+  </c:if>
+
+  <c:forEach var="book" items="${pageList.list}">
+    <div class="col-12 col-md-4">
+      <div class="card book-card" 
+           onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?id=${book.id}'">
+        
+        <c:if test="${not empty book.img}">
+          <img src="${pageContext.request.contextPath}/resources/images/${book.img}" 
+               alt="책 이미지" class="card-img-top book-img">
+        </c:if>
+        <c:if test="${empty book.img}">
+          <div class="d-flex justify-content-center align-items-center" 
+               style="height:180px; background:#f8f9fa; color:#6c757d;">
+            이미지 없음
           </div>
+        </c:if>
+        
+        <div class="card-body book-info text-center">
+          <h5 class="card-title">${book.title}</h5>
+          <p class="card-text mb-1">글쓴이: ${book.author}</p>
+          <p class="card-text fw-bold">가격: ${book.price}원</p>
         </div>
       </div>
-    </c:forEach>
-  </div>
+    </div>
+  </c:forEach>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
