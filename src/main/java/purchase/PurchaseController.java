@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import bestseller.BestsellerService;
 import cart.CartItem;
 import cart.CartMapper;
 import cart.CartService;
@@ -39,6 +40,9 @@ public class PurchaseController {
     
     @Autowired
     private CartMapper cartMapper;
+    
+    @Autowired
+    private BestsellerService bestsellerService;
 
 //    private int getMemberIdFromSession(HttpSession session) {
 //        vo.Member member = (vo.Member) session.getAttribute("login");
@@ -178,6 +182,7 @@ public class PurchaseController {
 
     @GetMapping("/success")
     public String purchaseSuccess(Model model) {
+    	bestsellerService.updateBestSellers();
         model.addAttribute("page", "user/purchase_success");
         return "index";
     }
