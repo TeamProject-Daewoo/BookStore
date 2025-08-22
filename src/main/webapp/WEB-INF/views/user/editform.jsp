@@ -111,6 +111,22 @@ body { font-family: sans-serif; }
             <input type="email" id="email" name="email" value=${user.email} required>
         </div>
 
+		
+		<div class="form-group">
+    		<label for="currentPassword">현재 비밀번호:</label>
+    		<input type="password" id="currentPassword" name="currentPassword" placeholder="현재 비밀번호 입력">
+		</div>
+
+		<div class="form-group">
+    		<label for="newPassword">새 비밀번호:</label>
+    		<input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 입력">
+		</div>
+
+		<div class="form-group">
+    		<label for="confirmPassword">새 비밀번호 확인:</label>
+    		<input type="password" id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호 확인">
+		</div>
+		
 		<!-- 메시지 출력용 span -->
         <div class="form-group" style="margin-left: 160px;">
     		<span id="passwordMessage" style="font-size: 14px;"></span>
@@ -190,6 +206,24 @@ document.getElementById("checkIdBtn").addEventListener("click", function () {
 
 // 폼 제출
 document.getElementById("registerForm").addEventListener("submit", function(e) {
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+    const currentPassword = document.getElementById("currentPassword").value.trim();
+
+    // 새 비밀번호가 입력되었을 경우
+    if (newPassword || confirmPassword) {
+        if (!currentPassword) {
+            e.preventDefault();
+            alert("새 비밀번호를 변경하려면 현재 비밀번호를 입력해주세요.");
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            e.preventDefault();
+            alert("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+            return;
+        }
+    }
+    
     const userId = document.getElementById("user_id").value.trim();
 
     // 내 아이디와 동일하면 바로 제출
@@ -202,6 +236,47 @@ document.getElementById("registerForm").addEventListener("submit", function(e) {
     }
 });
 
+const newPasswordInput = document.getElementById("newPassword");
+const confirmPasswordInput = document.getElementById("confirmPassword");
+const passwordMessage = document.getElementById("passwordMessage");
+
+// 새 비밀번호와 확인 비밀번호 입력 시 실시간 체크
+function checkPasswordMatch() {
+    const newPassword = newPasswordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+
+    if (!newPassword && !confirmPassword) {
+        passwordMessage.textContent = "";
+        return;
+    }
+
+    if (newPassword === confirmPassword) {
+        passwordMessage.style.color = "green";
+        passwordMessage.textContent = "비밀번호가 일치합니다.";
+    } else {
+        passwordMessage.style.color = "red";
+        passwordMessage.textContent = "비밀번호가 일치하지 않습니다.";
+    }
+}
+
+newPasswordInput.addEventListener("input", checkPasswordMatch);
+confirmPasswordInput.addEventListener("input", checkPasswordMatch);
 </script>
+<!-- 현재 미밀번호 틀릴 경우 -->
+<c:if test="${not empty error}">
+<script>
+    window.onload = function() {
+        alert("${error}");
+    };
+</script>
+</c:if>
+
+<c:if test="${not empty message}">
+<script>
+    window.onload = function() {
+        alert("${message}");
+    };
+</script>
+</c:if>
 
 </html>

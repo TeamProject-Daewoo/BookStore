@@ -35,7 +35,10 @@ public interface MemberMapper extends BaseMapper<Member> {
 	Member findByUserId(String user_id);
 	
 	@Override
-	@Update("UPDATE member SET user_id=#{user_id}, name=#{name}, email=#{email}, phone_number=#{phone_number}, profile_image=#{profileImage,jdbcType=BLOB} WHERE id=#{id}")
+	@Update("UPDATE member SET user_id=#{user_id}, name=#{name}, email=#{email}, "
+	        + "phone_number=#{phone_number}, profile_image=#{profileImage,jdbcType=BLOB}, "
+	        + "password=#{password} "
+	        + "WHERE id=#{id}")
 	int update(Member member);
 	
 	@Override

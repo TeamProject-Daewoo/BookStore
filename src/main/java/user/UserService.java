@@ -49,6 +49,11 @@ public class UserService {
 	        updatemember.setProfileImage(member.getProfileImage());
 	    }
 	    
+	    // 비밀번호 처리
+	    if (member.getPassword() != null && !member.getPassword().isEmpty()) {
+	        updatemember.setPassword(member.getPassword());
+	    }
+	    
 	    return memberMapper.update(updatemember);
 	}
 	public int deleteMember(int id) {

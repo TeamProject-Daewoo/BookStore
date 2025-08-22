@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,353 +37,308 @@ import review.Review;
 import review.ReviewService;
 
 @Controller
-@RequestMapping("user")		//index �럹�씠吏� �뾾�쓣 �떆 異붽�
+@RequestMapping("user")
 public class UserController {
-	
-	@Autowired
-	UserService service;
-	final static String MAIN_URL = "user/";
-	
-	@Autowired
-	private CustomUserDetailsService userDetailsService;
-	
-	@Autowired
-    private PasswordEncoder passwordEncoder;
-	
-	@Autowired
-	private ReviewService reviewService;
-	
-//	@RequestMapping("index")
-//	public String index(Model model) {
-//		model.addAttribute("page", "index");
-//		return "index"; 
-//	}
 
-	@RequestMapping("booklist")
-	public String bookList(Model model, String keyword) {
-	    model.addAttribute("page", MAIN_URL + "booklist");
-	    Map<String, Object> pageList = new HashMap<>();
-	    pageList.put("list", keyword != null ? service.findByKeyword(keyword) : service.getExistBookList());
-	    pageList.put("totalCount", service.getBookList().size());
-	    pageList.put("currentPage", 1);
-	    pageList.put("totalPage", 1);
-	    model.addAttribute("pageList", pageList);
-	    return "index";
-	}
-	
-	@RequestMapping("bookdetail")
-	public String bookDetail(@RequestParam int id, Model model, Authentication authentication) {
-		// id濡� 梨� �젙蹂대�� 議고쉶
-	    Book book = service.getBook(id);
-	    List<Review> reviews = reviewService.getReviewsByBookId(id);
-	    
-	    // �씠誘몄� 寃쎈줈 �깮�꽦 (static/images/ 寃쎈줈�� 梨� �씠誘몄� �뙆�씪紐� 寃고빀)
-	    String imagePath = "/static/images/" + book.getImg();  // "�샎紐�.jpg"�� 寃고빀�븯�뿬 /static/images/�샎紐�.jpg濡� 留뚮벀
-	    
-	    if(authentication != null) {
-	        model.addAttribute("user", authentication.getName());
-	    }
-	    
-	    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + reviews);
-	    
-	    // 梨� �젙蹂댁� �씠誘몄� 寃쎈줈, �럹�씠吏� �젙蹂대�� 紐⑤뜽�뿉 異붽�
-	    model.addAttribute("book", book);
-	    model.addAttribute("reviews", reviews);
-	    model.addAttribute("imagePath", imagePath);  // �씠誘몄� 寃쎈줈 異붽�
-	    model.addAttribute("page", MAIN_URL + "bookdetail");
-	    
-	    // imagePath瑜� �솗�씤�븯湲� �쐞�빐 濡쒓렇 異쒕젰
-	    System.out.println("Image Path: " + imagePath);  // 肄섏넄�뿉�꽌 寃쎈줈 �솗�씤
-	    
-	    return "index";  // index.jsp�뿉�꽌 bookdetail.jsp瑜� include�븯�룄濡� 泥섎━
-	}
-	
-	@RequestMapping("addReview")
-	public String addReview(@ModelAttribute Review review, Authentication authentication) throws IOException {
-	    review.setUserId(authentication.getName());
-	    reviewService.saveReview(review);
-	    return "redirect:/user/bookdetail?id=" + review.getBookId();
-	}
-	
-	@RequestMapping("/reviewDelete")
+    @Autowired
+    UserService service;
+    final static String MAIN_URL = "user/";
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ReviewService reviewService;
+
+    @RequestMapping("booklist")
+    public String bookList(Model model, String keyword) {
+        model.addAttribute("page", MAIN_URL + "booklist");
+        Map<String, Object> pageList = new HashMap<>();
+        pageList.put("list", keyword != null ? service.findByKeyword(keyword) : service.getExistBookList());
+        pageList.put("totalCount", service.getBookList().size());
+        pageList.put("currentPage", 1);
+        pageList.put("totalPage", 1);
+        model.addAttribute("pageList", pageList);
+        return "index";
+    }
+
+    @RequestMapping("bookdetail")
+    public String bookDetail(@RequestParam int id, Model model, Authentication authentication) {
+        Book book = service.getBook(id);
+        List<Review> reviews = reviewService.getReviewsByBookId(id);
+
+        String imagePath = "/static/images/" + book.getImg();
+
+        if(authentication != null) {
+            model.addAttribute("user", authentication.getName());
+        }
+
+        model.addAttribute("book", book);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("imagePath", imagePath);
+        model.addAttribute("page", MAIN_URL + "bookdetail");
+
+        System.out.println("Image Path: " + imagePath);
+
+        return "index";
+    }
+
+    @RequestMapping("addReview")
+    public String addReview(@ModelAttribute Review review, Authentication authentication) throws IOException {
+        review.setUserId(authentication.getName());
+        reviewService.saveReview(review);
+        return "redirect:/user/bookdetail?id=" + review.getBookId();
+    }
+
+    @RequestMapping("/reviewDelete")
     public String deleteReview(@RequestParam int reviewId) {
         int bookId = reviewService.findById(reviewId).getBookId();
         reviewService.deleteReview(reviewId);
         return "redirect:/user/bookdetail?id=" + bookId;
     }
-	
+
     @GetMapping("/reviewEdit")
     public String editForm(@RequestParam Integer reviewId, Model model) {
         Review review = reviewService.findById(reviewId);
         model.addAttribute("review", review);
         model.addAttribute("page", MAIN_URL + "reviewedit");
-        return "index"; 
+        return "index";
     }
 
-    // 由щ럭 �닔�젙 泥섎━
     @PostMapping("/reviewEdit")
     public String editReview(@ModelAttribute Review review) {
         reviewService.updateReview(review);
         Integer bookId = reviewService.findById(review.getReviewId()).getBookId();
         return "redirect:/user/bookdetail?id=" + bookId;
     }
-	
-	@RequestMapping("loginform")
-	public String loginForm(Model model) {
-		model.addAttribute("page", MAIN_URL + "loginform");
-		return "index";
-	}
-	
-//	@RequestMapping("cart")
-//	public String cart(Model model) {
-//		model.addAttribute("page", MAIN_URL + "cart");
-//		//model.addAttribute("carts", service.getCartList());
-//		return "index";
-//	}
-	
-	@RequestMapping("purchase")
-	public String purchase(Model model) {
-		model.addAttribute("page", MAIN_URL + "purchase");
-		return "index";
-	}
-	
-	@RequestMapping("registerform")
-	public String registerForm(Model model) {
-		model.addAttribute("page", MAIN_URL + "registerform");
-		model.addAttribute("checkIdUrl", "/user/checkId");
-		return "index";
-	}
 
-//	@RequestMapping("user/login")
-//	public String login(@RequestParam("user_id") String user_id, @RequestParam("password") String password,
-//                        HttpSession session, RedirectAttributes redirectAttributes) {
-//		Member member = service.login(user_id, password);
-//		if (member != null) {
-//			if(member.getRole().equals("ROLE_ADMIN")) {
-//				session.setAttribute("login", member);
-//	            redirectAttributes.addFlashAttribute("successMessage", "愿�由ъ옄 " + member.getName() +"�떂 �뼱�꽌�삤�꽭�슂.");
-//				return "redirect:/"+"manager/"+"booklist";
-//			}
-//			else if(member.getRole().equals("ROLE_USER")) {
-//				session.setAttribute("login", member);
-//	            redirectAttributes.addFlashAttribute("successMessage", member.getName() +"�떂 �뼱�꽌�삤�꽭�슂.");
-//				return "redirect:/"+MAIN_URL+"booklist";
-//			}
-//		}
-//        redirectAttributes.addFlashAttribute("errorMessage", "�븘�씠�뵒 �삉�뒗 鍮꾨쾲�씠 ���졇�뒿�땲�떎.");
-//		return "redirect:/"+MAIN_URL+"loginform";
-//	}
-	
-	@GetMapping("login")
-	public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
-	    if (error != null) {
-	        model.addAttribute("loginError", "�븘�씠�뵒 �삉�뒗 鍮꾨�踰덊샇媛� �옒紐삳릺�뿀�뒿�땲�떎.");
-	    }
-	    model.addAttribute("page", MAIN_URL + "loginform");
-		return "index";
-	}
+    @RequestMapping("loginform")
+    public String loginForm(Model model) {
+        model.addAttribute("page", MAIN_URL + "loginform");
+        return "index";
+    }
 
+    @RequestMapping("purchase")
+    public String purchase(Model model) {
+        model.addAttribute("page", MAIN_URL + "purchase");
+        return "index";
+    }
 
-	@RequestMapping("logout")
-	public String logout(HttpSession session) {
-		session.invalidate();
-		return "redirect:/"+MAIN_URL+"booklist";
-	}
+    @RequestMapping("registerform")
+    public String registerForm(Model model) {
+        model.addAttribute("page", MAIN_URL + "registerform");
+        model.addAttribute("checkIdUrl", "/user/checkId");
+        return "index";
+    }
 
+    @GetMapping("login")
+    public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("loginError", "아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
+        model.addAttribute("page", MAIN_URL + "loginform");
+        return "index";
+    }
 
-	@RequestMapping("register")
-	public String register(@ModelAttribute Member member, RedirectAttributes redirectAttributes) {
-		boolean registered = service.registerMember(member);
-		String result = (registered) ? "�쉶�썝媛��엯�씠 �셿猷뚮릺�뿀�뒿�땲�떎. 濡쒓렇�씤�빐二쇱꽭�슂." : "�씠誘� 議댁옱�븯�뒗 �븘�씠�뵒�엯�땲�떎. �떎瑜� �븘�씠�뵒瑜� �궗�슜�빐二쇱꽭�슂.";
-		//�궫�엯 寃곌낵�뿉 �뵲�씪 硫붿꽭吏��� �럹�씠吏� 寃곗젙
-		redirectAttributes.addFlashAttribute("result", result);
-		return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "registerform");
-	}
-	
-	@RequestMapping("adminregisterform")
-	public String adminregisterForm(Model model) {
-		model.addAttribute("page", MAIN_URL + "adminregisterform");
-		return "index";
-	} 
-	
-	@RequestMapping("adminregister")
-	public String adminregister(@ModelAttribute Member member) {
-		boolean registered = service.registerAdmin(member);
-		return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "adminregisterform");
-	}
-	
-	@RequestMapping("mypurchaselist")
-	public String mypurchaselist(Model model) {
-		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		    String username = "";
+    @RequestMapping("logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/"+MAIN_URL+"booklist";
+    }
 
-		    // �씤利� 媛앹껜�뿉�꽌 �궗�슜�옄 �씠由� 異붿텧
-		    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-		        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-		        username = userDetails.getUsername();
-		    } else {
-		        // �삁�쇅 �삉�뒗 湲고� 泥섎━
-		        username = authentication.getName(); // 蹂댄넻 �씠 寃쎌슦�뿉�룄 username�씠 �뱾�뼱 �엳�쓬
-		    }
-		    int id = service.findId(username);
-		model.addAttribute("purchaseList", service.getMyPurchaseView(id));
-		model.addAttribute("page", MAIN_URL + "mypurchaselist");
-		return "index";
-	}
-	
-	@GetMapping("checkId")
-	@ResponseBody
-	public Map<String, Boolean> checkId(@RequestParam String user_id) {
-	    boolean exists = service.isUserIdExist(user_id);  // UserService�뿉�꽌 DB 議고쉶
-	    Map<String, Boolean> result = new HashMap<>();
-	    result.put("exists", exists);
-	    return result;
-	}
-	
-	@RequestMapping("mypage/{username}")
-	public String mypage(@PathVariable("username") String username, Model model) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String name = "";
+    @RequestMapping("register")
+    public String register(@ModelAttribute Member member, RedirectAttributes redirectAttributes) {
+        boolean registered = service.registerMember(member);
+        String result = (registered) ? "회원가입이 완료되었습니다. 로그인 후 이용해주세요." : "이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요.";
+        redirectAttributes.addFlashAttribute("result", result);
+        return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "registerform");
+    }
 
-	    // �씤利� 媛앹껜�뿉�꽌 �궗�슜�옄 �씠由� 異붿텧
-	    if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-	        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-	        name = userDetails.getUsername();
-	    } else {
-	        // �삁�쇅 �삉�뒗 湲고� 泥섎━
-	    	name = authentication.getName(); // 蹂댄넻 �씠 寃쎌슦�뿉�룄 username�씠 �뱾�뼱 �엳�쓬
-	    }
-	    
-	    Member member = service.findByUsername(name);
-	    
-	    int id = member.getId();
-	    
-	    // DB�뿉�꽌 Member 媛앹껜 媛��졇�삤湲�
-	    Member user = service.findById(id); // UserService�뿉 援ы쁽 �븘�슂
-	    model.addAttribute("user", user); // Member �쟾泥대�� JSP�뿉 �쟾�떖
-	    model.addAttribute("purchaseList", service.getMyPurchaseView(id));
-	
-	    model.addAttribute("id", id);
-		model.addAttribute("username", service.findById(id).getUser_id());
-		model.addAttribute("page", MAIN_URL + "mypage");
-		return "index";
-	}
-	
-	@RequestMapping("checkPasswordform")
-	public String confirmPassword(Model model) {
-		
-		model.addAttribute("page", MAIN_URL + "checkPasswordform");
-		return "index";
-	}
-	
-	@RequestMapping("/checkPassword")
+    @RequestMapping("adminregisterform")
+    public String adminregisterForm(Model model) {
+        model.addAttribute("page", MAIN_URL + "adminregisterform");
+        return "index";
+    }
+
+    @RequestMapping("adminregister")
+    public String adminregister(@ModelAttribute Member member) {
+        boolean registered = service.registerAdmin(member);
+        return "redirect:/"+MAIN_URL+((registered) ? "loginform" : "adminregisterform");
+    }
+
+    @RequestMapping("mypurchaselist")
+    public String mypurchaselist(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = "";
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            username = userDetails.getUsername();
+        } else {
+            username = authentication.getName();
+        }
+
+        int id = service.findId(username);
+        model.addAttribute("purchaseList", service.getMyPurchaseView(id));
+        model.addAttribute("page", MAIN_URL + "mypurchaselist");
+        return "index";
+    }
+
+    @GetMapping("checkId")
+    @ResponseBody
+    public Map<String, Boolean> checkId(@RequestParam String user_id) {
+        boolean exists = service.isUserIdExist(user_id);
+        Map<String, Boolean> result = new HashMap<>();
+        result.put("exists", exists);
+        return result;
+    }
+
+    @RequestMapping("mypage/{username}")
+    public String mypage(@PathVariable("username") String username, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = "";
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            name = userDetails.getUsername();
+        } else {
+            name = authentication.getName();
+        }
+
+        Member member = service.findByUsername(name);
+        int id = member.getId();
+
+        Member user = service.findById(id);
+        model.addAttribute("user", user);
+        model.addAttribute("purchaseList", service.getMyPurchaseView(id));
+
+        model.addAttribute("id", id);
+        model.addAttribute("username", service.findById(id).getUser_id());
+        model.addAttribute("page", MAIN_URL + "mypage");
+        return "index";
+    }
+
+    @RequestMapping("checkPasswordform")
+    public String confirmPassword(Model model) {
+        model.addAttribute("page", MAIN_URL + "checkPasswordform");
+        return "index";
+    }
+
+    @RequestMapping("/checkPassword")
     public String checkPassword(@RequestParam("currentPassword") String currentPassword,
                                 Authentication authentication,
                                 RedirectAttributes redirectAttributes) {
-		
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        
-       
-        
         int id = service.findId(userDetails.getUsername());
         String encodedPassword = service.findByUsername(userDetails.getUsername()).getPassword();
-        
-        System.out.println("�쁽�옱 鍮꾨�踰덊샇 =============================" + currentPassword);
-        System.out.println("湲곗〈 鍮꾨�踰덊샇 =============================" + encodedPassword);
 
         if (!passwordEncoder.matches(currentPassword, encodedPassword)) {
-            redirectAttributes.addFlashAttribute("error", "鍮꾨�踰덊샇媛� �씪移섑븯吏� �븡�뒿�땲�떎.");
+            redirectAttributes.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
             return "redirect:/user/checkPasswordform";
         }
 
         return "redirect:/user/editform/" + id;
     }
-	
-	@RequestMapping("editform/{id}")
-	public String edit(@PathVariable("id") int id, Model model) {
-		model.addAttribute("user", service.findById(id));
-		model.addAttribute("checkIdUrl", "/user/checkId");
-		model.addAttribute("page", MAIN_URL + "editform");
-		return "index";
-	}
-	
-	@RequestMapping("infoupdate")
-	public String infoupdate(@ModelAttribute Member member,
-	                         @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
-	                         RedirectAttributes redirectAttributes) throws UsernameNotFoundException, IOException {
-		
-		if (member.getId() == null) {
-	        redirectAttributes.addFlashAttribute("error", "�옒紐삳맂 �슂泥��엯�땲�떎. ID媛� �뾾�뒿�땲�떎.");
-	        return "redirect:/user/mypage/" + member.getUser_id();
-	    }
-		
-		if (profileImageFile != null && !profileImageFile.isEmpty()) {
-		    member.setProfileImage(profileImageFile.getBytes());
-		} else if (member.getProfileImage() == null) {
-		    // 湲곕낯 �씠誘몄� �꽔湲�
-		    ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
-		    member.setProfileImage(FileCopyUtils.copyToByteArray(defaultImg.getInputStream()));
-		}
 
-	    service.updateMember(member);
+    @RequestMapping("editform/{id}")
+    public String edit(@PathVariable("id") int id, Model model) {
+        model.addAttribute("user", service.findById(id));
+        model.addAttribute("checkIdUrl", "/user/checkId");
+        model.addAttribute("page", MAIN_URL + "editform");
+        return "index";
+    }
 
-	    UserDetails updatedUser = userDetailsService.loadUserByUsername(member.getUser_id());
+    @RequestMapping("infoupdate")
+    public String infoupdate(@ModelAttribute Member member,
+                             @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
+                             @RequestParam(value = "currentPassword", required = false) String currentPassword,
+                             @RequestParam(value = "newPassword", required = false) String newPassword,
+                             @RequestParam(value = "confirmPassword", required = false) String confirmPassword,
+                             Authentication authentication,
+                             RedirectAttributes redirectAttributes) throws IOException {
 
-	    Authentication newAuth = new UsernamePasswordAuthenticationToken(
-	            updatedUser, null, updatedUser.getAuthorities());
-	    SecurityContextHolder.getContext().setAuthentication(newAuth);
+        // 프로필 이미지 처리
+        if (profileImageFile != null && !profileImageFile.isEmpty()) {
+            // 새 이미지 업로드
+            member.setProfileImage(profileImageFile.getBytes());
+        } else {
+            // 기존 DB 이미지 유지
+            Member existingMember = service.findById(member.getId());
+            member.setProfileImage(existingMember.getProfileImage());
+        }
 
-	    redirectAttributes.addFlashAttribute("message", "媛쒖씤�젙蹂� �닔�젙�씠 �셿猷뚮릺�뿀�뒿�땲�떎");
-	    redirectAttributes.addAttribute("username", service.findById(member.getId()).getUser_id());
+        // 비밀번호 변경 처리
+        if (currentPassword != null && !currentPassword.isEmpty()) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            Member currentUser = service.findByUsername(userDetails.getUsername());
 
-	    return "redirect:/"+MAIN_URL+ "mypage/{username}";
-	}
-	
-	//�봽濡쒗븘 �궗吏� �쟻�슜 : 留덉씠�럹�씠吏� 諛� �닔�젙�럹�씠吏��뿉 �쟻�슜�븯湲� �쐞�빐 �궗�슜
-	@GetMapping("profileImage/{id}")
-	@ResponseBody
-	public ResponseEntity<byte[]> getProfileImage(@PathVariable("id") int id) {
-	    Member user = service.findById(id);
-	    byte[] imageBytes = null;
+            if (!passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
+                redirectAttributes.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
+                return "redirect:/user/editform/" + member.getId();
+            }
 
-	    try {
-	        if(user != null && user.getProfileImage() != null) {
-	            imageBytes = user.getProfileImage();
-	        } else {
-	            // DB�뿉 �씠誘몄� �뾾�쑝硫� 湲곕낯 �씠誘몄� �젣怨�
-	            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
-	            imageBytes = FileCopyUtils.copyToByteArray(defaultImg.getInputStream());
-	        }
-	    } catch(IOException e) {
-	        e.printStackTrace();
-	    }
+            if (newPassword != null && !newPassword.isEmpty()) {
+                if (!newPassword.equals(confirmPassword)) {
+                    redirectAttributes.addFlashAttribute("error", "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+                    return "redirect:/user/editform/" + member.getId();
+                }
 
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.IMAGE_JPEG);
-	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-	}
-	
-	//�봽濡쒗븘 �궗吏� �쟻�슜 : �뿤�뜑�뿉 �쟻�슜�븯湲� �쐞�븿
-	@GetMapping("profileImageByUsername/{username}")
-	@ResponseBody
-	public ResponseEntity<byte[]> getProfileImageByUsername(@PathVariable String username) throws IOException {
-	    Member user = service.findByUsername(username);
-	    byte[] imageBytes;
-	    System.out.println("username: " + username);
-	    System.out.println("user object: " + user);
-	    if(user != null) {
-	        System.out.println("profileImage: " + user.getProfileImage());
-	    }
-	    if (user != null && user.getProfileImage() != null) {
-	        imageBytes = user.getProfileImage();
-	    } else {
-	        ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
-	        imageBytes = FileCopyUtils.copyToByteArray(defaultImg.getInputStream());
-	    }
+                currentUser.setPassword(passwordEncoder.encode(newPassword));
+                service.updateMember(currentUser);
 
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.IMAGE_JPEG);
-	    return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-	}
-	
+                // 인증 정보 갱신
+                UserDetails updatedUser = userDetailsService.loadUserByUsername(currentUser.getUser_id());
+                Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, null, updatedUser.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(newAuth);
+            }
+        }
+
+        // 3️⃣ 나머지 정보 업데이트
+        service.updateMember(member);
+
+        redirectAttributes.addFlashAttribute("message", "개인정보가 성공적으로 수정되었습니다.");
+        return "redirect:/user/mypage/" + member.getUser_id();
+    }
+
+    @GetMapping("profileImage/{id}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable("id") int id) throws IOException {
+        Member user = service.findById(id);
+        byte[] imageBytes;
+
+        if(user != null && user.getProfileImage() != null) {
+            imageBytes = user.getProfileImage();
+        } else {
+            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
+            imageBytes = FileCopyUtils.copyToByteArray(defaultImg.getInputStream());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("profileImageByUsername/{username}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getProfileImageByUsername(@PathVariable String username) throws IOException {
+        Member user = service.findByUsername(username);
+        byte[] imageBytes;
+
+        if (user != null && user.getProfileImage() != null) {
+            imageBytes = user.getProfileImage();
+        } else {
+            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
+            imageBytes = FileCopyUtils.copyToByteArray(defaultImg.getInputStream());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    }
+    
+
 }
