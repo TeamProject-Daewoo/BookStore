@@ -208,10 +208,10 @@ function recentSalesRender(result, chartType) {
 			for (const day of days) dailyAmountMap[day] = 0;
 
 			result.purchase.forEach(function (p) {
-				const d = new Date(p.order_date);
+				const d = new Date(p.purchaseList.order_date);
 				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 				if (dailyAmountMap.hasOwnProperty(key)) {
-					dailyAmountMap[key] += Number(p.total_price || 0);
+					dailyAmountMap[key] += Number(p.purchaseList.total_price || 0);
 				}
 			});
 
@@ -239,10 +239,10 @@ function recentSalesRender(result, chartType) {
 			for (const month of months) monthlyAmountMap[month] = 0;
 
 			result.purchase.forEach(function (p) {
-				const d = new Date(p.order_date);
+				const d = new Date(p.purchaseList.order_date);
 				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 				if (monthlyAmountMap.hasOwnProperty(key)) {
-					monthlyAmountMap[key] += Number(p.total_price || 0);
+					monthlyAmountMap[key] += Number(p.purchaseList.total_price || 0);
 				}
 			});
 		
@@ -321,14 +321,15 @@ function tableRender(result) {
 	result.purchase.forEach(purchase => {
 	      const tr = document.createElement("tr");
 
+	      const p = purchase.purchaseList
 	      // id
 	      let td = document.createElement("td");
-	      td.textContent = purchase.id;
+	      td.textContent = p.id;
 	      tr.appendChild(td);
 
 	      // member_name
 	      td = document.createElement("td");
-	      td.textContent = purchase.member_name;
+	      td.textContent = p.member_name;
 	      tr.appendChild(td);
 
 	      // bookList 내부
@@ -338,12 +339,12 @@ function tableRender(result) {
 
 	      // total_price
 	      td = document.createElement("td");
-	      td.textContent = purchase.total_price;
+	      td.textContent = p.total_price;
 	      tr.appendChild(td);
 
 	      // order_date 변환 (timestamp → yyyy-MM-dd)
 	      td = document.createElement("td");
-	      const dateObj = new Date(purchase.order_date);
+	      const dateObj = new Date(p.order_date);
 	      td.textContent = dateObj.toISOString().split("T")[0];
 	      tr.appendChild(td);
 

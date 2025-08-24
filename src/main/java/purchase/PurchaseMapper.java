@@ -41,8 +41,8 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	@Delete("delete from purchase where id=#{id}")
 	int delete(int id);
 	
-	@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.order_id = #{orderId} GROUP BY p.order_id")
-	public int getPurchasePrice(int order_id);
+	//@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.order_id = #{orderId} GROUP BY p.order_id")
+	//public int getPurchasePrice(int order_id);
 
 	@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.id = #{Id} GROUP BY p.id")
 	public int getTotalPrice(int id);
@@ -62,10 +62,22 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     @Select("SELECT order_id FROM (SELECT order_id FROM purchase WHERE member_id = #{memberId} ORDER BY order_date DESC) WHERE ROWNUM = 1")
     Integer findMostRecentOrderIdByMemberId(int memberId);
 
-    @Select("SELECT * FROM purchase p JOIN book b on p.book_id=b.id JOIN member m on p.member_id=m.id "
-    		+ "where b.title LIKE '%'||#{keyword}||'%' OR b.author LIKE '%'||#{keyword}||'%' order by ${orderItem} ${order}")
-	public List<Purchase> getOrderedList(SearchRequest searchReq);
+//    @Select("SELECT * FROM purchase p JOIN book b on p.book_id=b.id JOIN member m on p.member_id=m.id "
+//    		+ "where b.title LIKE '%'||#{keyword}||'%' OR b.author LIKE '%'||#{keyword}||'%' order by ${orderItem} ${order}")
+    @Select("SELECT p.id, p.member_id, m.name AS member_name, p.order_date, p.order_id, SUM(b.price) OVER (PARTITION BY p.order_id) AS total_price, "
+    		+"b.id AS book_id, b.title AS book_title, p.quantity "
+    	    +"FROM purchase p "
+    	    +"JOIN member m ON p.member_id = m.id "
+    	    +"JOIN book b ON p.book_id = b.id "
+    	    +"WHERE b.title LIKE '%' || #{keyword} || '%' OR b.author LIKE '%' || #{keyword} || '%' "
+    	    +"ORDER BY ${orderItem} ${order}")
+    public List<PurchaseQueryResult> getPurchaseView(SearchRequest searchReq);
 
+//    @Select("SELECT b.id AS book_id, b.title AS book_title, p.quantity"
+//    	    +"FROM purchase p "
+//    	    +"JOIN book b ON p.book_id = b.id "
+//    	    +"WHERE p.order_id = #{orderId}")
+//    public List<BookDetailFragment> getBookDetailFragments(int orderId);
     
     @Select("SELECT * FROM purchase WHERE order_date BETWEEN #{startDate} AND #{endDate}")
     List<Purchase> findByDateRange(@Param("startDate") LocalDateTime startDate,

@@ -16,8 +16,11 @@ import cart.Cart;
 import cart.CartMapper;
 import data.Book;
 import data.BookMapper;
+import purchase.BookDetailFragment;
 import purchase.Purchase;
+import purchase.PurchaseFragment;
 import purchase.PurchaseMapper;
+import purchase.PurchaseQueryResult;
 import purchase.PurchaseView;
 import purchase.SalesView;
 import restapi.SearchRequest;
@@ -141,57 +144,45 @@ public class ManagerService {
 		return purchaseMapper.delete(id);
 	}
 
-	public List<PurchaseView> getPurchaseView() {
-	    // 매개변수 없이 호출하면 기본값으로 새로운 DTO를 넘겨서 호출
-	    return getPurchaseView(new SearchRequest());
-	}
 	//fetch POST 요청
 	public List<PurchaseView> getPurchaseView(SearchRequest searchReq) {
+		
 		//SQL Injection 검증
-		//System.out.println(searchReq);
-		List<Purchase> purchases;
-		if(searchReq.getKeyword() == null)
-			purchases = purchaseMapper.findAll();
-		else {
-			Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
-			if(!checkList.contains(searchReq.getOrderItem()) || 
-				(!searchReq.getOrder().equals("asc") && !searchReq.getOrder().equals("desc"))) {
-				throw new IllegalArgumentException("Invaild");
-			}
-			purchases = purchaseMapper.getOrderedList(searchReq);
+		Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
+		if(!checkList.contains(searchReq.getOrderItem()) || 
+			(!searchReq.getOrder().equals("asc") && !searchReq.getOrder().equals("desc"))) {
+			throw new IllegalArgumentException("Invaild");
 		}
 		
 		Map<Integer, PurchaseView> viewMap = new LinkedHashMap<>();
 		
-		for (Purchase p : purchases) {
-			int id = p.getId();
-			int orderId = p.getOrder_id();
-			
-			PurchaseView view = viewMap.get(orderId);
-			
-			if(view == null) {
-					view = 
-						PurchaseView.builder()
-						.id(p.getId())
-						.member_id(p.getMember_id())
-						.member_name(memberMapper.findById(p.getMember_id())
-						.getName()).order_date(p.getOrder_date())
-						.total_price(purchaseMapper.getPurchasePrice(purchaseMapper.findById(id).getOrder_id()))
-						.order_id(purchaseMapper.findById(id).getOrder_id())
-						.build();
-				
-				viewMap.put(orderId, view);
-			}
-			
-			PurchaseView.BookDetail bookDetail = 
-					PurchaseView.BookDetail.builder()
-					.book_id(p.getBook_id())
-					.book_title(bookMapper.findById(p.getBook_id()).getTitle())
-					.quantity(p.getQuantity())
-					.build();
+		for (PurchaseQueryResult result : purchaseMapper.getPurchaseView(searchReq)) {
+			int orderId = result.getOrder_id();
+            PurchaseView purchaseView = viewMap.get(orderId);
 
-			view.getBookList().add(bookDetail);
-		}
+            if (purchaseView == null) {
+                purchaseView = new PurchaseView();
+                purchaseView.setPurchaseList(
+            		new PurchaseFragment(
+	                    result.getId(), 
+	                    result.getMember_id(), 
+	                    result.getMember_name(), 
+	                    result.getOrder_date(), 
+	                    result.getTotal_price(), 
+	                    result.getOrder_id()
+	                )
+            	);
+                viewMap.put(orderId, purchaseView);
+            }
+
+            purchaseView.getBookList().add(
+            	new BookDetailFragment(
+                    result.getBook_id(),
+                    result.getBook_title(),
+                    result.getQuantity()
+            	)
+            );
+        }
 		return new ArrayList<>(viewMap.values());
 	}
 
