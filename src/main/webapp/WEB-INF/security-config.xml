@@ -17,6 +17,7 @@
 			
 	<security:intercept-url pattern="/purchase/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
 	<security:intercept-url pattern="/cart/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
+	<security:intercept-url pattern="/board/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
     <!-- Admin 전용 페이지: 로그인 필요 + ROLE_ADMIN 권한 -->
     <security:intercept-url pattern="/manager/**" access="hasRole('ROLE_ADMIN')" />
     
