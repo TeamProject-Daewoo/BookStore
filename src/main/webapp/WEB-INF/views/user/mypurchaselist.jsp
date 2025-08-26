@@ -209,6 +209,15 @@ th:nth-child(4), td:nth-child(4) {
   }
   .search-box button:hover {background: #1d4ed8;}
   canvas { width:100%; height:360px;}
+  .empty-list {
+    width: 95%;               /* 테이블 넓이 맞춤 */
+    max-width: 1200px;
+    font-family: sans-serif;  /* 글꼴 */
+    font-size: 30px;          /* 글자 크기 */
+    font-weight: bold;        /* 굵게 */
+    text-align: center;       /* 가운데 정렬 */
+    color: #FF2F2F;           /* 빨간색 */
+}
 </style>
 </head>
 <body>
@@ -263,17 +272,25 @@ th:nth-child(4), td:nth-child(4) {
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach var="purchase" items="${purchaseList}" varStatus="status">
-					<tr>
-						<td>${status.index + 1}</td>
-						<td>${purchase.book_title}</td>
-						<td><img class="book-img" src="${pageContext.request.contextPath}/resources/images/${purchase.img}" alt="책 이미지"/></td>
-						<td>${purchase.quantity}</td>
-						<td>${purchase.price}원</td>
-						<td><fmt:formatDate value="${purchase.order_date}"
-								pattern="yyyy-MM-dd" /></td>
-					</tr>
-				</c:forEach>
+				 <c:choose>
+                <c:when test="${not empty purchaseList}">
+                    <c:forEach var="purchase" items="${purchaseList}" varStatus="status">
+                        <tr>
+                            <td>${status.index + 1}</td>
+                            <td>${purchase.book_title}</td>
+                            <td><img class="book-img" src="${pageContext.request.contextPath}/resources/images/${purchase.img}" alt="책 이미지"/></td>
+                            <td>${purchase.quantity}</td>
+                            <td>${purchase.price}원</td>
+                            <td><fmt:formatDate value="${purchase.order_date}" pattern="yyyy-MM-dd"/></td>
+                        </tr>
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <tr class="empty-list">
+                        <td colspan="6" style="text-align:center;">해당하는 구매내역이 없습니다.</td>
+                    </tr>
+                </c:otherwise>
+            </c:choose>
 			</tbody>
 		</table>	
 </div>
