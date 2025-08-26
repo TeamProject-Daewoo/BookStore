@@ -199,6 +199,13 @@ public class UserService {
 		return result;
 	}
 
-
+	// 사용자의 역할을 반환 (ROLE_USER or ROLE_ADMIN)
+    public String getRoleByUsername(String username) {
+        Member member = memberMapper.findByUsername(username);
+        if (member != null) {
+            return member.getRole();  // ROLE_USER 또는 ROLE_ADMIN
+        }
+        return "ROLE_USER";  // 기본값 ROLE_USER
+    }
 	
 }

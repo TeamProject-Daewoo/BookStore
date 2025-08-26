@@ -53,7 +53,9 @@ public interface BoardMapper {
             "WHERE id = #{id} AND user_id = #{user_id}")
     int deleteOwned(@Param("id") Long id, @Param("user_id") String userId);
 
-	int delete(Long id);
+    // 관리자는 모든 게시글 삭제 가능
+    @Delete("DELETE FROM board WHERE id = #{id}")
+    int delete(@Param("id") Long id); // 관리자 전용 삭제 메서드
 
 	// 조회수 증가
 	@Update("UPDATE board " +

@@ -1,7 +1,10 @@
 package board;
 
 import lombok.RequiredArgsConstructor;
+import user.UserService;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
 
@@ -18,6 +21,9 @@ public class BoardController {
 	@Autowired
     private final BoardService boardService;  // ★ BoardService 주입
 
+	@Autowired
+	private final UserService userService;
+	
     private static final String MAIN_URL = "board/";
 
     @GetMapping("/main")
@@ -112,10 +118,25 @@ public class BoardController {
         return "redirect:/board/view?id=" + id;
     }
 
-    // ✅ 삭제 (소유자만)
+    // ✅ 삭제 (소유자 / 관리자 가능)
     @PostMapping("/delete")
     public String delete(@RequestParam Long id, Principal principal) {
-        boardService.deleteOwned(id, principal.getName());
+        String currentUserId = principal.getName();
+        boolean isAdmin = isAdmin(principal); // 관리자 여부 체크
+
+        try {
+            boardService.deleteOwned(id, currentUserId, isAdmin);
+        } catch (IllegalArgumentException e) {
+            String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            return "redirect:/board/main?error=" + errorMessage + "&cartCount=0";
+        }
+
         return "redirect:/board/main";
+    }
+
+    // 관리자 여부 체크 메서드
+    private boolean isAdmin(Principal principal) {
+        String role = userService.getRoleByUsername(principal.getName());
+        return "ROLE_ADMIN".equals(role);  // ROLE_ADMIN이면 관리자
     }
 }

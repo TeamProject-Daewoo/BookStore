@@ -27,43 +27,45 @@
     .btn:hover { background:#45a049; }
     .inline-form { display:inline; margin-left:8px; }
   </style>
-  <sec:authentication property="principal.authorities" var="auths" />
 </head>
 <body id="pageBody">
   <div class="view-wrap">
-    <!-- 번호 행 + 우측 액션 버튼 -->
+    <!-- 번호 + 액션 버튼 -->
     <div class="view-row row-flex">
       <div><span class="label">번호</span> ${post.id}</div>
 
-      <!-- 로그인했고, 글 주인일 때만 버튼 노출 -->
+      <!-- 로그인한 사용자만 버튼 표시 -->
       <sec:authorize access="isAuthenticated()">
-            <div>
-              <c:if test="${post.user_id == pageContext.request.userPrincipal.name}">
-            	<a class="btn" href="${pageContext.request.contextPath}/board/edit?id=${post.id}">수정</a>
-              </c:if>
-              <!-- 관리자는 다른 계정의 board 삭제 가능 -->
-              <c:if test="${post.user_id == pageContext.request.userPrincipal.name or auths.toString().contains('ROLE_ADMIN')}">
-	            <form class="inline-form" method="post" action="${pageContext.request.contextPath}/board/delete">
-	              <input type="hidden" name="id" value="${post.id}">
-	              <c:if test="${not empty _csrf}">
-	                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-	              </c:if>
-	              <button class="btn" type="submit" onclick="return confirm('삭제하시겠습니까?');">삭제</button>
-	            </form>
-            </c:if>
-          </div>
-      </sec:authorize>
+  <sec:authentication property="principal.authorities" var="auths" />
+  <div>
+    <!-- 작성자 수정 -->
+    <c:if test="${post.user_id == pageContext.request.userPrincipal.name}">
+      <a class="btn" href="${pageContext.request.contextPath}/board/edit?id=${post.id}">수정</a>
+    </c:if>
+
+    <!-- 작성자 또는 관리자 삭제 -->
+    <c:if test="${post.user_id == pageContext.request.userPrincipal.name or auths.toString().contains('ROLE_ADMIN')}">
+      <form class="inline-form" method="post" action="${pageContext.request.contextPath}/board/delete">
+        <input type="hidden" name="id" value="${post.id}">
+        <c:if test="${not empty _csrf}">
+          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        </c:if>
+        <button class="btn" type="submit" onclick="return confirm('삭제하시겠습니까?');">삭제</button>
+      </form>
+    </c:if>
+  </div>
+</sec:authorize>
     </div>
 
+    <!-- 제목, 작성자, 내용 -->
     <div class="view-row"><span class="label">제목</span> <c:out value="${post.title}"/></div>
-    <div class="view-row"><span class="label">작성자</span> <c:out value="${post.author}"/>
-    </div>
-
+    <div class="view-row"><span class="label">작성자</span> <c:out value="${post.author}"/></div>
     <div class="view-row">
       <div class="label">내용</div>
       <div class="content-box"><c:out value="${post.content}"/></div>
     </div>
 
+    <!-- 목록 버튼 -->
     <div class="btns">
       <a class="btn" href="${pageContext.request.contextPath}/board/main">목록</a>
     </div>

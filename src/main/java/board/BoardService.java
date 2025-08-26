@@ -45,10 +45,20 @@ public class BoardService {
 
     // ✅ 소유자 검증된 삭제
     @Transactional
-    public int deleteOwned(Long id, String currentUserId) {
-        return boardMapper.deleteOwned(id, currentUserId); // 성공:1, 실패:0
-    }
+    public void deleteOwned(Long id, String currentUserId, boolean isAdmin) {
+        Board post = boardMapper.selectById(id);
+        if (post == null) {
+            throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
+        }
 
+        // 작성자 또는 관리자만 삭제 가능
+        if (post.getUser_id().equals(currentUserId) || isAdmin) {
+            boardMapper.delete(id); // 관리자라면 모든 게시글 삭제
+        } else {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+    }
+    
     @Transactional
     public void incrementViewCount(Long id) {
         boardMapper.updateViewCount(id);

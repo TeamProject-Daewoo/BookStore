@@ -5,16 +5,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>게시판</title>
+    <title>자유 게시판</title>
     <style>
-        /* 기본 페이지 스타일 */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
-
         h1#pageTitle {
             text-align: center;
             margin: 30px 0 10px 0;
@@ -22,58 +20,7 @@
             color: #333;
         }
 
-        /* 테이블 스타일 */
-        #boardTable {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        #boardTable th, #boardTable td {
-            padding: 12px;
-            text-align: center;
-        }
-
-        #boardTable th {
-            background-color: #4CAF50;
-            color: white;
-            font-weight: 600;
-        }
-
-        #boardTable td {
-            border-bottom: 1px solid #eee;
-            color: #555;
-        }
-
-        #boardTable tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        #boardTable tr:hover {
-            background-color: #e8f5e9;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        /* 컬럼별 너비 조정 */
-        #boardTable th:nth-child(1), #boardTable td:nth-child(1) { width: 60px; }   /* 번호 */
-        #boardTable th:nth-child(2), #boardTable td:nth-child(2) { width: 50%; }    /* 제목 */
-        #boardTable th:nth-child(3), #boardTable td:nth-child(3) { width: 120px; }  /* 작성자 */
-        #boardTable th:nth-child(4), #boardTable td:nth-child(4) { width: 120px; }  /* 작성일 */
-        #boardTable th:nth-child(5), #boardTable td:nth-child(5) { width: 80px; }   /* 조회수 */
-
-        /* 제목 칸 줄임말 처리 */
-        .title-cell {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* 작성 버튼 */
+        /* 글쓰기 버튼 */
         #writeBtn {
             display: block;
             width: 120px;
@@ -88,51 +35,46 @@
             text-decoration: none;
             transition: background-color 0.3s, transform 0.2s;
         }
+        #writeBtn:hover { background-color: #45a049; transform: translateY(-2px); }
 
-        #writeBtn:hover {
-            background-color: #45a049;
-            transform: translateY(-2px);
+        /* 테이블 스타일 */
+        #boardTable {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
         }
+        #boardTable th, #boardTable td { padding: 12px; text-align: center; }
+        #boardTable th { background-color: #4CAF50; color: white; font-weight: 600; }
+        #boardTable td { border-bottom: 1px solid #eee; color: #555; }
+        #boardTable tr:nth-child(even) { background-color: #f9f9f9; }
+        #boardTable tr:hover { background-color: #e8f5e9; cursor: pointer; transition: background-color 0.2s; }
+        #boardTable th:nth-child(1), #boardTable td:nth-child(1) { width: 60px; }
+        #boardTable th:nth-child(2), #boardTable td:nth-child(2) { width: 50%; }
+        #boardTable th:nth-child(3), #boardTable td:nth-child(3) { width: 120px; }
+        #boardTable th:nth-child(4), #boardTable td:nth-child(4) { width: 120px; }
+        #boardTable th:nth-child(5), #boardTable td:nth-child(5) { width: 80px; }
+        .title-cell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* 페이지 네비게이션 */
-        .pagination {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .pagination a {
-            margin: 0 5px;
-            padding: 6px 12px;
-            text-decoration: none;
-            color: #4CAF50;
-            border: 1px solid #4CAF50;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-
-        .pagination a:hover {
-            background-color: #4CAF50;
-            color: #fff;
-        }
-
-        .pagination strong {
-            margin: 0 5px;
-            padding: 6px 12px;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 4px;
-        }
-
-        .disabled {
-            pointer-events: none;
-            color: gray;
-            border-color: gray;
-        }
+        /* 페이지네비게이션 */
+        .pagination { text-align: center; margin: 20px 0; }
+        .pagination a { margin: 0 5px; padding: 6px 12px; text-decoration: none; color: #4CAF50; border: 1px solid #4CAF50; border-radius: 4px; transition: all 0.3s; }
+        .pagination a:hover { background-color: #4CAF50; color: #fff; }
+        .pagination strong { margin: 0 5px; padding: 6px 12px; background-color: #4CAF50; color: white; border-radius: 4px; }
+        .disabled { pointer-events: none; color: gray; border-color: gray; }
     </style>
-    <sec:authentication property="principal.username" var="currentUsername" />
 </head>
 <body>
-<h1 id="pageTitle">게시판</h1>
+
+<h1 id="pageTitle">자유 게시판</h1>
+
+<!-- 로그인 상태일 때만 currentUsername 변수 설정 -->
+<sec:authorize access="isAuthenticated()">
+    <sec:authentication property="principal.username" var="currentUsername" />
+</sec:authorize>
 
 <!-- 글 목록 테이블 -->
 <table id="boardTable">
@@ -148,21 +90,14 @@
     <tbody>
     <c:choose>
         <c:when test="${empty posts}">
-            <tr>
-                <td colspan="5">등록된 글이 없습니다.</td>
-            </tr>
+            <tr><td colspan="5">등록된 글이 없습니다.</td></tr>
         </c:when>
         <c:otherwise>
             <c:forEach var="p" items="${posts}">
                 <tr onclick="location.href='${pageContext.request.contextPath}/board/view?id=${p.id}'">
                     <td>${p.id}</td>
-                    <td class="title-cell">
-                        <c:out value="${p.title}"/>
-                    </td>
+                    <td class="title-cell"><c:out value="${p.title}"/></td>
                     <td>
-                        <c:if test="${p.author == currentUsername}">
-                            <span>⭐</span>
-                        </c:if>
                         <c:out value="${p.author}"/>
                     </td>
                     <td>${p.createdAt}</td>
@@ -192,12 +127,15 @@
     </c:if>
 </div>
 
-<!-- 작성 버튼 -->
+<!-- 글쓰기 버튼: 테이블 아래 -->
 <sec:authorize access="isAuthenticated()">
-    <a id="writeBtn" href="${pageContext.request.contextPath}/board/write">작성</a>
+    <a id="writeBtn" href="${pageContext.request.contextPath}/board/write">글쓰기</a>
 </sec:authorize>
 <sec:authorize access="!isAuthenticated()">
-    <a id="writeBtn" href="#" onclick="alert('로그인이 필요합니다.'); return false;">작성</a>
+    <a id="writeBtn" href="#" 
+       onclick="alert('로그인이 필요합니다.'); location.href='${pageContext.request.contextPath}/user/loginform'; return false;">
+       글쓰기
+    </a>
 </sec:authorize>
 
 <script>
@@ -211,5 +149,6 @@
         else next.classList.remove("disabled");
     }
 </script>
+
 </body>
 </html>
