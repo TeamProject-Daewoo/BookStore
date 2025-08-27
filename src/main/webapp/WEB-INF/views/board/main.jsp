@@ -39,7 +39,7 @@
 
         /* 테이블 스타일 */
         #boardTable {
-            width: 80%;
+            width: 60%;
             margin: 20px auto;
             border-collapse: collapse;
             background-color: #fff;
