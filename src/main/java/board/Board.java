@@ -28,4 +28,5 @@ public class Board {
     private String createdAt; // 작성일 (Oracle DATE -> Java LocalDateTime)
     private String user_id;
     private Integer viewCount;       // 조회수 추가
+    private int commentCount; // getter/setter 포함
 }

@@ -37,4 +37,8 @@ public class CommentService {
         commentMapper.updateComment(comment);
     }
 
+    public int countByBoardId(Long boardId) {
+        return commentMapper.countByBoardId(boardId); // Mapper에 쿼리 필요
+    }
+
 }

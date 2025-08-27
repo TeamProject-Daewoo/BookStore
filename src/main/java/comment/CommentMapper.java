@@ -47,5 +47,8 @@ public interface CommentMapper {
     // 댓글 수정
     @Update("UPDATE board_comment SET content=#{content} WHERE comment_id=#{commentId}")
     void updateComment(Comment comment);
+    
+    @Select("SELECT COUNT(*) FROM board_comment WHERE board_id = #{boardId}")
+    int countByBoardId(Long boardId);
 
 }

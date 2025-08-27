@@ -43,7 +43,14 @@ public class BoardController {
     public String boardMain(Model model,
                             @RequestParam(defaultValue = "1") int page,
                             @RequestParam(defaultValue = "10") int size) {
-        List<Board> posts = boardService.findPage(page, size);  // var → List<Board>
+        List<Board> posts = boardService.findPage(page, size);
+        
+        // 각 게시글에 댓글 수 추가
+        for (Board post : posts) {
+            int commentCount = commentService.countByBoardId(post.getId());
+            post.setCommentCount(commentCount); // Board 클래스에 필드 추가 필요
+        }
+
         int totalCount = boardService.countAll();
         int totalPages = (int) Math.ceil((double) totalCount / size);
 

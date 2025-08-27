@@ -96,7 +96,12 @@
             <c:forEach var="p" items="${posts}">
                 <tr onclick="location.href='${pageContext.request.contextPath}/board/view?id=${p.id}'">
                     <td>${p.id}</td>
-                    <td class="title-cell"><c:out value="${p.title}"/></td>
+                     <td class="title-cell">
+    					<c:out value="${p.title}"/> 
+    					<span style="color: gray; font-size: 0.9em;">
+        					[<c:out value="${p.commentCount}"/>]
+    					</span>
+					</td>
                     <td>
                         <c:out value="${p.author}"/>
                     </td>
