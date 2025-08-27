@@ -1,6 +1,8 @@
 package board;
 
 import lombok.RequiredArgsConstructor;
+import review.Review;
+import review.ReviewService;
 import user.UserService;
 
 import java.net.URLEncoder;
@@ -9,21 +11,32 @@ import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import comment.Comment;
+import comment.CommentService;
+import data.Book;
 
 @Controller
 @RequestMapping("/board")
 @RequiredArgsConstructor
 public class BoardController {
 
+	
 	@Autowired
     private final BoardService boardService;  // ★ BoardService 주입
 
 	@Autowired
 	private final UserService userService;
 	
+	@Autowired
+	private CommentService commentService;
+	    
+	  
     private static final String MAIN_URL = "board/";
 
     @GetMapping("/main")
@@ -73,14 +86,27 @@ public class BoardController {
     
     // ✅ 상세 보기
     @GetMapping("/view")
-    public String view(@RequestParam Long id, Model model) {
-    	boardService.incrementViewCount(id);  // 조회수 증가
+    public String view(@RequestParam Long id, Model model, Principal principal) {
+        boardService.incrementViewCount(id);  
+        List<Comment> comments = commentService.getCommentsByBoardId(id); 
+        model.addAttribute("comments", comments); 
+        
         Board post = boardService.findById(id);
         if (post == null) {
             return "redirect:/board/main";
         }
         model.addAttribute("post", post);
-        model.addAttribute("page", MAIN_URL + "view"); // /WEB-INF/views/board/view.jsp
+        
+        // ✅ 로그인 사용자 정보 추가
+        if (principal != null) {
+            String userId = principal.getName();
+            model.addAttribute("user", userId);
+            
+            String role = userService.getRoleByUsername(userId); // ex: ROLE_USER or ROLE_ADMIN
+            model.addAttribute("userRoles", role);
+        }
+        
+        model.addAttribute("page", MAIN_URL + "view"); 
         return "index";
     }
     
@@ -138,5 +164,33 @@ public class BoardController {
     private boolean isAdmin(Principal principal) {
         String role = userService.getRoleByUsername(principal.getName());
         return "ROLE_ADMIN".equals(role);  // ROLE_ADMIN이면 관리자
+    }
+    
+    @RequestMapping("addComment")
+    public String addComment(@RequestParam int boardId, @ModelAttribute Comment comment, Authentication authentication) {
+        comment.setUserId(authentication.getName());
+        comment.setBoardId(boardId); // 게시판 ID 설정
+        commentService.saveComment(comment); // 댓글 저장 서비스 호출
+        return "redirect:/board/view?id=" + boardId; // 게시글 상세보기로 리다이렉트
+    }
+
+    @RequestMapping("/commentDelete")
+    public String deleteComment(@RequestParam int commentId) {
+        int boardId = commentService.findById(commentId).getBoardId(); // 해당 댓글의 게시판 ID 추출
+        commentService.deleteComment(commentId); // 댓글 삭제 서비스 호출
+        return "redirect:/board/view?id=" + boardId; // 게시글 상세보기로 리다이렉트
+    }
+
+    @PostMapping("/commentEdit")
+    public String editComment(@ModelAttribute Comment comment, RedirectAttributes redirectAttributes) {
+
+        if(comment.getCommentId() == null) {
+            redirectAttributes.addFlashAttribute("msg", "댓글 ID가 존재하지 않습니다.");
+            return "redirect:/board/view?id=" + comment.getBoardId();
+        }
+
+        commentService.updateComment(comment);
+
+        return "redirect:/board/view?id=" + comment.getBoardId();
     }
 }
