@@ -23,6 +23,7 @@ import purchase.PurchaseMapper;
 import purchase.PurchaseQueryResult;
 import purchase.PurchaseView;
 import purchase.SalesView;
+import purchase.SumList;
 import restapi.SearchRequest;
 import user.Member;
 import user.MemberMapper;
@@ -186,16 +187,8 @@ public class ManagerService {
 		return new ArrayList<>(viewMap.values());
 	}
 
-	public int getTotalSum() {
-		int totalsum = 0;
-		
-		for(Purchase p : purchaseMapper.findAll()) {
-			int id = p.getId();
-			
-			totalsum += purchaseMapper.getTotalPrice(id);
-		}
-		
-		return totalsum;
+	public SumList getTotalSum() {
+		return purchaseMapper.getTotalList();
 	}
 
 	public SalesView getSalesView(SearchRequest searchReq) {

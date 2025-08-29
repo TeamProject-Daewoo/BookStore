@@ -13,10 +13,40 @@
   th:nth-child(1), td:nth-child(1) { text-align:left; }
   th:nth-child(4), td:nth-child(4) { text-align:right; }
   tbody tr:hover { background:#eef5ff; }
-  .total-sum {
-    width:95%; max-width:1200px; margin:0 auto 30px; font-family:sans-serif;
-    font-size:48px; font-weight:bold; text-align:center; color:#2a5298;
-  }
+  .daily-sum, .monthly-sum, .yearly-sum, .total-sum {
+  width: 250px;
+  padding: 20px;
+  margin: 15px;
+  border-radius: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.daily-sum {
+  background: linear-gradient(150deg, #f0a8a8, #fa004b);
+}
+
+.monthly-sum {
+  background: linear-gradient(150deg, #0084d6, #7eeaec);
+}
+
+.yearly-sum {
+  background: linear-gradient(150deg, #f5ff70, #ffa742);
+}
+
+.total-sum {
+  background: linear-gradient(150deg, #aeffa8, #0cc64d);
+}
+
+.daily-sum:hover, .monthly-sum:hover, .yearly-sum:hover, .total-sum:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
   .empty-list {
     width:95%; max-width:1200px; font-family:sans-serif;
     font-size:30px; font-weight:bold; text-align:center; color:#FF2F2F;
@@ -30,6 +60,8 @@
   .card h3 { margin:0 0 12px; color:#333; text-align:left; font-family:sans-serif; }
   .chart-buttons button { border: 1px solid #ccc; background-color: #f0f0f0; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em; }
   .chart-buttons button.active { background-color: #6c7ae0; color: white; border-color: #6c7ae0; font-weight: bold; }
+  .chart-buttons button.active:hover { background-color: #5c7ade; }
+  .chart-buttons button:not(.active):hover { background-color: #e0e0e0; }
   #orderSelect {
 	  height: 40px;
 	  background-size: 20px;
@@ -98,7 +130,12 @@
 <div class="container">
 <h2>판매 현황</h2>
 
+<div style="display: flex;">
+<div class="daily-sum"></div>
+<div class="monthly-sum"></div>
+<div class="yearly-sum"></div>
 <div class="total-sum"></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -109,6 +146,7 @@
       	  <!-- 통계 추가할 때 클래스명 'chartType-btn'으로 하기(script에서 동적 처리) -->
           <button id="daily-btn" onclick="changeChartType('daily')">일별</button>
           <button id="month-btn" onclick="changeChartType('month')">월별</button>
+          <button id="year-btn" onclick="changeChartType('year')">연도별</button>
       </div>
       <canvas id="recentSale"></canvas>
     </div>
@@ -185,73 +223,88 @@ function getBookInfor(books, td) {
 function recentSalesRender(result, chartType) {
 	// 1. 차트 데이터를 담을 공통 변수 선언
 	let labels, amounts, datasetLabel;
-
+	const today = new Date();
+	let tempDate = [];
+	const amountMap = {};
+	const dateCount = 7;
+	
 	// 2. chartType에 따라 변수에 데이터 할당
 	switch(chartType) {
 		case "daily": {
 			datasetLabel = '일별 판매금액';
-
-			// 최근 7일 날짜 배열 생성
-			const today = new Date();
-			const days = [];
-			for (let i = 6; i >= 0; i--) {
+			for (let i = dateCount-1; i >= 0; i--) {
 				const d = new Date(today);
 				d.setDate(today.getDate() - i);
 				const y  = d.getFullYear();
 				const m  = String(d.getMonth() + 1).padStart(2, '0');
 				const dd = String(d.getDate()).padStart(2, '0');
-				days.push(y + '-' + m + '-' + dd);
+				tempDate.push(y + '-' + m + '-' + dd);
 			}
 
 			// 일별 매출 집계
-			const dailyAmountMap = {};
-			for (const day of days) dailyAmountMap[day] = 0;
-
+			for (const day of tempDate) amountMap[day] = 0;
+			
 			result.purchase.forEach(function (p) {
 				const d = new Date(p.purchaseList.order_date);
 				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-				if (dailyAmountMap.hasOwnProperty(key)) {
-					dailyAmountMap[key] += Number(p.purchaseList.total_price || 0);
+				if (amountMap.hasOwnProperty(key)) {
+					amountMap[key] += Number(p.purchaseList.total_price || 0);
 				}
 			});
 
 			// 최종 데이터 할당
-			labels  = days.map(d => d.slice(5)); // 'MM-DD' 형식
-			amounts = days.map(d => dailyAmountMap[d]);
+			labels  = tempDate.map(d => d.slice(5)); // 'MM-DD' 형식
 			break;
 		}
 		case "month": {
 			datasetLabel = '월별 판매금액';
-
-			// 최근 7개월 배열 생성
-			const today = new Date();
-			const months = [];
-			for (let i = 6; i >= 0; i--) {
+			for (let i = dateCount-1; i >= 0; i--) {
 				const d = new Date(today);
 				d.setMonth(today.getMonth() - i);
 				const y = d.getFullYear();
 				const m = String(d.getMonth() + 1).padStart(2, '0');
-				months.push(y + '-' + m);
+				tempDate.push(y + '-' + m);
 			}
 
 			// 월별 매출 집계
-			const monthlyAmountMap = {};
-			for (const month of months) monthlyAmountMap[month] = 0;
+			for (const month of tempDate)
+				amountMap[month] = 0;
 
 			result.purchase.forEach(function (p) {
 				const d = new Date(p.purchaseList.order_date);
 				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-				if (monthlyAmountMap.hasOwnProperty(key)) {
-					monthlyAmountMap[key] += Number(p.purchaseList.total_price || 0);
+				if (amountMap.hasOwnProperty(key)) {
+					amountMap[key] += Number(p.purchaseList.total_price || 0);
 				}
 			});
 		
 			//최종 데이터 할당
-			labels = months; // 'YYYY-MM' 형식
-			amounts = months.map(m => monthlyAmountMap[m]);
+			labels = tempDate;
 			break;
 		}
+		case "year": {
+		    datasetLabel = '연도별 판매금액';
+
+		    const currentYear = today.getFullYear();
+		    for (let i = dateCount-1; i >= 0; i--)
+		    	tempDate.push(currentYear - i);
+
+		    const yearlyAmountMap = {};
+		    for (const year of tempDate)
+		    	amountMap[year] = 0;
+		    
+		    result.purchase.forEach(function (p) {
+		        const d = new Date(p.purchaseList.order_date);
+		        const year = d.getFullYear();
+		        if (amountMap.hasOwnProperty(year))
+		        	amountMap[year] += Number(p.purchaseList.total_price || 0);
+		    });
+
+		    labels = Object.keys(amountMap).sort();
+		}
 	}
+	
+	amounts = tempDate.map(d => amountMap[d]);
 
    	let chartDiv = document.getElementById('recentSale');
    	if(charts[0]) charts[0].destroy();
@@ -362,7 +415,8 @@ function changeChartType(newType) {
 	//newType에 맞는 버튼만 활성화 표시
     document.getElementById("daily-btn").classList.toggle("active", chartType === "daily");
     document.getElementById("month-btn").classList.toggle("active", chartType === "month");
-    titleEl.textContent = (chartType === "daily") ? '최근 7일 일별 판매금액' : '최근 7개월 월별 판매금액';
+    document.getElementById("year-btn").classList.toggle("active", chartType === "year");
+    titleEl.textContent = (chartType === "daily") ? '최근 7일 일별 판매금액' : (chartType === "month") ? '최근 7개월 월별 판매금액' : "최근 7년 연도별 판매금액";
     render({recentSales:true, topBooks:false, table:false});
 }
 /**
@@ -390,17 +444,24 @@ function render(renderElements) {
 	})
 	.then(response => response.json())
 	.then(result => {
-		//console.log(result);
-	  	//총합계
-	  	document.getElementsByClassName("total-sum")[0].textContent = "전체 판매 합계:"+result.totalSum;
+		console.log(result);
 		
+	  	//총합계 랜더링
+	  	const salesMap = {
+	  		"daily-sum":["일별", "daily"],
+	  		"monthly-sum":["월별", "monthly"], 
+	  		"yearly-sum": ["연도별", "yearly"], 
+	  		"total-sum": ["전체", "total"]
+	  	}
+	  	for (const key in salesMap)
+	  		document.getElementsByClassName(key)[0].textContent = salesMap[key][0]+" 매출: "+result.totalSum[salesMap[key][1]].toLocaleString()+" \\";
+	  	//테이블 랜더링
 	  	if(renderElements.table) 
-	    	tableRender(result);
-	    
-	    //최근 판매 현황
+	   		tableRender(result);
+	    //최근 판매 현황 랜더링 
 	    if(renderElements.recentSales)
 	 		recentSalesRender(result, chartType);
-	    //일별/월별 판매만 랜더링
+	    //top5 랜더링
 	 	if(renderElements.topBooks)
 	 		topBooksRender(result);
 	});

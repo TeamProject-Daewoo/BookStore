@@ -44,6 +44,15 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	//@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.order_id = #{orderId} GROUP BY p.order_id")
 	//public int getPurchasePrice(int order_id);
 
+	@Select("SELECT "
+			+ "NVL(SUM(p.quantity * b.price), 0) AS total, "
+			+ "NVL(SUM(CASE WHEN TRUNC(p.order_date) = TRUNC(SYSDATE) THEN p.quantity * b.price ELSE 0 END), 0) AS daily, "
+			+ "NVL(SUM(CASE WHEN TO_CHAR(p.order_date, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM') THEN p.quantity * b.price ELSE 0 END), 0) AS monthly, "
+			+ "NVL(SUM(CASE WHEN TO_CHAR(p.order_date, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY') THEN p.quantity * b.price ELSE 0 END), 0) AS yearly "
+			+ "FROM purchase p "
+			+ "JOIN book b ON p.book_id = b.id")
+	public SumList getTotalList();
+	
 	@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.id = #{Id} GROUP BY p.id")
 	public int getTotalPrice(int id);
 

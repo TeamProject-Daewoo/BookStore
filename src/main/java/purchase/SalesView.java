@@ -9,5 +9,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class SalesView {
 	private List<PurchaseView> purchase;
-	private int totalSum;
+	private SumList totalSum;
 }
