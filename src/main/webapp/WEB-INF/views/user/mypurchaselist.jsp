@@ -278,7 +278,7 @@ th:nth-child(4), td:nth-child(4) {
                         <tr>
                             <td>${status.index + 1}</td>
                             <td>${purchase.book_title}</td>
-                            <td><img class="book-img" src="${pageContext.request.contextPath}/resources/images/${purchase.img}" alt="책 이미지"/></td>
+                            <td><img class="book-img" src="${purchase.img}" alt="책 이미지"/></td>
                             <td>${purchase.quantity}</td>
                             <td>${purchase.price}원</td>
                             <td><fmt:formatDate value="${purchase.order_date}" pattern="yyyy-MM-dd"/></td>
