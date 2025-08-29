@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -14,17 +15,7 @@
     margin: 0px;
     color: #333;
   }
-
-  /* 탭 영역 */
-  .tabs { margin-bottom: 20px; }
-  .tabs ul { list-style: none; padding: 0; display: flex; border-bottom: 2px solid #ddd; }
-  .tabs ul li { margin-right: 20px; }
-  .tabs ul li a {
-    display: block; padding: 10px 18px; text-decoration: none; color: #555; font-weight: 600;
-    border-bottom: 3px solid transparent; transition: all 0.3s ease;
-  }
-  .tabs ul li.active a, .tabs ul li a:hover { color: #3498db; border-color: #3498db; }
-
+  
   /* 컨테이너 영역 */
   .container {
     background: white; padding: 20px 25px; border-radius: 8px;
@@ -49,14 +40,17 @@
   tbody tr:hover { background-color: #f1f7ff; }
   tbody td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
 
-  /* 설명 칸 줄임 처리 */
-  tbody td:nth-child(7) {
-    max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  /* (핵심 수정) 긴 텍스트 줄임 처리 스타일 */
+  .truncate-cell {
+    max-width: 250px; /* 최대 너비를 설정하여 이보다 길어지면 ... 처리 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* 이미지 칸 썸네일 */
-  tbody td:nth-child(6) { padding: 6px; }
-  tbody td:nth-child(6) img {
+  td.image-cell { text-align: center; } /* 클래스로 변경 */
+  td.image-cell img {
     max-width: 60px; height: 60px; object-fit: cover; border-radius: 4px;
   }
 
@@ -93,14 +87,12 @@
       <tbody>
         <c:forEach var="book" items="${list}">
           <tr>
-            <%-- 1. 화면에는 내부 ID를 표시하도록 변경 --%>
             <td>${book.id}</td>
-            <td>${book.title}</td>
-            <td>${book.author}</td>
-            <td>${book.price}</td>
+            <td class="truncate-cell" title="${book.title}">${book.title}</td>
+            <td class="truncate-cell" title="${book.author}">${book.author}</td>
+            <td><fmt:formatNumber value="${book.price}" pattern="#,###" />원</td>
             <td>${book.stock}</td>
-            <td>
-              <%-- 2. 이미지 경로를 로컬/API 경우에 따라 다르게 처리 --%>
+            <td class="image-cell">
               <c:if test="${not empty book.img}">
                 <c:choose>
                   <c:when test="${book.img.startsWith('http')}">
@@ -112,10 +104,9 @@
                 </c:choose>
               </c:if>
             </td>
-            <td>${book.description}</td>
+            <td class="truncate-cell" title="${book.description}">${book.description}</td>
             <td>${book.category}</td>
             <td class="actions">
-              <%-- 3. 관리 기능은 내부 ID를 기준으로 동작하므로 id 파라미터를 사용 --%>
               <a href="${pageContext.request.contextPath}/manager/bookeditform?id=${book.id}">수정</a>
               <a href="${pageContext.request.contextPath}/manager/bookdelete?id=${book.id}"
                  onclick="return confirm('정말로 이 책을 삭제하시겠습니까?');">삭제</a>
