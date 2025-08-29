@@ -68,7 +68,6 @@
 <div>
   <div class="container" id="content-container">
     <h2>책 목록 (관리자)</h2>
-    <a href="${pageContext.request.contextPath}/manager/insertform" class="add-button">새 책 추가</a>
 
     <table>
       <thead>
