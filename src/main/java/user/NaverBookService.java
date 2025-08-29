@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ibatis.javassist.compiler.ast.Keyword;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -37,9 +38,9 @@ public class NaverBookService {
         headers.set("X-Naver-Client-Id", CLIENT_ID);
         headers.set("X-Naver-Client-Secret", CLIENT_SECRET);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
+        
         URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com").path("/v1/search/book.json")
-                .queryParam("query", keyword).queryParam("display", 20).encode(StandardCharsets.UTF_8).build().toUri();
+                .queryParam("query", (keyword == null || keyword.length() == 0 ? "책" : keyword)).queryParam("display", 20).encode(StandardCharsets.UTF_8).build().toUri();
 
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
         return parseJsonToBookList(response.getBody());
