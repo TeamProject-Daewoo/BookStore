@@ -18,3 +18,4 @@ Thumbs.db
 !.gitkeep
 
 /src/main/resources/db.properties
+/src/main/resources/api.properties

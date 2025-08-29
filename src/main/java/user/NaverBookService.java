@@ -39,7 +39,7 @@ public class NaverBookService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com").path("/v1/search/book.json")
-                .queryParam("query", keyword).queryParam("display", 20).encode(StandardCharsets.UTF_8).build().toUri();
+                .queryParam("query", keyword).queryParam("display", 50).encode(StandardCharsets.UTF_8).build().toUri();
 
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
         return parseJsonToBookList(response.getBody());
@@ -86,7 +86,7 @@ public class NaverBookService {
                 price = item.optInt("price");
             }
             book.setPrice(price);
-            book.setStock(10);
+            book.setStock(30);
             
             // === (핵심 수정) 스크래핑 우선 로직 ===
             String category = "기타"; // 기본값을 '기타'로 설정
