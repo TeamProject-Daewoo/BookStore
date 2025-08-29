@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,8 +24,11 @@ import data.Book;
 @Service
 public class NaverBookService {
 
-    private final String CLIENT_ID = "3g1hOGZA5qAl2lqOIKEv";
-    private final String CLIENT_SECRET = "JbAZ3W50hS";
+    @Value("${naver.api.clientId}")
+    private String CLIENT_ID;
+
+    @Value("${naver.api.clientSecret}")
+    private String CLIENT_SECRET;
 
     // --- searchBooks, searchBookByIsbn 메서드는 기존과 동일 ---
     public List<Book> searchBooks(String keyword) {
