@@ -28,29 +28,22 @@ public class NaverBookService {
      * 키워드로 책을 검색하는 메서드 (일반 검색)
      */
     public List<Book> searchBooks(String keyword) {
-        // RestTemplate 객체 생성 (사전 설정으로 Bean으로 등록하는 것을 추천)
         RestTemplate restTemplate = new RestTemplate();
-
-        // HTTP 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Naver-Client-Id", CLIENT_ID);
         headers.set("X-Naver-Client-Secret", CLIENT_SECRET);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        // URI 설정
         URI uri = UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com")
                 .path("/v1/search/book.json")
                 .queryParam("query", keyword)
-                .queryParam("display", 20) // 20개까지 결과 가져오기
+                .queryParam("display", 20)
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
 
-        // API 호출 및 응답 받기
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-        
-        // JSON 파싱 및 Book 리스트로 변환
         return parseJsonToBookList(response.getBody());
     }
 
@@ -66,25 +59,20 @@ public class NaverBookService {
 
         URI uri = UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com")
-                .path("/v1/search/book_adv.json") // 상세 검색 API
+                .path("/v1/search/book_adv.json")
                 .queryParam("d_isbn", isbn)
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
 
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-        
         List<Book> books = parseJsonToBookList(response.getBody());
-        // ISBN 검색은 보통 1개의 결과만 나오므로 첫 번째 항목을 반환
         return books.isEmpty() ? null : books.get(0);
     }
 
 
     /**
      * JSON 문자열을 파싱하여 Book 객체 리스트로 변환하는 private 메서드
-     */
-    /**
-     * JSON 문자열을 파싱하여 Book 객체 리스트로 변환하는 private 메서드 (수정 버전)
      */
     private List<Book> parseJsonToBookList(String jsonString) {
         List<Book> bookList = new ArrayList<>();
@@ -95,30 +83,49 @@ public class NaverBookService {
             JSONObject item = items.getJSONObject(i);
             Book book = new Book();
 
-            // title에서 <b>, </b> 태그 제거
             String title = item.optString("title").replaceAll("<(/)?b>", "");
             
             book.setTitle(title);
-            book.setIsbn(item.optString("isbn")); // optString으로 안전하게 조회
+            book.setIsbn(item.optString("isbn"));
             book.setAuthor(item.optString("author"));
             book.setImg(item.optString("image"));
             book.setDescription(item.optString("description"));
             
-            // <<-- 가격 정보 안전하게 가져오기 (핵심 수정) -->>
-            // 1. 할인가(discount)를 우선적으로 가져옵니다.
-            int price = item.optInt("discount"); 
-            // 2. 만약 할인가가 없거나 0원이면, 정가(price)를 가져옵니다.
+            int price = item.optInt("discount");
             if (price == 0) {
                 price = item.optInt("price");
             }
             book.setPrice(price);
             
-            // 네이버 API는 재고(stock)나 카테고리 정보를 제공하지 않으므로 기본값 설정
-            book.setStock(10); 
-            book.setCategory("미분류");
+            book.setStock(10); // 임의의 재고
+            
+            
+            
+            // <<-- (핵심 수정) 카테고리 자동 분류 로직 호출 -->>
+            String naverCategory = item.optString("category");
+            System.out.println("네이버에서 받은 카테고리: [" + naverCategory + "]"); // 콘솔에 출력
+
+            book.setCategory(determineCategory(naverCategory));
 
             bookList.add(book);
         }
         return bookList;
+    }
+
+    /**
+     * 네이버 카테고리 문자열을 우리 시스템의 카테고리로 변환하는 메서드 (새로 추가)
+     * @param naverCategory 네이버 API에서 받은 카테고리 문자열
+     * @return 우리 시스템에서 사용하는 카테고리 문자열
+     */
+    private String determineCategory(String naverCategory) {
+        if (naverCategory.contains("소설")) {
+            return "소설";
+        } else if (naverCategory.contains("컴퓨터") || naverCategory.contains("IT")) {
+            return "IT/컴퓨터";
+        } else if (naverCategory.contains("경제") || naverCategory.contains("경영")) {
+            return "경제/경영";
+        } else {
+            return "기타"; // 위의 어떤 키워드에도 해당하지 않으면 '기타'로 분류
+        }
     }
 }
