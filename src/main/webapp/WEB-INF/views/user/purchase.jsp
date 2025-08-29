@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -13,7 +14,7 @@
             color: #333;
         }
         .purchase-container {
-       		position: relative;  /* 버튼 위치 기준 */
+       		position: relative;
             max-width: 800px;
             margin: 20px auto;
             background-color: #fff;
@@ -56,7 +57,7 @@
             font-size: 15px;
         }
         .item-quantity, .item-price {
-            width: 80px;
+            width: 100px;
             text-align: right;
             font-size: 15px;
         }
@@ -78,11 +79,12 @@
         }
         .form-group input[type="text"],
         .form-group textarea {
-            width: calc(100% - 22px);
+            width: 100%; /* calc 제거, box-sizing으로 처리 */
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
+            box-sizing: border-box;
         }
         .form-group textarea {
             resize: vertical;
@@ -123,7 +125,6 @@
 <body>
     <div class="purchase-container">
         <h3>구매하기</h3>
-		<!-- 이전 페이지 버튼 (왼쪽 상단) -->
 		<div style="position: absolute; left: 20px; top: 20px;">
     		<button type="button" onclick="history.back()" style="padding: 6px 12px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc; background-color: #cce5ff; cursor: pointer;">◀ 결제 취소하기</button>
 		</div>
@@ -142,11 +143,11 @@
                         <p>${item.book.title} (${item.book.author})</p>
                     </div>
                     <div class="item-quantity">${item.quantity}개</div>
-                    <div class="item-price">${item.book.price * item.quantity} 원</div>
+                    <div class="item-price"><fmt:formatNumber value="${item.itemTotal}" pattern="#,###" /> 원</div>
                 </div>
             </c:forEach>
             <div class="total-amount">
-                총 결제 금액: ${totalAmount} 원
+                총 결제 금액: <fmt:formatNumber value="${totalAmount}" pattern="#,###" /> 원
             </div>
         </div>
         
@@ -155,7 +156,8 @@
             <form action="${pageContext.request.contextPath}/purchase/confirm" method="post">
                 <input type="hidden" name="purchaseType" value="${purchaseType}">
                 <c:if test="${purchaseType eq 'direct'}">
-                    <input type="hidden" name="bookId" value="${itemsToPurchase[0].book.id}">
+                    <%-- 1. (핵심) 파라미터 이름을 bookId에서 bookIsbn으로 수정 --%>
+                    <input type="hidden" name="bookIsbn" value="${itemsToPurchase[0].book.isbn}">
                     <input type="hidden" name="quantity" value="${itemsToPurchase[0].quantity}">
                 </c:if>
                 <div class="form-group">
@@ -174,7 +176,7 @@
            				value="${delivery != null ? delivery.phoneNumber : ''}" required>
 				</div>
                 <div class="form-group">
-    			<div style="display: flex; align-items: center; gap: 10px;">
+    			    <div style="display: flex; align-items: center; gap: 10px;">
         				<label for="deliveryMessage" style="margin: 0;">배송 메시지 (선택 사항):</label>
         				<select id="deliveryMessageSelect">
            				<option value="">-- 선택하세요 --</option>
@@ -184,8 +186,8 @@
             			<option value="파손 주의">파손 주의</option>
             			<option value="기타">기타 (직접 입력)</option>
         				</select>
-    			</div>
-    			<textarea id="deliveryMessage" name="deliveryMessage" style="width:100%;margin-top:10px;"><c:out value="${delivery != null ? delivery.deliveryMessage : ''}"/></textarea>
+    			    </div>
+    			    <textarea id="deliveryMessage" name="deliveryMessage" style="width:100%;margin-top:10px;"><c:out value="${delivery != null ? delivery.deliveryMessage : ''}"/></textarea>
 				</div>
                 <button type="submit" class="btn-confirm-purchase">결제하기</button>
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
@@ -196,11 +198,30 @@
     document.getElementById('deliveryMessageSelect').addEventListener('change', function() {
         const textarea = document.getElementById('deliveryMessage');
         if (this.value === '기타' || this.value === '') {
-            textarea.value = ''; // 기타나 빈 값이면 직접 입력
+            textarea.value = '';
             textarea.readOnly = false;
         } else {
-            textarea.value = this.value; // 선택한 메시지를 textarea에 채움
-            textarea.readOnly = true;    // 수정 못 하게 잠금
+            textarea.value = this.value;
+            textarea.readOnly = true;
+        }
+    });
+    // 페이지 로드 시 초기값 설정
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('deliveryMessageSelect');
+        const textarea = document.getElementById('deliveryMessage');
+        const currentMessage = textarea.value;
+        let isOption = false;
+        for(let i=0; i<select.options.length; i++) {
+            if(select.options[i].value === currentMessage) {
+                select.value = currentMessage;
+                textarea.readOnly = true;
+                isOption = true;
+                break;
+            }
+        }
+        if(!isOption && currentMessage !== '') {
+            select.value = '기타';
+            textarea.readOnly = false;
         }
     });
     </script>

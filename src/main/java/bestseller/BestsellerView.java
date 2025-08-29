@@ -14,8 +14,9 @@ public class BestsellerView {
 	private int book_id;
     private int rank;
     private int totalSales;
-    private Integer rankChange; // 순위 변동
+    private Integer rankChange;
     private String title;
     private String author;
     private String img;
+    private String isbn; // <<-- 이 필드를 추가합니다.
 }

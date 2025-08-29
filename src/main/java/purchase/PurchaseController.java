@@ -1,8 +1,8 @@
 package purchase;
 
 import java.security.Principal;
-import java.util.ArrayList; // For List.of() alternative if Java < 9
-import java.util.Collections; // For List.of() alternative if Java < 9
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,7 @@ import cart.CartService;
 import data.Book;
 import data.BookMapper;
 import user.MemberMapper;
+import user.UserService; // <<-- UserService 임포트 추가
 
 @Controller
 @RequestMapping("/purchase")
@@ -28,9 +29,10 @@ public class PurchaseController {
 
     @Autowired
     private PurchaseService purchaseService;
-
+    
+    // <<-- BookMapper 대신 UserService를 사용하도록 변경 -->>
     @Autowired
-    private BookMapper bookMapper;
+    private UserService userService;
 
     @Autowired
     private CartService cartService;
@@ -44,53 +46,43 @@ public class PurchaseController {
     @Autowired
     private BestsellerService bestsellerService;
 
-//    private int getMemberIdFromSession(HttpSession session) {
-//        vo.Member member = (vo.Member) session.getAttribute("login");
-//        if (member == null) {
-//            throw new IllegalStateException("User not logged in. 'login' attribute (Member object) not found in session.");
-//        }
-//        return member.getId();
-//    }
-    
-  //Principal 로그인중인 사용자 정보(username)
     private int getLoginedMemberId(Principal user) {
     	return memberMapper.findByUserId(user.getName()).getId();
     }
 
-    // Direct purchase from book detail/list
+    // <<-- 1. '바로 구매' 메서드 수정 -->>
     @PostMapping("/direct")
-    public String directPurchase(@RequestParam("bookId") int bookId,
+    // int bookId 대신 String bookIsbn을 받습니다.
+    public String directPurchase(@RequestParam("bookIsbn") String bookIsbn,
                                  @RequestParam(value = "quantity", defaultValue = "1") int quantity,
                                  RedirectAttributes redirectAttributes) {
         try {
-        	//두 번 구매되어 제거함
-            //purchaseService.directPurchase(memberId, bookId, quantity);
-            redirectAttributes.addFlashAttribute("successMessage", "Proceeding to checkout with cart items.");
-            return "redirect:/purchase/checkout?type=direct&bookId=" + bookId + "&quantity=" + quantity; // Redirect to checkout page
+            // bookIsbn과 quantity를 checkout 페이지로 전달합니다.
+            return "redirect:/purchase/checkout?type=direct&bookIsbn=" + bookIsbn + "&quantity=" + quantity;
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/bookDetail?id=" + bookId;
+            // 에러 발생 시 bookdetail 페이지로 돌아갈 때도 isbn을 사용합니다.
+            return "redirect:/user/bookdetail?isbn=" + bookIsbn;
         }
     }
 
-    // Purchase all items from cart
+    // 장바구니 구매는 bookId/Isbn을 직접 다루지 않으므로 기존 코드 유지
     @PostMapping("/cart")
     public String cartPurchase(RedirectAttributes redirectAttributes) {
         try {
-            // No direct purchase here, just prepare for checkout
-            // The actual purchase will happen on /purchase/confirm
             redirectAttributes.addFlashAttribute("successMessage", "Proceeding to checkout with cart items.");
-            return "redirect:/purchase/checkout?type=cart"; // Redirect to checkout page
+            return "redirect:/purchase/checkout?type=cart";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error preparing cart for purchase: " + e.getMessage());
             return "redirect:/cart";
         }
     }
 
-    // Display checkout page
+    // <<-- 2. '결제 페이지' 메서드 수정 -->>
     @GetMapping("/checkout")
     public String checkout(@RequestParam("type") String type,
-                           @RequestParam(value = "bookId", required = false) Integer bookId,
+                           // Integer bookId 대신 String bookIsbn을 받습니다.
+                           @RequestParam(value = "bookIsbn", required = false) String bookIsbn, 
                            @RequestParam(value = "quantity", required = false) Integer quantity,
                            Principal user,
                            Model model,
@@ -100,14 +92,15 @@ public class PurchaseController {
         List<CartItem> itemsToPurchase = null;
         int totalAmount = 0;
 
-        if ("direct".equals(type) && bookId != null && quantity != null) {
-            Book book = bookMapper.findById(bookId);
+        if ("direct".equals(type) && bookIsbn != null && quantity != null) {
+            // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
+            // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
+            Book book = userService.getBookByIsbn(bookIsbn); 
             if (book == null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
-                return "redirect:/books";
+                return "redirect:/user/booklist";
             }
             CartItem directItem = new CartItem(book, quantity);
-            // Use Arrays.asList or new ArrayList<>(Collections.singletonList()) for Java < 9
             itemsToPurchase = new ArrayList<>(Collections.singletonList(directItem));
             totalAmount = directItem.getItemTotal();
         } else if ("cart".equals(type)) {
@@ -115,17 +108,15 @@ public class PurchaseController {
             totalAmount = cartService.calculateCartTotal(memberId);
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters.");
-            return "redirect:/books";
+            return "redirect:/user/booklist";
         }
 
         if (itemsToPurchase == null || itemsToPurchase.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "No items to purchase.");
-            return "redirect:/books";
+            return "redirect:/user/booklist";
         }
 
-        // 최근 주문 ID 조회 (PurchaseService에 구현 필요)
         Integer recentOrderId = purchaseService.getMostRecentOrderIdByMemberId(memberId);
-
         Delivery delivery = null;
         if (recentOrderId != null) {
             delivery = purchaseService.getDeliveryInfoByOrderId(recentOrderId);
@@ -139,16 +130,16 @@ public class PurchaseController {
         return "index";
     }
 
-    // Confirm and finalize purchase
+    // <<-- 3. '구매 확정' 메서드 수정 -->>
     @PostMapping("/confirm")
     public String confirmPurchase(@RequestParam("purchaseType") String purchaseType,
-                                  @RequestParam(value = "bookId", required = false) Integer bookId,
+                                  // Integer bookId 대신 String bookIsbn을 받습니다.
+                                  @RequestParam(value = "bookIsbn", required = false) String bookIsbn,
                                   @RequestParam(value = "quantity", required = false) Integer quantity,
                                   @RequestParam("receiverName") String receiverName,
                                   @RequestParam("address") String address,
                                   @RequestParam("phoneNumber") String phoneNumber,
                                   @RequestParam(value = "deliveryMessage", required = false) String deliveryMessage,
-                                  // Add address parameters here
                                   Principal user,
                                   RedirectAttributes redirectAttributes) {
         int memberId = getLoginedMemberId(user);
@@ -156,27 +147,32 @@ public class PurchaseController {
         	
         	int orderId;
         	
-        	if ("direct".equals(purchaseType) && bookId != null && quantity != null) {
-        	    orderId = purchaseService.directPurchase(memberId, bookId, quantity);
-        	    cartService.removeItemFromCart(memberId, bookId);
+        	if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
+                // 구매 확정 시에도 isbn으로 책 정보를 가져옵니다.
+                Book book = userService.getBookByIsbn(bookIsbn);
+                if(book == null || book.getId() == null) {
+                    throw new IllegalArgumentException("Book not found or could not be saved.");
+                }
+                // DB에 저장된 book의 id를 사용하여 구매를 진행합니다.
+        	    orderId = purchaseService.directPurchase(memberId, book.getId(), quantity);
+        	    cartService.removeItemFromCart(memberId, book.getId());
         	} else if ("cart".equals(purchaseType)) {
         	    orderId = purchaseService.cartPurchase(memberId);
         	} else {
         	    redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters for confirmation.");
-        	    return "redirect:/books";
+        	    return "redirect:/user/booklist";
         	}
             
-            // 배송 정보 저장
             purchaseService.saveOrUpdateDelivery(new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage));
             
             redirectAttributes.addFlashAttribute("successMessage", "Purchase completed successfully!");
             return "redirect:/purchase/success";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/purchase/checkout?type=" + purchaseType + (bookId != null ? "&bookId=" + bookId + "&quantity=" + quantity : "");
+            return "redirect:/purchase/checkout?type=" + purchaseType + (bookIsbn != null ? "&bookIsbn=" + bookIsbn + "&quantity=" + quantity : "");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred during purchase: " + e.getMessage());
-            return "redirect:/purchase/checkout?type=" + purchaseType + (bookId != null ? "&bookId=" + bookId + "&quantity=" + quantity : "");
+            return "redirect:/purchase/checkout?type=" + purchaseType + (bookIsbn != null ? "&bookIsbn=" + bookIsbn + "&quantity=" + quantity : "");
         }
     }
 

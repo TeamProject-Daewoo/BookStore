@@ -15,6 +15,7 @@ import lombok.Data;
 @Data
 public class Book {
 	private Integer id;
+	private String isbn;
 	private String title;
 	private String author; // Added this line
 	private int price; // Changed from String to int

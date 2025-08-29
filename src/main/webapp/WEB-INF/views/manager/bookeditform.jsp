@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>책 수정</title>
     <style>
+        /* 스타일 코드는 변경사항 없습니다. */
         body { font-family: sans-serif; }
         .container { width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
         h2 { text-align: center; }
@@ -50,8 +51,17 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        select { /* select 태그 스타일 추가 */
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
     <script>
+        // 스크립트 코드는 변경사항 없습니다.
         window.onload = function() {
             var successMessage = "${successMessage}";
             var errorMessage = "${errorMessage}";
@@ -69,7 +79,10 @@
     <div class="container">
         <h2>책 정보 수정</h2>
         <form action="${pageContext.request.contextPath}/manager/bookedit" method="post" onsubmit="return confirm('수정하시겠습니까?');">
+            <%-- 1. (핵심) 수정할 책의 고유 ID를 isbn이 아닌 id로 전송합니다. --%>
             <input type="hidden" name="id" value="${book.id}">
+            <%-- ISBN은 고유 식별자이므로 수정하지 않도록 hidden으로 함께 보냅니다. --%>
+            <input type="hidden" name="isbn" value="${book.isbn}">
 
             <label for="title">제목:</label>
             <input type="text" id="title" name="title" value="${book.title}" required>
@@ -83,8 +96,9 @@
             <label for="stock">재고:</label>
             <input type="number" id="stock" name="stock" value="${book.stock}" required min="0">
 
-            <label for="img">이미지 파일명:</label>
-            <input type="text" id="img" name="img" value="${book.img}" placeholder="예: book_image.jpg" required>
+            <label for="img">이미지 경로(URL 또는 파일명):</label>
+            <%-- 2. API 이미지 URL은 매우 길기 때문에 readonly로 설정하여 실수로 수정하는 것을 방지합니다. --%>
+            <input type="text" id="img" name="img" value="${book.img}" required readonly>
 
 			<label for="category">카테고리:</label>
 			<select id="category" name="category" required>

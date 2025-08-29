@@ -82,12 +82,23 @@
   <div class="row">
     <c:forEach var="book" items="${pageList.list}">
       <div class="col-12 col-md-4">
-        <div class="card book-card" onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?id=${book.id}'">
+        <%-- 1. onclick 링크의 파라미터 이름을 'isbn'으로 수정 --%>
+        <div class="card book-card" onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?isbn=${book.isbn}'">
           <c:if test="${not empty book.img}">
-            <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 이미지" class="card-img-top book-img">
+            
+            <%-- 2. 이미지 경로를 두 가지 경우에 맞춰 처리 --%>
+            <c:choose>
+              <c:when test="${book.img.startsWith('http')}">
+                <img src="${book.img}" alt="책 이미지" class="card-img-top book-img" style="height: 400px; object-fit: contain;">
+              </c:when>
+              <c:otherwise>
+                <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 이미지" class="card-img-top book-img" style="height: 400px; object-fit: contain;">
+              </c:otherwise>
+            </c:choose>
+            
           </c:if>
           <c:if test="${empty book.img}">
-            <div class="d-flex justify-content-center align-items-center" style="height:180px; background:#f8f9fa; color:#6c757d;">
+            <div class="d-flex justify-content-center align-items-center" style="height:400px; background:#f8f9fa; color:#6c757d;">
               이미지 없음
             </div>
           </c:if>
@@ -100,7 +111,6 @@
       </div>
     </c:forEach>
   </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

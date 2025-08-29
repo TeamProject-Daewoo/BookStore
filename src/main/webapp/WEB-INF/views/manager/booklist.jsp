@@ -57,7 +57,7 @@
   /* 이미지 칸 썸네일 */
   tbody td:nth-child(6) { padding: 6px; }
   tbody td:nth-child(6) img {
-    max-width: 60px; max-height: 60px; object-fit: cover; border-radius: 4px;
+    max-width: 60px; height: 60px; object-fit: cover; border-radius: 4px;
   }
 
   /* 관리 버튼 */
@@ -93,15 +93,29 @@
       <tbody>
         <c:forEach var="book" items="${list}">
           <tr>
+            <%-- 1. 화면에는 내부 ID를 표시하도록 변경 --%>
             <td>${book.id}</td>
             <td>${book.title}</td>
             <td>${book.author}</td>
             <td>${book.price}</td>
             <td>${book.stock}</td>
-            <td>${book.img}</td>
+            <td>
+              <%-- 2. 이미지 경로를 로컬/API 경우에 따라 다르게 처리 --%>
+              <c:if test="${not empty book.img}">
+                <c:choose>
+                  <c:when test="${book.img.startsWith('http')}">
+                    <img src="${book.img}" alt="책 썸네일">
+                  </c:when>
+                  <c:otherwise>
+                    <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 썸네일">
+                  </c:otherwise>
+                </c:choose>
+              </c:if>
+            </td>
             <td>${book.description}</td>
             <td>${book.category}</td>
             <td class="actions">
+              <%-- 3. 관리 기능은 내부 ID를 기준으로 동작하므로 id 파라미터를 사용 --%>
               <a href="${pageContext.request.contextPath}/manager/bookeditform?id=${book.id}">수정</a>
               <a href="${pageContext.request.contextPath}/manager/bookdelete?id=${book.id}"
                  onclick="return confirm('정말로 이 책을 삭제하시겠습니까?');">삭제</a>

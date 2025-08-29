@@ -3,6 +3,8 @@ package user;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -21,6 +23,10 @@ import purchase.PurchaseMapper;
 
 @Service
 public class UserService {
+
+	// =================================================================
+	// Member, Cart, Purchase 관련 코드는 기존과 동일 (생략)
+	// =================================================================
 	
 	//member 
 	@Autowired
@@ -44,12 +50,10 @@ public class UserService {
 	    updatemember.setEmail(member.getEmail());
 	    updatemember.setPhone_number(member.getPhone_number());
 
-	    // 프로필 이미지 처리 (member 객체에 이미지 바이트가 들어있다면)
 	    if (member.getProfileImage() != null && member.getProfileImage().length > 0) {
 	        updatemember.setProfileImage(member.getProfileImage());
 	    }
 	    
-	    // 비밀번호 처리
 	    if (member.getPassword() != null && !member.getPassword().isEmpty()) {
 	        updatemember.setPassword(member.getPassword());
 	    }
@@ -73,13 +77,12 @@ public class UserService {
 	}
 
 	public boolean registerMember(Member member) {
-		// user_id �댖怨뺣샍占쎌궨�뜝�럥由�嶺뚮〕�삕 false
 		Member existingMember = memberMapper.findByUserId(member.getUser_id());
 		if(existingMember != null) return false;
 		member.setRole("ROLE_USER");
 		PasswordEncoder pe = new BCryptPasswordEncoder();
 		member.setPassword(pe.encode(member.getPassword() ));
-		// 프로필 이미지 없으면 기본 이미지 넣기
+
 	    if(member.getProfileImage() == null || member.getProfileImage().length == 0) {
 	        try {
 	            ClassPathResource imgFile = new ClassPathResource("static/profileimage/default.jpg");
@@ -89,18 +92,17 @@ public class UserService {
 	        }
 	    }
 		memberMapper.save(member);
-		return true; // Registration successful
+		return true; 
 	}
 	
 	public boolean registerAdmin(Member member) {
-		// user_id �댖怨뺣샍占쎌궨�뜝�럥由�嶺뚮〕�삕 false
 		Member existingMember = memberMapper.findByUserId(member.getUser_id());
 		if(existingMember != null) return false;
 		member.setRole("ROLE_ADMIN");
 		PasswordEncoder pe = new BCryptPasswordEncoder();
 		member.setPassword(pe.encode(member.getPassword() ));
 		memberMapper.save(member);
-		return true; // Registration successful
+		return true; 
 	}
 	
 	public boolean isUserIdExist(String userId) {
@@ -118,19 +120,73 @@ public class UserService {
 	//book 
 	@Autowired
 	private BookMapper bookMapper;
+
+    // <<-- 1. 새로운 NaverBookService를 주입받습니다.
+    @Autowired
+    private NaverBookService naverBookService;
 	
 	public int saveBook(Book book) {
 		return bookMapper.save(book);
 	}
+
+    // <<-- 2. getBook 메서드는 이제 ISBN을 기준으로 동작하는 새로운 메서드로 대체됩니다.
 	public Book getBook(int id) {
-		return bookMapper.findById(id);
+	 	return bookMapper.findById(id);
 	}
+	
 	public List<Book> getBookList() {
 		return bookMapper.findAll();
 	}
+
+    // <<-- 3. 키워드 검색 메서드를 하이브리드 방식으로 수정합니다.
 	public List<Book> findByKeyword(String keyword) {
-		return bookMapper.findByKeyword(keyword);
+		// 3-1. 우선 내 DB에서 키워드로 검색합니다.
+		List<Book> localResults = bookMapper.findByKeyword(keyword);
+		
+		// 3-2. 네이버 API를 호출하여 결과를 가져옵니다.
+		List<Book> apiResults = naverBookService.searchBooks(keyword);
+		
+		// 3-3. (중요) API 결과 중에서 이미 내 DB에 있는 책(ISBN 기준)은 제외하여 중복을 방지합니다.
+        Map<String, Book> localBooksByIsbn = localResults.stream()
+            .filter(book -> book.getIsbn() != null && !book.getIsbn().isEmpty())
+            .collect(Collectors.toMap(Book::getIsbn, book -> book));
+
+        List<Book> uniqueApiResults = apiResults.stream()
+            .filter(apiBook -> !localBooksByIsbn.containsKey(apiBook.getIsbn()))
+            .collect(Collectors.toList());
+		
+		// 3-4. DB 결과와 (중복이 제거된) API 결과를 합쳐서 반환합니다.
+		List<Book> finalResults = new ArrayList<>();
+		finalResults.addAll(localResults);
+		finalResults.addAll(uniqueApiResults);
+		
+		return finalResults;
 	}
+
+    // <<-- 4. 책 상세 정보를 가져오는 새로운 메서드를 정의합니다. (ISBN 기반)
+    public Book getBookByIsbn(String isbn) {
+        // 4-1. 먼저 우리 DB에서 ISBN으로 책을 찾아봅니다.
+        Book book = bookMapper.findByIsbn(isbn);
+
+        // 4-2. DB에 책이 존재하면, 그 정보를 바로 반환합니다.
+        if (book != null) {
+            return book;
+        } 
+        // 4-3. DB에 책이 없으면, 네이버 API에 상세 정보를 요청합니다.
+        else {
+            Book newBookFromApi = naverBookService.searchBookByIsbn(isbn);
+
+            if (newBookFromApi != null) {
+                // 4-4. API에서 받아온 새로운 책 정보를 우리 DB에 저장(INSERT)합니다.
+                // 이렇게 하면 다음부터는 DB에서 바로 조회가 가능해집니다.
+                bookMapper.save(newBookFromApi);
+                // 저장 후 반환
+                return newBookFromApi;
+            }
+        }
+        return null; // DB와 API 양쪽 모두에서 책을 찾지 못한 경우
+    }
+	
 	public int updateBook(Book book) {
 		return bookMapper.update(book);
 	}
@@ -199,13 +255,12 @@ public class UserService {
 		return result;
 	}
 
-	// 사용자의 역할을 반환 (ROLE_USER or ROLE_ADMIN)
     public String getRoleByUsername(String username) {
         Member member = memberMapper.findByUsername(username);
         if (member != null) {
-            return member.getRole();  // ROLE_USER 또는 ROLE_ADMIN
+            return member.getRole();
         }
-        return "ROLE_USER";  // 기본값 ROLE_USER
+        return "ROLE_USER";
     }
 	
 }

@@ -5,5 +5,7 @@
 
 <import resource="setting.xml"/>
 
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
+
 
 </beans>

@@ -1,12 +1,16 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+   pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>장바구니</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>장바구니</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<style>
 	  .cart-item {
 	    display: flex;
@@ -29,6 +33,10 @@
 	  .item-details {
 	    flex: 1;
 	  }
+      .item-details a { /* 링크 스타일 추가 */
+        text-decoration: none;
+        color: inherit;
+      }
 	
 	  .item-quantity input[type="number"] {
 	    width: 60px;
@@ -83,31 +91,44 @@
 	    <div class="cart-items-list">
 	      <c:forEach var="item" items="${cartItems}">
 	        <div class="cart-item">
-	          <img src="${pageContext.request.contextPath}/resources/images/${item.book.img}" alt="${item.book.title}" class="item-image">
+	          
+	          <a href="${pageContext.request.contextPath}/user/bookdetail?isbn=${item.book.isbn}">
+                <%-- 1. 이미지 경로를 로컬/API 경우에 따라 다르게 처리 --%>
+                <c:choose>
+                    <c:when test="${item.book.img.startsWith('http')}">
+                        <img src="${item.book.img}" alt="${item.book.title}" class="item-image">
+                    </c:when>
+                    <c:otherwise>
+                        <img src="${pageContext.request.contextPath}/resources/images/${item.book.img}" alt="${item.book.title}" class="item-image">
+                    </c:otherwise>
+                </c:choose>
+              </a>
+
 	          <div class="item-details">
-	            <h5>${item.book.title}</h5>
+	            <a href="${pageContext.request.contextPath}/user/bookdetail?isbn=${item.book.isbn}">
+                    <h5>${item.book.title}</h5>
+                </a>
 	            <p class="mb-1">저자: ${item.book.author}</p>
-	            <p class="mb-1">가격: <strong>${item.book.price} 원</strong></p>
+	            <p class="mb-1">가격: <strong><fmt:formatNumber value="${item.book.price}" pattern="#,###" /> 원</strong></p>
 	          </div>
 	
 	          <div class="item-quantity">
-	            <form action="/cart/updateQuantity" method="post" class="d-flex align-items-center">
-	              <input type="hidden" name="bookId" value="${item.book.id}">
-	              <!-- onchange로 /cart/updateQuantity페이지 호출 -->
-	              <input type="number" name="quantity" value="${item.quantity}" min="1" class="form-control form-control-sm me-2"
-	              	onchange="submit();">
-	              <!-- <button type="submit" class="btn btn-outline-secondary btn-sm">수정</button> -->
+	            <form action="${pageContext.request.contextPath}/cart/updateQuantity" method="post" class="d-flex align-items-center">
+	              <%-- 2. (핵심) 수량 변경은 우리 DB의 고유 id를 기준으로 동작 --%>
+                  <input type="hidden" name="bookId" value="${item.book.id}">
+	              <input type="number" name="quantity" value="${item.quantity}" min="1" class="form-control form-control-sm me-2" onchange="this.form.submit();">
 	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
 	            </form>
 	          </div>
 	
 	          <div class="item-total">
-	            <span>총액: <strong>${item.itemTotal}원</strong></span>
+	            <span>총액: <strong><fmt:formatNumber value="${item.itemTotal}" pattern="#,###" />원</strong></span>
 	          </div>
 	
 	          <div class="item-actions mx-3">
-	            <form action="/cart/remove" method="post">
-	              <input type="hidden" name="bookId" value="${item.book.id}">
+	            <form action="${pageContext.request.contextPath}/cart/remove" method="post">
+	              <%-- 3. (핵심) 삭제도 우리 DB의 고유 id를 기준으로 동작 --%>
+                  <input type="hidden" name="bookId" value="${item.book.id}">
 	              <button type="submit" class="btn btn-danger btn-sm">삭제</button>
 	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
 	            </form>
@@ -117,7 +138,7 @@
 	    </div>
 	
 	    <div class="cart-summary">
-	      총 주문 금액: <strong>${cartTotal} 원</strong>
+	      총 주문 금액: <strong><fmt:formatNumber value="${cartTotal}" pattern="#,###" /> 원</strong>
 	    </div>
 	
 	    <form action="${pageContext.request.contextPath}/purchase/cart" method="post">

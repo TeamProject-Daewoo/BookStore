@@ -21,7 +21,7 @@
     }
     .book-img {
       max-width: 100%;
-      height: auto;
+      height: 400px; /* 이미지 높이를 고정하여 카드 크기를 일정하게 유지 */
       object-fit: contain;
       border-radius: 6px;
     }
@@ -32,14 +32,12 @@
 	.carousel-control-next-icon {
 	  filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
 	}
-
   </style>
 </head>
 <body>
   <div class="container my-5">
   <h2 class="text-center mb-4 fw-bold">📚 책 목록 :「${pageList.category}」</h2>
 
-  <!-- 검색창 -->
   <div class="row justify-content-center mb-4">
     <div class="col-md-8">
       <form action="${pageContext.request.contextPath}/category/${categoryKey}" method="get" class="input-group">
@@ -49,39 +47,47 @@
     </div>
   </div>
 
-  <!-- 책 목록 카드 -->
   <div class="row">
-  <c:if test="${empty pageList.list}">
-    <div class="col-12 text-center py-5">
-      <p class="text-muted fs-5">해당 카테고리에 등록된 책이 없습니다.</p>
-    </div>
-  </c:if>
+    <c:if test="${empty pageList.list}">
+      <div class="col-12 text-center py-5">
+        <p class="text-muted fs-5">해당 카테고리에 등록된 책이 없습니다.</p>
+      </div>
+    </c:if>
 
-  <c:forEach var="book" items="${pageList.list}">
-    <div class="col-12 col-md-4">
-      <div class="card book-card" 
-           onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?id=${book.id}'">
-        
-        <c:if test="${not empty book.img}">
-          <img src="${pageContext.request.contextPath}/resources/images/${book.img}" 
-               alt="책 이미지" class="card-img-top book-img">
-        </c:if>
-        <c:if test="${empty book.img}">
-          <div class="d-flex justify-content-center align-items-center" 
-               style="height:180px; background:#f8f9fa; color:#6c757d;">
-            이미지 없음
+    <c:forEach var="book" items="${pageList.list}">
+      <div class="col-12 col-md-4">
+        <%-- 1. onclick 링크의 파라미터 이름을 'id'에서 'isbn'으로 수정 --%>
+        <div class="card book-card" 
+             onclick="location.href='${pageContext.request.contextPath}/user/bookdetail?isbn=${book.isbn}'">
+          
+          <c:if test="${not empty book.img}">
+            <%-- 2. 이미지 경로를 로컬/API 경우에 따라 다르게 처리 --%>
+            <c:choose>
+              <c:when test="${book.img.startsWith('http')}">
+                <img src="${book.img}" alt="책 이미지" class="card-img-top book-img">
+              </c:when>
+              <c:otherwise>
+                <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 이미지" class="card-img-top book-img">
+              </c:otherwise>
+            </c:choose>
+          </c:if>
+
+          <c:if test="${empty book.img}">
+            <div class="d-flex justify-content-center align-items-center" 
+                 style="height:400px; background:#f8f9fa; color:#6c757d;">
+              이미지 없음
+            </div>
+          </c:if>
+          
+          <div class="card-body book-info text-center">
+            <h5 class="card-title">${book.title}</h5>
+            <p class="card-text mb-1">글쓴이: ${book.author}</p>
+            <p class="card-text fw-bold">가격: ${book.price}원</p>
           </div>
-        </c:if>
-        
-        <div class="card-body book-info text-center">
-          <h5 class="card-title">${book.title}</h5>
-          <p class="card-text mb-1">글쓴이: ${book.author}</p>
-          <p class="card-text fw-bold">가격: ${book.price}원</p>
         </div>
       </div>
-    </div>
-  </c:forEach>
-</div>
+    </c:forEach>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

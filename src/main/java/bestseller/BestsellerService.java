@@ -22,7 +22,7 @@ public class BestsellerService {
     private BestsellerMapper bestsellerMapper;
 
     @Autowired
-    private BookMapper bookMapper; // Book 정보 조회
+    private BookMapper bookMapper;
 
     // 화면용 DTO 반환
     public List<BestsellerView> getBestSellers(String period) {
@@ -32,13 +32,14 @@ public class BestsellerService {
                 .map(b -> {
                     Book book = bookMapper.findById(b.getBookId());
                     return BestsellerView.builder()
-                    		.book_id(b.getBookId())
+                            .book_id(b.getBookId())
                             .rank(b.getRank())
                             .totalSales(b.getTotalSales())
                             .rankChange(b.getRankChange())
                             .title(book != null ? book.getTitle() : "제목 없음")
                             .author(book != null ? book.getAuthor() : "저자 없음")
                             .img(book != null ? book.getImg() : "")
+                            .isbn(book != null ? book.getIsbn() : "") // <<-- isbn 값을 채워줍니다.
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -99,7 +100,7 @@ public class BestsellerService {
             if (prevRank != null) {
                 b.setRankChange(prevRank - rank);
             } else {
-                b.setRankChange(null);
+                b.setRankChange(null); // 신규 진입 시 null
             }
 
             bestsellerMapper.insertWithPeriod(b);

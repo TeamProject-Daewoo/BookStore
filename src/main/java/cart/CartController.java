@@ -42,23 +42,33 @@ public class CartController {
     	return memberMapper.findByUserId(user.getName()).getId();
     }
     
+ // Autowired에 UserService 추가
+    @Autowired
+    private user.UserService userService;
+    
     @PostMapping("/add")
-    public String addItemToCart(@RequestParam("bookId") int bookId,
+    // int bookId 대신 String bookIsbn을 받도록 수정
+    public String addItemToCart(@RequestParam("bookIsbn") String bookIsbn,
                                 @RequestParam(value = "quantity", defaultValue = "1") int quantity,
                                 Principal user,
                                 RedirectAttributes redirectAttributes) {
         
     	int memberId = getLoginedMemberId(user);
-        Book book = bookMapper.findById(bookId);
+        
+        // id로 찾던 부분을 isbn으로 찾는 하이브리드 메서드로 교체
+        Book book = userService.getBookByIsbn(bookIsbn);
+        
         if (book == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Book not found.");
-            return "redirect:/books";
+            return "redirect:/user/booklist"; // 에러 시 책 목록으로 이동
         }
         if (quantity <= 0) {
             redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be at least 1.");
-            return "redirect:/bookDetail?id=" + bookId;
+            // 상세 페이지로 돌아갈 때도 isbn을 사용
+            return "redirect:/user/bookdetail?isbn=" + bookIsbn;
         }
 
+        // book 객체에는 이제 DB에 저장된 id가 확실히 존재합니다.
         cartService.addItemToCart(memberId, book, quantity);
         redirectAttributes.addFlashAttribute("successMessage", book.getTitle() + " added to cart!");
         return "redirect:/cart";
