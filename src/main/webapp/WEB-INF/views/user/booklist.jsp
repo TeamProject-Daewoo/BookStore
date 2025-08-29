@@ -41,17 +41,17 @@
   <div id="bannerCarousel" class="carousel slide mb-5 mx-auto" data-bs-ride="carousel">
     <div class="carousel-inner">
       <div class="carousel-item active">
-		<a href="/user/bookdetail?id=1">
+		<a href="/user/bookdetail?isbn=9788936439743">
         	<img src="/resources/images/banner1.jpg" class="d-block w-100" alt="배너1" style="height:500px; object-fit:cover; background:#e9ecef;">
 		</a>
       </div>
       <div class="carousel-item">
-		<a href="/user/bookdetail?id=1">
+		<a href="/user/bookdetail?isbn=9791197221989">
         	<img src="/resources/images/banner2.jpg" class="d-block w-100" alt="배너2" style="height:500px; object-fit:cover; background:#e9ecef;">
 		</a>
       </div>
       <div class="carousel-item">
-		<a href="/user/bookdetail?id=1">
+		<a href="/user/bookdetail?isbn=9791198987631">
         	<img src="/resources/images/banner3.jpg" class="d-block w-100" alt="배너3" style="height:500px; object-fit:cover; background:#e9ecef;">
 		</a>
       </div>
