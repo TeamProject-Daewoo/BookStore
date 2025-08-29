@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -105,13 +106,12 @@
           <div class="card-body book-info text-center">
             <h5 class="card-title">${book.title}</h5>
             <p class="card-text mb-1">글쓴이: ${book.author}</p>
-            <p class="card-text fw-bold">가격: ${book.price}원</p>
+            <p class="card-text fw-bold">가격: <fmt:formatNumber value="${book.price}" pattern="#,###" />원</p>
           </div>
         </div>
       </div>
     </c:forEach>
   </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
