@@ -14,8 +14,9 @@
         label { display: block; margin-top: 10px; }
         input[type="text"],
         input[type="number"],
-        textarea {
-            width: calc(100% - 22px);
+        textarea,
+        select { /* select 태그 스타일 추가 */
+            width: 100%;
             padding: 10px;
             margin: 5px 0 10px 0;
             box-sizing: border-box;
@@ -34,30 +35,6 @@
         }
         input[type="submit"]:hover {
             background-color: #0056b3;
-        }
-        .message {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        select { /* select 태그 스타일 추가 */
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin: 5px 0 10px 0;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 4px;
         }
     </style>
     <script>
@@ -85,7 +62,7 @@
             <input type="hidden" name="isbn" value="${book.isbn}">
 
             <label for="title">제목:</label>
-            <input type="text" id="title" name="title" value="${book.title}" required>
+            <textarea id="title" name="title" rows="3" required maxlength="500">${book.title}</textarea>
 
             <label for="author">저자:</label>
             <input type="text" id="author" name="author" value="${book.author}" required>
