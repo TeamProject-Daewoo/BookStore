@@ -177,6 +177,13 @@ public class UserService {
             Book newBookFromApi = naverBookService.searchBookByIsbn(isbn);
 
             if (newBookFromApi != null) {
+            	if ("기타".equals(newBookFromApi.getCategory()) && newBookFromApi.getLink() != null) {
+                    String scrapedCategory = naverBookService.scrapeCategoryFromUrl(newBookFromApi.getLink());
+                    if (scrapedCategory != null) {
+                        // 스크래핑으로 얻은 카테고리로 다시 분류
+                        newBookFromApi.setCategory(naverBookService.classifyCategory(scrapedCategory));
+                    }
+                }
                 // 4-4. API에서 받아온 새로운 책 정보를 우리 DB에 저장(INSERT)합니다.
                 // 이렇게 하면 다음부터는 DB에서 바로 조회가 가능해집니다.
                 bookMapper.save(newBookFromApi);

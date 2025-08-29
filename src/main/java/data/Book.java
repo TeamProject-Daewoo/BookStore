@@ -23,4 +23,5 @@ public class Book {
 	private String img;
 	private String category;
 	private String description;
+	private String link;
 }
