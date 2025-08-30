@@ -17,26 +17,36 @@
       border-radius: 50%;
       margin-left: 4px;
     }
+
+    /* ===== 1. CSS 수정된 부분 시작 ===== */
 	#categoryMenu {
-	  display: none;          /* 기본 숨김 */
+	  display: none;          /* JS로 제어하기 위해 기본 숨김 (이것만 남깁니다) */
 	  position: absolute;     
 	  background: white;
 	  list-style: none;
-	  padding: 0.5rem 0;
+	  padding: 1rem;
 	  margin: 0;
 	  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 	  z-index: 3000;
+      
+      /* 3열 그리드 레이아웃 설정 (display: grid; <-- 이 줄을 삭제!) */
+	  width: 600px;
+	  grid-template-columns: repeat(3, 1fr);
+	  gap: 5px 10px;
 	}
+    /* ===== 1. CSS 수정된 부분 끝 ===== */
 
 	#categoryMenu li a {
 	  display: block;
 	  padding: 0.5rem 1rem;
 	  text-decoration: none;
 	  color: black;
+      white-space: nowrap; /* 글자가 두 줄로 나뉘는 것 방지 */
 	}
 
 	#categoryMenu li a:hover {
 	  background-color: #f1f1f1;
+      border-radius: 4px; /* 호버 시 약간 둥글게 */
 	}
 
   </style>
@@ -44,10 +54,8 @@
 <body>
 	<header>
 	  <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-	    <!-- 왼쪽 로고 -->
 	    <a class="navbar-brand fw-bold" href="<c:url value='/user/booklist'/>">📚 BookStore</a>
 
-	    <!-- 모바일 토글 버튼 -->
 	    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
 	            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
 	      <span class="navbar-toggler-icon"></span>
@@ -55,38 +63,53 @@
 
 	    <div id="mainNav" class="collapse navbar-collapse justify-content-between">
 	      
-	      <!-- 가운데 메뉴 -->
 	      <ul class="navbar-nav me-auto gap-3">
-	        <!-- 카테고리 드롭다운 -->
-			<li class="nav-item" id="categoryDropdown">
+	        <li class="nav-item" id="categoryDropdown">
 			    <a href="#" class="nav-link">카테고리 ▼</a>
-			    <ul class="dropdown-menu" id="categoryMenu">
-			      <li><a class="dropdown-item" href="<c:url value='/category/novel'/>">소설</a></li>
-			      <li><a class="dropdown-item" href="<c:url value='/category/it'/>">IT/컴퓨터</a></li>
-			      <li><a class="dropdown-item" href="<c:url value='/category/economy'/>">경제/경영</a></li>
-			      <li><hr class="dropdown-divider"></li>
-			      <li><a class="dropdown-item" href="<c:url value='/category/etc'/>">기타</a></li>
+			    <ul id="categoryMenu">
+			        <li><a class="dropdown-item" href="<c:url value='/category/novel'/>">소설</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/poem-essay'/>">시/에세이</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/economy-management'/>">경제/경영</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/self-development'/>">자기계발</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/humanities'/>">인문</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/history'/>">역사</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/social-politics'/>">사회/정치</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/science'/>">자연/과학</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/art-culture'/>">예술/대중문화</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/religion'/>">종교</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/preschool'/>">유아</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/children'/>">어린이</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/home-cooking'/>">가정/요리</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/travel'/>">여행</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/language'/>">국어/외국어</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/computer-it'/>">컴퓨터/IT</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/teen'/>">청소년</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/test-prep'/>">수험서/자격증</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/comics'/>">만화</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/magazine'/>">잡지</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/foreign-books'/>">외국도서</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/health-hobby'/>">건강/취미</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/highschool-reference'/>">고등학교 참고서</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/middleschool-reference'/>">중학교 참고서</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/elementary-reference'/>">초등학교 참고서</a></li>
+			        <li><a class="dropdown-item" href="<c:url value='/category/used-books'/>">중고도서</a></li>
 			    </ul>
-			  </li>
+			</li>
 
-	        <!-- 베스트셀러 -->
 	        <li class="nav-item">
 	          <a class="nav-link" href="<c:url value='/bestseller/main'/>">베스트셀러</a>
 	        </li>
 
-	        <!-- 게시판 -->
 	        <li class="nav-item">
 	          <a class="nav-link" href="<c:url value='/board/main'/>">게시판</a>
 	        </li>
 	      </ul>
 
-	      <!-- 오른쪽 메뉴 -->
 	      <ul class="navbar-nav align-items-center gap-3">
 
 	        <sec:authorize access="isAuthenticated()">
 	          <li class="nav-item">
-    			<!-- 사용자 이름 -->
-	            <span class="navbar-text">
+    			<span class="navbar-text">
 	              안녕하세요.  <sec:authentication property="name" />님
 	            </span>
 	          </li>
@@ -131,7 +154,6 @@
 	    </div>
 	  </nav>
 
-	  <!-- 관리자 영역일 때만 공통 탭 노출 -->
 	  <c:if test="${page != null and fn:startsWith(page, 'manager/')}">
 	    <jsp:include page="/WEB-INF/views/manager/_tabs.jsp" />
 	  </c:if>
@@ -140,7 +162,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- (선택) AJAX로 탭 본문 로드하고 싶으면 _tabs.jsp의 a에 data-ajax="true" 추가 -->
 <script>
 document.addEventListener('click', function (e) {
   var a = e.target.closest('.tabs a[data-ajax="true"]');
@@ -176,13 +197,15 @@ document.addEventListener('click', function (e) {
 const dropdown = document.getElementById('categoryDropdown');
 const menu = document.getElementById('categoryMenu');
 
+/* ===== 2. JavaScript 수정된 부분 시작 ===== */
 dropdown.addEventListener('mouseenter', () => {
-  menu.style.display = 'block';
+  menu.style.display = 'grid'; // 'block' 대신 'grid'로 변경
 });
 
 dropdown.addEventListener('mouseleave', () => {
   menu.style.display = 'none';
 });
+/* ===== 2. JavaScript 수정된 부분 끝 ===== */
 
 </script>
 </body>
