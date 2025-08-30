@@ -180,18 +180,17 @@ public class ManagerService {
             	new BookDetailFragment(
                     result.getBook_id(),
                     result.getBook_title(),
-                    result.getQuantity()
+                    result.getQuantity(),
+                    result.getAuthor(),
+                    result.getCategory(),
+                    result.getIsbn()
             	)
             );
         }
 		return new ArrayList<>(viewMap.values());
 	}
 
-	public SumList getTotalSum() {
-		return purchaseMapper.getTotalList();
-	}
-
 	public SalesView getSalesView(SearchRequest searchReq) {
-		return new SalesView(getPurchaseView(searchReq), getTotalSum());
+		return new SalesView(getPurchaseView(searchReq), purchaseMapper.getTotalList());
 	}
 }

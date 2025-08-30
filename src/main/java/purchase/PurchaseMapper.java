@@ -73,8 +73,8 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 
 //    @Select("SELECT * FROM purchase p JOIN book b on p.book_id=b.id JOIN member m on p.member_id=m.id "
 //    		+ "where b.title LIKE '%'||#{keyword}||'%' OR b.author LIKE '%'||#{keyword}||'%' order by ${orderItem} ${order}")
-    @Select("SELECT p.id, p.member_id, m.name AS member_name, p.order_date, p.order_id, SUM(b.price) OVER (PARTITION BY p.order_id) AS total_price, "
-    		+"b.id AS book_id, b.title AS book_title, p.quantity "
+    @Select("SELECT p.id, p.member_id, m.name AS member_name, p.order_date, p.order_id, SUM(b.price * p.quantity) OVER (PARTITION BY p.order_id) AS total_price, "
+    		+"b.id AS book_id, b.title AS book_title, p.quantity, b.author, b.category, b.isbn  "
     	    +"FROM purchase p "
     	    +"JOIN member m ON p.member_id = m.id "
     	    +"JOIN book b ON p.book_id = b.id "
