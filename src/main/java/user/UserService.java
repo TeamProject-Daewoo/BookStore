@@ -130,8 +130,8 @@ public class UserService {
 	}
 
     // <<-- 2. getBook 메서드는 이제 ISBN을 기준으로 동작하는 새로운 메서드로 대체됩니다.
-	public Book getBook(int id) {
-	 	return bookMapper.findById(id);
+	public Book getBook(String isbn) {
+	 	return bookMapper.findByIsbn(isbn);
 	}
 	
 	public List<Book> getBookList() {
@@ -139,7 +139,7 @@ public class UserService {
 	}
 
     // <<-- 3. 키워드 검색 메서드를 하이브리드 방식으로 수정합니다.
-	public List<Book> findByKeyword(String keyword) {
+	/*public List<Book> findByKeyword(String keyword) {
 		// 3-1. 우선 내 DB에서 키워드로 검색합니다.
 		List<Book> localResults = bookMapper.findByKeyword(keyword);
 		
@@ -192,7 +192,7 @@ public class UserService {
             }
         }
         return null; // DB와 API 양쪽 모두에서 책을 찾지 못한 경우
-    }
+    }*/
 	
 	public int updateBook(Book book) {
 		return bookMapper.update(book);

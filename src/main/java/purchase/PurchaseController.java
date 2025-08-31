@@ -95,7 +95,7 @@ public class PurchaseController {
         if ("direct".equals(type) && bookIsbn != null && quantity != null) {
             // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
             // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
-            Book book = userService.getBookByIsbn(bookIsbn); 
+            Book book = userService.getBook(bookIsbn); 
             if (book == null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
                 return "redirect:/user/booklist";
@@ -149,7 +149,7 @@ public class PurchaseController {
         	
         	if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
                 // 구매 확정 시에도 isbn으로 책 정보를 가져옵니다.
-                Book book = userService.getBookByIsbn(bookIsbn);
+                Book book = userService.getBook(bookIsbn);
                 if(book == null || book.getId() == null) {
                     throw new IllegalArgumentException("Book not found or could not be saved.");
                 }

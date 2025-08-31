@@ -56,7 +56,7 @@ public class CartController {
     	int memberId = getLoginedMemberId(user);
         
         // id로 찾던 부분을 isbn으로 찾는 하이브리드 메서드로 교체
-        Book book = userService.getBookByIsbn(bookIsbn);
+        Book book = userService.getBook(bookIsbn);
         
         if (book == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Book not found.");

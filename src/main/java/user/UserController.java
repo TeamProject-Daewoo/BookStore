@@ -58,8 +58,8 @@ public class UserController {
     public String bookList(Model model, String keyword) {
         model.addAttribute("page", MAIN_URL + "booklist");
         Map<String, Object> pageList = new HashMap<>();
-        // 키워드 검색 시, 하이브리드 로직이 적용된 service.findByKeyword(keyword)가 호출됩니다.
-        pageList.put("list", keyword != null ? service.findByKeyword(keyword) : service.getExistBookList());
+        // 기존 DB에서 조회
+        pageList.put("list", service.getExistBookList());
         pageList.put("totalCount", service.getBookList().size());
         pageList.put("currentPage", 1);
         pageList.put("totalPage", 1);
@@ -69,53 +69,37 @@ public class UserController {
 
     // <<-- 1. bookDetail 메서드 수정 -->>
     @RequestMapping("bookdetail")
-    // 파라미터를 int id 대신 String isbn으로 받습니다.
-    public String bookDetail(@RequestParam String isbn, Model model, Authentication authentication) {
-        // ISBN으로 책 정보를 가져오는 하이브리드 메서드를 호출합니다.
-        Book book = service.getBookByIsbn(isbn);
-        
-        // 만약 책 정보가 DB에 저장된 후라면, book.getId()로 리뷰 조회가 가능합니다.
-        if (book != null && book.getId() != null) {
-            List<Review> reviews = reviewService.getReviewsByBookId(book.getId());
-            model.addAttribute("reviews", reviews);
-        }
+	public String bookDetail(@RequestParam String isbn, Model model) {
+		// id로 책 정보를 조회
+	    Book book = service.getBook(isbn);
+	    
+	    String imagePath = "/static/images/" + book.getImg();
+	    
+	    // 책 정보와 이미지 경로, 페이지 정보를 모델에 추가
+	    model.addAttribute("book", book);
+	    model.addAttribute("imagePath", imagePath);  // 이미지 경로 추가
+	    model.addAttribute("page", MAIN_URL + "bookdetail");
+	    
+	    // imagePath를 확인하기 위해 로그 출력
+	    System.out.println("Image Path: " + imagePath);  // 콘솔에서 경로 확인
+	    
+	    return "index";
+	}
 
-        // 네이버 API는 이미지 전체 URL을 제공하므로 경로를 따로 만들 필요가 없습니다.
-        // book.getImg()에 전체 URL이 들어있습니다.
-        // String imagePath = "/static/images/" + book.getImg(); 
-
-        if(authentication != null) {
-            model.addAttribute("user", authentication.getName());
-        }
-
-        model.addAttribute("book", book);
-        // model.addAttribute("imagePath", imagePath);
-        model.addAttribute("page", MAIN_URL + "bookdetail");
-
-        return "index";
-    }
-
-    // <<-- 2. 리뷰 추가 후 리다이렉트 수정 -->>
     @RequestMapping("addReview")
     public String addReview(@ModelAttribute Review review, Authentication authentication) throws IOException {
         review.setUserId(authentication.getName());
         reviewService.saveReview(review);
-        // id 대신 isbn으로 리다이렉트합니다.
-        Book book = service.getBook(review.getBookId());
-        return "redirect:/user/bookdetail?isbn=" + book.getIsbn();
-    }
-    
-    // <<-- 3. 리뷰 삭제 후 리다이렉트 수정 -->>
-    @RequestMapping("/reviewDelete")
-    public String deleteReview(@RequestParam int reviewId) {
-        // bookId로 책을 찾은 후 isbn을 얻어 리다이렉트합니다.
-        int bookId = reviewService.findById(reviewId).getBookId();
-        Book book = service.getBook(bookId);
-        reviewService.deleteReview(reviewId);
-        return "redirect:/user/bookdetail?isbn=" + book.getIsbn();
+        return "redirect:/user/bookdetail?id=" + review.getBookId();
     }
 
-    // <<-- 4. 리뷰 수정 후 리다이렉트 수정 -->>
+    @RequestMapping("/reviewDelete")
+    public String deleteReview(@RequestParam int reviewId) {
+        int bookId = reviewService.findById(reviewId).getBookId();
+        reviewService.deleteReview(reviewId);
+        return "redirect:/user/bookdetail?id=" + bookId;
+    }
+
     @GetMapping("/reviewEdit")
     public String editForm(@RequestParam Integer reviewId, Model model) {
         Review review = reviewService.findById(reviewId);
@@ -128,8 +112,7 @@ public class UserController {
     public String editReview(@ModelAttribute Review review) {
         reviewService.updateReview(review);
         Integer bookId = reviewService.findById(review.getReviewId()).getBookId();
-        Book book = service.getBook(bookId);
-        return "redirect:/user/bookdetail?isbn=" + book.getIsbn();
+        return "redirect:/user/bookdetail?id=" + bookId;
     }
     
     // =================================================================

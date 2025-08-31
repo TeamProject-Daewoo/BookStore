@@ -29,7 +29,7 @@ public interface BookMapper extends BaseMapper<Book> {
 	
 	@Override
 	// 2. (핵심 수정) UPDATE 문에도 isbn = #{isbn}을 추가
-	@Update("update book set isbn=#{isbn}, title=#{title}, author=#{author}, price=#{price}, stock=#{stock}, img=#{img}, category=#{category}, description=#{description} where id=#{id}")
+	@Update("update book set isbn=#{isbn}, title=#{title}, author=#{author}, price=#{price}, stock=#{stock}, img=#{img}, category=#{category}, description=#{description} where isbn=#{isbn}")
 	int update(Book book);
 	
 	@Override

@@ -1,9 +1,13 @@
 package user;
 
+import java.io.Console;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.ibatis.javassist.compiler.ast.Keyword;
 import org.json.JSONArray;
@@ -11,16 +15,19 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import data.Book;
+import data.BookMapper;
 
 @Service
 public class NaverBookService {
@@ -31,34 +38,58 @@ public class NaverBookService {
     @Value("${naver.api.clientSecret}")
     private String CLIENT_SECRET;
 
-    // --- searchBooks, searchBookByIsbn 메서드는 기존과 동일 ---
-    public List<Book> searchBooks(String keyword) {
+    @Autowired
+    BookMapper bookMapper;
+    
+    @PostConstruct
+    public void runOnStartup() {
+        syncNaverBooks();
+    }
+    
+    @Scheduled(cron = "0 0 3 * * *")
+    public void syncNaverBooks() {
+
+        List<String> keywords = Arrays.asList("소설", "IT/컴퓨터", "경제/경영", "인문학");
+        
+        for (String keyword : keywords) {
+            List<Book> books = searchBooks(keyword);
+            System.out.println(books);
+            saveOrUpdateBooks(books);
+        }
+        
+        System.out.println("네이버 책 DB 동기화 완료!");
+    }
+
+    private List<Book> searchBooks(String keyword) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Naver-Client-Id", CLIENT_ID);
         headers.set("X-Naver-Client-Secret", CLIENT_SECRET);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         
-        URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com").path("/v1/search/book.json")
-                .queryParam("query", (keyword == null || keyword.length() == 0 ? "책" : keyword)).queryParam("display", 20).encode(StandardCharsets.UTF_8).build().toUri();
+        URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com")
+                .path("/v1/search/book.json")
+                .queryParam("query", keyword)
+                .queryParam("display", 10)
+                .encode(StandardCharsets.UTF_8).build().toUri();
 
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
         return parseJsonToBookList(response.getBody());
     }
 
-    public Book searchBookByIsbn(String isbn) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Naver-Client-Id", CLIENT_ID);
-        headers.set("X-Naver-Client-Secret", CLIENT_SECRET);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com").path("/v1/search/book_adv.json")
-                .queryParam("d_isbn", isbn).encode(StandardCharsets.UTF_8).build().toUri();
-
-        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-        List<Book> books = parseJsonToBookList(response.getBody());
-        return books.isEmpty() ? null : books.get(0);
+    
+    private void saveOrUpdateBooks(List<Book> books) {
+        System.out.println("책 " + books.size() + "개를 DB에 저장/업데이트합니다.");
+        for (Book book : books) {
+            Book existingBook = bookMapper.findByIsbn(book.getIsbn());
+            if (existingBook != null) {
+                // 이미 존재하는 책이면 업데이트
+                bookMapper.update(book);
+            } else {
+                // 존재하지 않으면 삽입
+                bookMapper.save(book);
+            }
+        }
     }
     // -----------------------------------------------------------------
 
@@ -70,7 +101,6 @@ public class NaverBookService {
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
             Book book = new Book();
-
             String title = Jsoup.parse(item.optString("title")).text();
             //String title = item.optString("title").replaceAll("<(/)?b>", "");
             String link = item.optString("link");
@@ -88,6 +118,7 @@ public class NaverBookService {
             }
             book.setPrice(price);
             book.setStock(10);
+            
             
             // === (핵심 수정) 스크래핑 우선 로직 ===
             String category = "기타"; // 기본값을 '기타'로 설정
@@ -111,6 +142,7 @@ public class NaverBookService {
         }
         return bookList;
     }
+    
     
     public String scrapeCategoryFromUrl(String bookLink) {
         try {
