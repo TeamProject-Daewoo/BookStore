@@ -314,7 +314,69 @@
            <h4>리뷰 목록</h4>
            <c:if test="${not empty reviews}">
                <c:forEach var="review" items="${reviews}">
-                   <%-- 리뷰 목록 표시는 기존 코드와 동일 --%>
+                   	       <div style="display: flex; gap: 16px; padding: 12px; border-bottom: 1px solid #eee;">
+	           <!-- 왼쪽: 프로필 이미지 -->
+	           <div style="flex-shrink: 0;">
+	               <img src="<c:url value='/user/profileImageByUsername/${review.userId}' />"
+     				alt="프로필 이미지"
+     				style="width:70px; height:70px; border-radius:50%; object-fit:cover;">
+	           </div>
+
+			   <!-- 오른쪽: 리뷰 내용 -->
+			   <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+			       
+				<!-- 헤더: 닉네임 + 별점 + 날짜 + 수정/삭제 버튼 -->
+				<div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+
+				    <!-- 왼쪽: 닉네임 + 별점 -->
+				    <div style="display:flex; align-items:center; gap:8px;">
+				        <strong style="font-size:16px;">${review.userId}</strong>
+				        <span style="color:#f5c518;">
+				            <c:forEach var="i" begin="1" end="5">
+				                <c:choose>
+				                    <c:when test="${i <= review.rating}">★</c:when>
+				                    <c:otherwise>☆</c:otherwise>
+				                </c:choose>
+				            </c:forEach>
+				        </span>
+				    </div>
+
+				    <!-- 가운데: 빈 공간 (flex로 자동 확장) -->
+				    <div style="flex:1"></div>
+
+				    <!-- 오른쪽: 날짜 -->
+				    <span style="font-size:12px; color:#888; white-space:nowrap; margin-right:8px;">
+				        <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
+				    </span>
+
+				    <!-- 오른쪽 끝: 점 3개 버튼 -->
+				    <c:if test="${review.userId == user or pageContext.request.isUserInRole('ROLE_ADMIN')}">
+				        <div style="position:relative;">
+				            <button onclick="toggleMenu(this)" 
+				                    style="background:none; border:none; font-size:20px; cursor:pointer;">⋮</button>
+				            <div class="review-menu" style="display:none; position:absolute; right:0; top:24px; 
+				                 background:#fff; border:1px solid #ccc; border-radius:6px; 
+				                 box-shadow:0 2px 8px rgba(0,0,0,0.15); min-width:100px; z-index:10;">
+				                <form action="/user/reviewEdit" method="get" style="margin:0;">
+				                    <input type="hidden" name="reviewId" value="${review.reviewId}" />
+				                    <button type="submit" style="display:block; width:100%; border:none; background:none; padding:8px; cursor:pointer; text-align:left;">수정</button>
+				                </form>
+				                <form action="/user/reviewDelete" method="post" style="margin:0;">
+				                    <input type="hidden" name="reviewId" value="${review.reviewId}" />
+				                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+				                    <button type="submit" style="display:block; width:100%; border:none; background:none; padding:8px; cursor:pointer; color:red; text-align:left;">삭제</button>
+				                </form>
+				            </div>
+				        </div>
+				    </c:if>
+
+				</div>
+
+
+			       <!-- 리뷰 내용 -->
+			       <p style="margin:0; line-height:1.4;">${review.content}</p>
+			   </div>
+	       </div>
                </c:forEach>
            </c:if>
            <c:if test="${empty reviews}">
@@ -323,13 +385,21 @@
        </div>
    </c:if>
 
-   <%-- 초기화 스크립트는 기존 코드와 동일 --%>
    <script>
-      updateTotalPrice();
 	  function toggleMenu(btn) {
-	      // ... (기존 코드와 동일)
-	  }
-	  // ... (기존 코드와 동일)
+	          const menu = btn.nextElementSibling;
+	          menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+	      }
+
+	      // 클릭 외부 영역 시 메뉴 닫기
+	      document.addEventListener('click', function(e) {
+	          const menus = document.querySelectorAll('.review-menu');
+	          menus.forEach(menu => {
+	              if (!menu.contains(e.target) && !menu.previousElementSibling.contains(e.target)) {
+	                  menu.style.display = 'none';
+	              }
+	          });
+	      });
    </script>
 </body>
 </html>
