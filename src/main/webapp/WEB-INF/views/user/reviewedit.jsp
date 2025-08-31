@@ -40,17 +40,9 @@
         <!-- 버튼 -->
         <div style="margin-top: 12px; display: flex; gap: 8px;">
             <button type="submit" class="btn btn-success" style="width: 120px;">수정 완료</button>
-            <button type="button" onclick="cancelEdit(this)" class="btn btn-warning" style="width: 120px;">취소</button>
+            <button type="button" onclick="history.back()" class="btn btn-warning" style="width: 120px;">취소</button>
         </div>
     </form>
 </div>
-
-<script>
-    function cancelEdit(btn) {
-        const formDiv = btn.closest('.book-review-container');
-        formDiv.style.display = 'none'; // 폼 감추기
-        // 필요하면 기존 리뷰 표시 div를 다시 보여주는 로직 추가 가능
-    }
-</script>
 </body>
 </html>

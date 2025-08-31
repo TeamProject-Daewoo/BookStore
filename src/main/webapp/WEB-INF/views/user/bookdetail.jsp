@@ -232,6 +232,30 @@
                <p><strong>가격:</strong> <fmt:formatNumber value="${book.price}" pattern="#,###" /> 원</p>
             </div>
 
+ 			<p>
+    			<span style="color:#f5c518;">
+        			<c:choose>
+            		<c:when test="${not empty reviews}">
+                		<%-- 소수점 없이 정수로 변환 --%>
+                		<c:set var="roundedRating" value="${averageRating - (averageRating % 1)}"/>
+						<c:forEach var="i" begin="1" end="5">
+    					<c:choose>
+        					<c:when test="${i <= roundedRating}">★</c:when>
+        					<c:otherwise>☆</c:otherwise>
+    					</c:choose>
+						</c:forEach>
+                			(<fmt:formatNumber value="${averageRating}" pattern="#0.0"/>점)
+            			</c:when>
+            			<c:otherwise>
+                			<c:forEach var="i" begin="1" end="5">
+                    			<span style="color:#ccc;">★</span>
+                			</c:forEach>
+                			(0점)
+            			</c:otherwise>
+        			</c:choose>
+    			</span>
+			</p>
+    
             <c:if test="${book.stock > 0}">
                <div class="book-actions">
                   <p><strong>재고:</strong> ${book.stock}</p>

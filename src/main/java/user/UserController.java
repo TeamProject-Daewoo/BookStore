@@ -78,6 +78,16 @@ public class UserController {
         if (book != null && book.getId() != null) {
             List<Review> reviews = reviewService.getReviewsByBookId(book.getId());
             model.addAttribute("reviews", reviews);
+            
+            // 평균 평점 계산
+            double averageRating = 0.0;
+            if (!reviews.isEmpty()) {
+                averageRating = reviews.stream()
+                                       .mapToInt(Review::getRating)
+                                       .average()
+                                       .orElse(0.0);
+            }
+            model.addAttribute("averageRating", averageRating);
         }
 
         // 네이버 API는 이미지 전체 URL을 제공하므로 경로를 따로 만들 필요가 없습니다.
