@@ -81,7 +81,15 @@
 </head>
 <body>
 	<div class="container my-5">
-	  <h3 class="text-center mb-4">🛒 장바구니</h3>
+	  <h3 class="text-center mb-4 d-flex justify-content-between align-items-center">
+    🛒 장바구니
+    <c:if test="${not empty cartItems}">
+        <form action="${pageContext.request.contextPath}/cart/deleteAll" method="post" style="margin:0;" onsubmit="return confirm('장바구니에 있는 책을 전체삭제하시겠습니까?');">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+            <button type="submit" class="btn btn-danger btn-sm">전체 삭제</button>
+        </form>
+    </c:if>
+</h3>
 	
 	  <c:if test="${empty cartItems}">
 	    <div class="empty-cart">장바구니가 비어 있습니다.</div>
@@ -115,7 +123,7 @@
 	          <div class="item-quantity">
 	            <form action="${pageContext.request.contextPath}/cart/updateQuantity" method="post" class="d-flex align-items-center">
 	              <%-- 2. (핵심) 수량 변경은 우리 DB의 고유 id를 기준으로 동작 --%>
-                  <input type="hidden" name="bookId" value="${item.book.id}">
+                  <input type="hidden" name="bookIsbn" value="${item.book.isbn}">
 	              <input type="number" name="quantity" value="${item.quantity}" min="1" class="form-control form-control-sm me-2" onchange="this.form.submit();">
 	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
 	            </form>
@@ -128,7 +136,7 @@
 	          <div class="item-actions mx-3">
 	            <form action="${pageContext.request.contextPath}/cart/remove" method="post">
 	              <%-- 3. (핵심) 삭제도 우리 DB의 고유 id를 기준으로 동작 --%>
-                  <input type="hidden" name="bookId" value="${item.book.id}">
+                  <input type="hidden" name="bookIsbn" value="${item.book.isbn}">
 	              <button type="submit" class="btn btn-danger btn-sm">삭제</button>
 	              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }" />
 	            </form>

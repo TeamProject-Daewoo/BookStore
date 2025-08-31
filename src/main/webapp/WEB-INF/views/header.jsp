@@ -122,7 +122,7 @@
 	        </sec:authorize>
 
 	        <li class="nav-item position-relative">
-	          <a href="<c:url value='/cart'/>" class="nav-link d-flex align-items-center">
+	          <a href="<c:url value='/cart/cartview'/>" class="nav-link d-flex align-items-center">
 	            🛒 장바구니
 	            <span class="cart-count"><c:out value="${cartCount}" /></span>
 	          </a>

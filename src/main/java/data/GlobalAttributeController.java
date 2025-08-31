@@ -1,15 +1,15 @@
 package data;
 
-import java.security.Principal;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import cart.CartService;
-import user.Member;
-import user.MemberMapper;
+import cart.CookieService;
 
 /**
  * 전역 Controller<br>
@@ -19,18 +19,14 @@ import user.MemberMapper;
 @Component
 @ControllerAdvice
 public class GlobalAttributeController {
-	
-	 @Autowired
-    private MemberMapper memberMapper;
 
     @Autowired
-    private CartService cartService;
+    private CookieService cookieService;
 
     //세션의 setAttribute를 spring-security 방식으로 대체
     @ModelAttribute("cartCount")
-    public int getCartCount(Principal user) {
-        if(user == null) return 0;
-        Member member = memberMapper.findByUserId(user.getName());
-        return member != null ? cartService.getCartItems(member.getId()).size() : 0;
+    public int getCartCount(HttpServletRequest request) {
+    	Map<String, Integer> cartMap = cookieService.readCartCookie(request);
+        return cartMap.values().stream().mapToInt(Integer::intValue).sum();
     }
 }

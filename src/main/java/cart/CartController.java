@@ -1,7 +1,15 @@
 package cart;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List; // Changed from Map to List
+import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,13 +37,6 @@ public class CartController {
     @Autowired
     private MemberMapper memberMapper;
 
-//    private int getMemberIdFromSession(HttpSession session) {
-//        Member member = (vo.Member) session.getAttribute("login");
-//        if (member == null) {
-//            throw new IllegalStateException("User not logged in. 'login' attribute (Member object) not found in session.");
-//        }
-//        return member.getId(); // Assuming Member object has an getId() method
-//    }
     
     //Principal 로그인중인 사용자 정보(username)
     private int getLoginedMemberId(Principal user) {
@@ -46,67 +47,82 @@ public class CartController {
     @Autowired
     private user.UserService userService;
     
-    @PostMapping("/add")
-    // int bookId 대신 String bookIsbn을 받도록 수정
-    public String addItemToCart(@RequestParam("bookIsbn") String bookIsbn,
-                                @RequestParam(value = "quantity", defaultValue = "1") int quantity,
-                                Principal user,
-                                RedirectAttributes redirectAttributes) {
-        
-    	int memberId = getLoginedMemberId(user);
-        
-        // id로 찾던 부분을 isbn으로 찾는 하이브리드 메서드로 교체
-        Book book = userService.getBookByIsbn(bookIsbn);
-        
-        if (book == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Book not found.");
-            return "redirect:/user/booklist"; // 에러 시 책 목록으로 이동
-        }
-        if (quantity <= 0) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be at least 1.");
-            // 상세 페이지로 돌아갈 때도 isbn을 사용
-            return "redirect:/user/bookdetail?isbn=" + bookIsbn;
-        }
+    @Autowired
+    private CookieService cookieService;
+    
+    @PostMapping("/addcookie")
+    public String addToCart(@RequestParam String bookIsbn,
+                            @RequestParam int quantity,
+                            HttpServletRequest request,
+                            HttpServletResponse response) {
 
-        // book 객체에는 이제 DB에 저장된 id가 확실히 존재합니다.
-        cartService.addItemToCart(memberId, book, quantity);
-        redirectAttributes.addFlashAttribute("successMessage", book.getTitle() + " added to cart!");
-        return "redirect:/cart";
+    	Map<String, Integer> cartMap = cookieService.readCartCookie(request);
+
+        // 기존 수량이 있으면 합산
+        cartMap.put(bookIsbn, cartMap.getOrDefault(bookIsbn, 0) + quantity);
+
+        cookieService.writeCartCookie(response, cartMap);
+
+        return "redirect:/cart/cartview";
     }
+    
 
+    @GetMapping("/cartview")
+    public String viewCart(HttpServletRequest request, Model model) {
+        List<CartItem> cartItems = new ArrayList<>();
 
-    @GetMapping
-    public String viewCart(Principal user, Model model) {
-        int memberId = getLoginedMemberId(user);
+        // CookieService를 통해 쿠키 읽기
+        Map<String, Integer> cartMap = cookieService.readCartCookie(request);
 
-        List<CartItem> cartItems = cartService.getCartItems(memberId);
-        
+        for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
+            String isbn = entry.getKey();
+            int quantity = entry.getValue();
+
+            // isbn으로 DB에서 Book 조회
+            Book book = bookMapper.findByIsbn(isbn);
+            if (book != null) {
+                cartItems.add(new CartItem(book, quantity));
+            }
+        }
+
+        // 총 합계 계산
+        int totalPrice = cartItems.stream().mapToInt(CartItem::getItemTotal).sum();
+
+        model.addAttribute("cartTotal", totalPrice);
         model.addAttribute("cartItems", cartItems);
-        model.addAttribute("cartTotal", cartService.calculateCartTotal(memberId));
         model.addAttribute("page", "user/cart");
         return "index";
     }
-
+    
     @PostMapping("/updateQuantity")
-    public String updateCartItemQuantity(@RequestParam("bookId") int bookId,
-                                         @RequestParam("quantity") int quantity,
-                                         Principal user,
-                                         RedirectAttributes redirectAttributes) {
-        int memberId = getLoginedMemberId(user);
+    public String updateQuantity(
+            @RequestParam("bookIsbn") String bookIsbn,
+            @RequestParam("quantity") int quantity,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        cookieService.updateQuantity(request, response, bookIsbn, quantity);
 
-        cartService.updateItemQuantity(memberId, bookId, quantity);
-        redirectAttributes.addFlashAttribute("successMessage", "Cart updated successfully.");
-        return "redirect:/cart";
+        // 다시 장바구니 페이지로 리다이렉트
+        return "redirect:/cart/cartview";
     }
 
     @PostMapping("/remove")
-    public String removeCartItem(@RequestParam("bookId") int bookId,
-                                 Principal user,
-                                 RedirectAttributes redirectAttributes) {
-        int memberId = getLoginedMemberId(user);
-
-        cartService.removeItemFromCart(memberId, bookId);
-        redirectAttributes.addFlashAttribute("successMessage", "Item removed from cart.");
-        return "redirect:/cart";
+    public String deleteCartItem(@RequestParam("bookIsbn") String isbn,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+    	
+    		cookieService.deleteCartItem(request, response, isbn);
+    		
+    		return "redirect:/cart/cartview";
     }
+    
+    @PostMapping("/deleteAll")
+    public String deleteAllCartItems(HttpServletResponse response) {
+        cookieService.deleteCartCookie(response);  // 쿠키 전체 삭제
+        return "redirect:/cart/cartview";               // 삭제 후 장바구니 페이지로 리다이렉트
+    }
+
+    
+    
 }

@@ -246,7 +246,7 @@
                   <div id="error-message" class="error-message">🚫 선택한 수량이 재고를 초과했습니다.</div>
 
                   <%-- 2. 장바구니 담기는 우리 DB에 책을 '등록'하는 개념이므로 isbn을 보냄 --%>
-                  <form action="${pageContext.request.contextPath}/cart/add" method="post">
+                  <form action="${pageContext.request.contextPath}/cart/addcookie" method="post">
                      <input type="hidden" name="bookIsbn" value="${book.isbn}">
                      <input type="hidden" name="quantity" id="cart-quantity-input" value="1">
                      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
