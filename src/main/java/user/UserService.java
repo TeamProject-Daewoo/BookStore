@@ -137,7 +137,10 @@ public class UserService {
 	public List<Book> getBookList() {
 		return bookMapper.findAll();
 	}
-
+	
+	public List<Book> findByKeyword(String keyword) {
+		return bookMapper.findByKeyword(keyword);
+	}
     // <<-- 3. 키워드 검색 메서드를 하이브리드 방식으로 수정합니다.
 	/*public List<Book> findByKeyword(String keyword) {
 		// 3-1. 우선 내 DB에서 키워드로 검색합니다.

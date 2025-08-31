@@ -53,7 +53,6 @@ public class NaverBookService {
         
         for (String keyword : keywords) {
             List<Book> books = searchBooks(keyword);
-            System.out.println(books);
             saveOrUpdateBooks(books);
         }
         

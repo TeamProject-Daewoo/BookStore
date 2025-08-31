@@ -53,13 +53,11 @@ public class UserController {
     @Autowired
     private ReviewService reviewService;
     
-
     @RequestMapping("booklist")
     public String bookList(Model model, String keyword) {
         model.addAttribute("page", MAIN_URL + "booklist");
         Map<String, Object> pageList = new HashMap<>();
-        // 기존 DB에서 조회
-        pageList.put("list", service.getExistBookList());
+        pageList.put("list", keyword != null ? service.findByKeyword(keyword) : service.getExistBookList());
         pageList.put("totalCount", service.getBookList().size());
         pageList.put("currentPage", 1);
         pageList.put("totalPage", 1);
