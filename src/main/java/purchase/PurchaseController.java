@@ -4,6 +4,10 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,6 +22,7 @@ import bestseller.BestsellerService;
 import cart.CartItem;
 import cart.CartMapper;
 import cart.CartService;
+import cart.CookieService;
 import data.Book;
 import data.BookMapper;
 import user.MemberMapper;
@@ -38,10 +43,16 @@ public class PurchaseController {
     private CartService cartService;
     
     @Autowired
+    private CookieService cookieService;
+    
+    @Autowired
     private MemberMapper memberMapper;
     
     @Autowired
     private CartMapper cartMapper;
+    
+    @Autowired
+    private BookMapper bookMapper;
     
     @Autowired
     private BestsellerService bestsellerService;
@@ -86,7 +97,9 @@ public class PurchaseController {
                            @RequestParam(value = "quantity", required = false) Integer quantity,
                            Principal user,
                            Model model,
-                           RedirectAttributes redirectAttributes) {
+                           RedirectAttributes redirectAttributes,
+                           HttpServletRequest request
+    		) {
         int memberId = getLoginedMemberId(user);
 
         List<CartItem> itemsToPurchase = null;
@@ -103,9 +116,30 @@ public class PurchaseController {
             CartItem directItem = new CartItem(book, quantity);
             itemsToPurchase = new ArrayList<>(Collections.singletonList(directItem));
             totalAmount = directItem.getItemTotal();
+            
         } else if ("cart".equals(type)) {
-            itemsToPurchase = cartService.getCartItems(memberId);
-            totalAmount = cartService.calculateCartTotal(memberId);
+        	
+        	List<CartItem> cartItems = new ArrayList<>();
+
+            // CookieService를 통해 쿠키 읽기
+            Map<String, Integer> cartMap = cookieService.readCartCookie(request);
+
+            for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
+                String isbn = entry.getKey();
+                int cookie_quantity = entry.getValue();
+
+                // isbn으로 DB에서 Book 조회
+                Book book = bookMapper.findByIsbn(isbn);
+                
+                if (book != null) {
+                    cartItems.add(new CartItem(book, cookie_quantity));
+                }
+            }
+            
+            itemsToPurchase = cartItems;
+            
+            totalAmount = cartItems.stream().mapToInt(CartItem::getItemTotal).sum();
+            
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters.");
             return "redirect:/user/booklist";
@@ -141,7 +175,11 @@ public class PurchaseController {
                                   @RequestParam("phoneNumber") String phoneNumber,
                                   @RequestParam(value = "deliveryMessage", required = false) String deliveryMessage,
                                   Principal user,
-                                  RedirectAttributes redirectAttributes) {
+                                  RedirectAttributes redirectAttributes,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  Principal principal
+    		) {
         int memberId = getLoginedMemberId(user);
         try {
         	
@@ -156,8 +194,12 @@ public class PurchaseController {
                 // DB에 저장된 book의 id를 사용하여 구매를 진행합니다.
         	    orderId = purchaseService.directPurchase(memberId, book.getId(), quantity);
         	    cartService.removeItemFromCart(memberId, book.getId());
+        	    
         	} else if ("cart".equals(purchaseType)) {
-        	    orderId = purchaseService.cartPurchase(memberId);
+        		
+        		
+        	    orderId = purchaseService.cartPurchase(principal.getName(), request, response);
+        	    
         	} else {
         	    redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters for confirmation.");
         	    return "redirect:/user/booklist";

@@ -270,5 +270,8 @@ public class UserService {
         }
         return "ROLE_USER";
     }
+	public Member getMemberbyId(String userId) {
+		return memberMapper.findByUserId(userId);
+	}
 	
 }

@@ -1,6 +1,11 @@
 package purchase;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,11 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cart.CartItem;
 import cart.CartService;
+import cart.CookieService;
 import data.Book;
 import data.BookMapper;
+import user.UserService;
 
 @Service
 public class PurchaseService {
+	
+	@Autowired
+	private UserService userService;
 
     @Autowired
     private PurchaseMapper purchaseMapper;
@@ -22,6 +32,9 @@ public class PurchaseService {
 
     @Autowired
     private CartService cartService; // To clear cart after purchase
+    
+    @Autowired
+    private CookieService cookieService;
     
     private int generateOrderId() {
 		
@@ -61,8 +74,26 @@ public class PurchaseService {
     
 
 	@Transactional
-    public int cartPurchase(int memberId) {
-        List<CartItem> cartItems = cartService.getCartItems(memberId);
+    public int cartPurchase(String userId, HttpServletRequest request, HttpServletResponse response) {
+		
+		int memberId = userService.getMemberbyId(userId).getId();
+		
+		List<CartItem> cartItems = new ArrayList<>();
+
+        // CookieService를 통해 쿠키 읽기
+        Map<String, Integer> cartMap = cookieService.readCartCookie(request);
+
+        for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
+            String isbn = entry.getKey();
+            int cookie_quantity = entry.getValue();
+
+            // isbn으로 DB에서 Book 조회
+            Book book = bookMapper.findByIsbn(isbn);
+            
+            if (book != null) {
+                cartItems.add(new CartItem(book, cookie_quantity));
+            }
+        }
         
         int orderId = generateOrderId();
         
@@ -94,7 +125,7 @@ public class PurchaseService {
         }
 
         // Clear the cart after successful purchase
-        cartService.clearCart(memberId);
+        cookieService.deleteCartCookie(response);
         
         return orderId;
     }

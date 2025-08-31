@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Service;
 
-import data.Book;
-
 @Service
 public class CookieService {
 

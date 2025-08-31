@@ -11,66 +11,8 @@
 
 	<!-- url확인, 로그인, 로그아웃(http) / 회원에 대한 로그인 정보(authentication-manager) intercept-url을 
 		자바파일에서 처리 가능 회원에 대한 로그인 정보를 데이터베이스로 사용하기 위해 자바를 이용 -->
-	<context:component-scan base-package="login" />
-
-	<security:http auto-config="true" use-expressions="true">
-			
-	<security:intercept-url pattern="/purchase/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
-	<security:intercept-url pattern="/cart/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
-	<security:intercept-url pattern="/board/write/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
-	<security:intercept-url pattern="/board/edit/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
-    <security:intercept-url pattern="/board/delete/**" access="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')" />
-    <!-- Admin 전용 페이지: 로그인 필요 + ROLE_ADMIN 권한 -->
-    <security:intercept-url pattern="/manager/**" access="hasRole('ROLE_ADMIN')" />
-    
-    <!-- User 페이지: 누구나 접근 가능 (로그인 필요 없음) -->
-    <security:intercept-url pattern="/user/**" access="permitAll" />
-    <security:intercept-url pattern="/board/main/**" access="permitAll" />
-	<security:intercept-url pattern="/board/view/**" access="permitAll" />
-		<!-- url page가 없는 경우 오류가 발생하는데 무조건 로그인페이지로 이동 -->
-		<security:http-basic
-			entry-point-ref="authenticationEntryPoint" />
-
-		<!-- bean생성 후에 로그인 페이지 이동하게 설정 -->
-		<security:form-login login-page="/user/loginform"
-			login-processing-url="/login" 
-			default-target-url="/user/booklist"
-			authentication-failure-url="/user/login?error=true"
-			username-parameter="user_id" password-parameter="password"
-			authentication-success-handler-ref="loginSuccess" />
-		<!-- 로그인 성공시 이동할 객체 -->
-
-		<!-- 접근권한이 없는 계정이 접근했을 때 클래스로 접근불가처리 -->
-		<security:access-denied-handler
-			ref="accessDenied" />
+	<context:component-scan base-package="user, login, cart, review" />
+	
 
 
-		<!-- post방식의 url주소를 의미 -->
-		<security:intercept-url pattern="/logout"
-			access="permitAll" />
-		<security:logout logout-url="/logout"
-			logout-success-url="/user/booklist" />
-	</security:http>
-
-
-	<!-- 성공과 접근권한 실패시 사용자 bean객체 생성 -->
-	<bean id="loginSuccess" class="login.CustomerLoginSuccessHandler" />
-	<bean id="accessDenied" class="login.CustomerLoginDeniedHandler" />
-
-	<security:authentication-manager>
-		<security:authentication-provider
-			user-service-ref="loginService">
-			<security:password-encoder ref="bpe" />
-		</security:authentication-provider>
-	</security:authentication-manager>
-
-	<bean id="bpe"
-		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
-
-
-	<bean id="authenticationEntryPoint"
-		class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-		<constructor-arg name="loginFormUrl"
-			value="/user/loginform" />
-	</bean>
 </beans>

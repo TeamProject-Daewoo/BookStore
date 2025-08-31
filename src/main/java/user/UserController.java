@@ -1,15 +1,18 @@
 package user;
 
 import java.io.IOException;
-import org.springframework.http.HttpHeaders;
+import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import cart.CookieService;
 import data.Book;
 import login.CustomUserDetailsService;
 import review.Review;
@@ -45,6 +50,7 @@ public class UserController {
     final static String MAIN_URL = "user/";
 
     @Autowired
+    @Qualifier("customdetail")
     private CustomUserDetailsService userDetailsService;
 
     @Autowired
@@ -52,6 +58,9 @@ public class UserController {
 
     @Autowired
     private ReviewService reviewService;
+    
+    @Autowired
+    private CookieService cookieService;
     
 
     @RequestMapping("booklist")
@@ -174,7 +183,8 @@ public class UserController {
     }
 
     @RequestMapping("logout")
-    public String logout(HttpSession session) {
+    public String logout(HttpSession session, HttpServletResponse response) {  
+    	cookieService.deleteCartCookie(response);
         session.invalidate();
         return "redirect:/"+MAIN_URL+"booklist";
     }
