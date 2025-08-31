@@ -76,11 +76,57 @@ th:nth-child(4), td:nth-child(4) {
 
 .dash-grid {
   width: 100%;             /* 화면 거의 다 차지 */
-  max-width: 1200px;      /* 필요시 조정 */
+  max-width: 1600px;      /* 필요시 조정 */
   display: grid;
-  grid-template-columns: 2fr 1.2fr; /* 항상 2열 */
   gap: 24px;
   margin: 0 auto;          /* 가운데 정렬 */
+}
+
+.dash-grid-graphs {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 1600px;
+    margin: 20px auto;
+}
+.dash-grid-graphs .graph-card:first-child {
+    flex: 2;      /* 왼쪽 그래프: 2fr */
+}
+
+.dash-grid-graphs .graph-card:last-child {
+    flex: 1.2;    /* 오른쪽 그래프: 1.2fr */
+}
+
+.dash-grid-graphs .graph-card {
+    flex: 1;                /* 두 그래프가 동일한 폭 */
+    min-width: 0;           /* overflow 방지 */
+    padding: 24px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #eee;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+}
+.dash-grid-graphs .graph-card h3 {
+    margin-bottom: 12px;
+    color: #333;
+    text-align: left;
+    font-family: sans-serif;
+}
+#categoryChart {
+    height: 250px !important; /* 원하는 높이로 조정 */
+}
+.amount-cards {
+    display: flex;
+    justify-content: space-between; /* 카드 간격 균등 */
+    gap: 30px;                     /* 카드 사이 간격 */
+    margin: 20px 0;                /* 위/아래 여백 */
+}
+
+.amount-cards .card {
+    flex: 1;                        /* 넓이 균등 */
+    min-width: 0;                    /* overflow 방지 */
 }
 
 .card {
@@ -96,47 +142,50 @@ th:nth-child(4), td:nth-child(4) {
 .card h3 { 
 	margin:0 0 12px; color:#333; text-align:left; font-family:sans-serif; 
 }
+
+
+/* 금액 표시 카드만 작게 */
 .total-card {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  font-size: 186px;
-  padding: 50px;
-  border-radius: 20px;
+  font-size: 24px;      /* 기존 186px → 작게 조정 */
+  padding: 20px;        /* 기존 50px → 작게 */
+  border-radius: 16px;
   background: linear-gradient(135deg, #6c7ae0, #42a5f5);
   color: white;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
   transition: transform 0.3s, box-shadow 0.3s;
+  min-height: 130px;     /* 높이 조정 */
 }
-
 .total-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 32px rgba(0,0,0,0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
 }
 
-.total-content {
-  text-align: center;
-}
-
-.total-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
-}
-
-.total-label {
-  display: block;
-  font-size: 20px;
-  font-weight: 500;
+.total-content .total-icon {
+  font-size: 24px;      /* 기존 40px → 작게 */
   margin-bottom: 8px;
 }
 
-.total-amount {
-  display: block;
-  font-size: 28px;
-  font-weight: bold;
-  letter-spacing: 1px;
+.total-content .total-label {
+  font-size: 20px;      /* 기존 20px → 작게 */
+  margin-bottom: 4px;
 }
+
+.total-content .total-amount {
+  font-size: 26px;      /* 기존 28px → 작게 */
+}
+.total-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* 수평 중앙 */
+    justify-content: center; /* 수직 중앙 */
+    text-align: center;    /* 텍스트 정렬 */
+}
+
+
 
 .chart-buttons button { 
   	border: 1px solid #ccc; background-color: #f0f0f0; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em; 
@@ -176,6 +225,8 @@ th:nth-child(4), td:nth-child(4) {
 	#orderToggle:hover  {
 		background:#eee;
 	}
+	
+	
    .search-box {
 	    display: flex;
 	    gap: 8px;
@@ -222,28 +273,68 @@ th:nth-child(4), td:nth-child(4) {
 </head>
 <body>
 	<div class="container">
-  		<!-- 최근 7일 일별 구매 수량 그래프 -->
+	<!-- 총 구매 금액 카드 -->
+    <div class="card total-card">
+        <div class="total-content">
+            <div class="total-icon">💰</div>
+            <span class="total-label">총 구매 금액</span>
+            <span id="totalAmount" class="total-amount">₩ 0</span>
+        </div>
+    </div>
 		<div class="dash-grid">
-    		<!-- 그래프 카드 -->
-    		<div class="card">
-        		<h3 id="chartTitle">최근 7일 일별 구매 금액</h3>
-        		<div class="chart-buttons">
-            		<button id="daily-btn" class="chartType-btn active" onclick="changeChartType('daily')">일별</button>
-					<button id="weekly-btn" class="chartType-btn" onclick="changeChartType('weekly')">주별</button>
-					<button id="month-btn" class="chartType-btn" onclick="changeChartType('month')">월별</button>
-        		</div>
-        		<canvas id="dailyAmount"></canvas>
-    		</div>
+    	<div class="amount-cards">
+    <!-- 일별 구매 금액 카드 -->
+    <div class="card total-card daily-card">
+        <div class="total-content">
+            <span class="total-label">당일 구매액</span>
+            <span id="dailyAmountCard" class="total-amount">₩ 0</span>
+        </div>
+    </div>
 
-    		<!-- 총합 카드 -->
-    		<div class="card total-card">
-        		<div class="total-content">
-            		<div class="total-icon">💰</div>
-            		<span class="total-label">총 구매 금액</span>
-            		<span id="totalAmount" class="total-amount" style="white-space: pre-line;">₩ 0</span>
-        		</div>
-    		</div>
+    <!-- 월별 구매 금액 카드 -->
+    <div class="card total-card month-card">
+        <div class="total-content">
+            <span class="total-label">월 구매액</span>
+            <span id="monthAmountCard" class="total-amount">₩ 0</span>
+        </div>
+    </div>
+
+    <!-- 연별 구매 금액 카드 -->
+    <div class="card total-card year-card">
+        <div class="total-content">
+            <span class="total-label">연 구매액</span>
+            <span id="yearAmountCard" class="total-amount">₩ 0</span>
+        </div>
+    </div>
+    
+    <!-- 총 결제 건수 카드 -->
+    <div class="card total-card count-card">
+        <div class="total-content">
+            <span class="total-label">총 결제 건수</span>
+            <span id="totalCountCard" class="total-amount">0건</span>
+        </div>
+    </div>
+</div>
+    		
 		</div>
+		<div class="dash-grid-graphs">
+    <!-- 기존 구매 금액 추이 그래프 -->
+    <div class="card graph-card">
+        <h3 id="chartTitle">최근 7일 일별 구매 금액</h3>
+        <div class="chart-buttons">
+            <button id="daily-btn" class="chartType-btn active" onclick="changeChartType('daily')">일별</button>
+            <button id="month-btn" class="chartType-btn" onclick="changeChartType('month')">월별</button>
+            <button id="year-btn" class="chartType-btn" onclick="changeChartType('year')">연별</button>
+        </div>
+        <canvas id="dailyAmount"></canvas>
+    </div>
+
+    <!-- 카테고리별 파이 차트 카드 -->
+		<div class="card graph-card" style="flex:1.2;">
+    <h3>카테고리별 구매 수</h3>
+    <canvas id="categoryChart"></canvas>
+	</div>
+</div>
  		 </div>
  		 <!-- 검색 -->
   		 <div class="table-container">
@@ -298,26 +389,71 @@ th:nth-child(4), td:nth-child(4) {
 <!-- 그래프 JS -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var purchases = [
+    // =============================================
+    // 1. JSP에서 넘어온 실제 구매 데이터
+    // =============================================
+    const realPurchases = [
         <c:forEach var="p" items="${purchaseList}" varStatus="st">
         {
+            category: "${p.category}",
+            quantity: ${p.quantity},
             amount: ${p.price * p.quantity},
             order_ts: ${p.order_date.time}
         }<c:if test="${!st.last}">,</c:if>
         </c:forEach>
     ];
 
-    // 구매 내역이 없을 때 기본값 넣기
-    if (purchases.length === 0) {
-        purchases = [{ amount: 0, order_ts: new Date().getTime() }];
-    }
+    // =============================================
+    // 2. purchases 배열 준비 (데이터 없으면 더미 0)
+    // =============================================
+    const purchases = realPurchases.length > 0 
+        ? realPurchases 
+        : [{ amount: 0, order_ts: new Date().getTime(), category: '기타', quantity: 0 }];
 
+    // =============================================
+    // 3. 카테고리별 구매 수량 집계
+    // =============================================
+    var categoryCounts = {};
+    purchases.forEach(p => {
+        const cat = p.category || '기타';
+        const qty = Number(p.quantity || 0);  // ← 여기 수정
+        categoryCounts[cat] = (categoryCounts[cat] || 0) + qty;
+    });
+
+    // =============================================
+    // 4. 카테고리 Bar Chart 생성
+    // =============================================
+    var categoryLabels = Object.keys(categoryCounts);
+    var categoryData = Object.values(categoryCounts);
+
+    var ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctxCategory, {
+        type: 'bar',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                label: '카테고리별 구매 수량',
+                data: categoryData,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // =============================================
+    // 5. Line Chart: 일/월/연별 구매 금액 추이
+    // =============================================
     var ctx = document.getElementById('dailyAmount') ? document.getElementById('dailyAmount').getContext('2d') : null;
     var chart; // Chart.js 인스턴스
 
     function aggregateData(type) {
         var map = {};
         var total = 0;
+        var count = 0;
         var today = new Date();
 
         if(type === 'daily'){
@@ -327,21 +463,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
                 map[key] = 0;
             }
-        } else if(type === 'weekly'){
-            var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            var endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            for(var d = new Date(startOfMonth); d <= endOfMonth; d.setDate(d.getDate() + 7)){
-                var day = d.getDay();
-                var monday = new Date(d);
-                monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
-                var key = String(monday.getMonth()+1).padStart(2,'0') + '-' + String(monday.getDate()).padStart(2,'0');
-                map[key] = 0;
-            }
         } else if(type === 'month'){
             for(var i=5; i>=0; i--){
                 var d = new Date(today.getFullYear(), today.getMonth()-i, 1);
                 var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
                 map[key] = 0;
+            }
+        } else if(type === 'year'){
+            for(var i=5; i>=0; i--){
+                var year = today.getFullYear() - i;
+                map[year] = 0;
             }
         }
 
@@ -350,65 +481,54 @@ document.addEventListener('DOMContentLoaded', function () {
             var key;
             if(type === 'daily'){
                 key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-            } else if(type === 'weekly'){
-                var day = d.getDay();
-                var monday = new Date(d);
-                monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
-                key = String(monday.getMonth()+1).padStart(2,'0') + '-' + String(monday.getDate()).padStart(2,'0');
-            } else {
+            } else if(type === 'month'){
                 key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+            } else if(type === 'year'){
+                key = d.getFullYear();
             }
 
             if(map.hasOwnProperty(key)){
                 map[key] += Number(p.amount || 0);
                 total += Number(p.amount || 0);
+                count += 1;
             }
         });
 
         var labels = Object.keys(map).sort();
         var data = labels.map(k => map[k]);
 
-        if(type === 'daily') labels = labels.map(l => l.slice(5)); // MM-DD
-        if(type === 'weekly') labels = labels.map(l => l); 
-        if(type === 'month') labels = labels.map(l => l.replace('-','/')); // YYYY/MM
-
-        return { labels: labels, data: data, total: total };
+        return { labels: labels, data: data, total: total, count: count };
     }
 
-    function renderChart(type) {
-        if(!ctx) return;
+    function renderChart(type){
         var agg = aggregateData(type);
 
-        // 총 구매 금액 업데이트
-        if(type === 'daily'){
-            document.getElementById('totalAmount').textContent =
-                '최근 7일 일별 합계 ' + agg.total.toLocaleString() + '원';
-        } else if(type === 'weekly'){
-            document.getElementById('totalAmount').textContent =
-                '이번 달 주간 합계 ' + agg.total.toLocaleString() + '원';
-        } else {
-            var today = new Date();
-            var month = today.getMonth() + 1;
-            document.getElementById('totalAmount').textContent =
-                month + '월 전체 합계\n ' + agg.total.toLocaleString() + '원';
-        }
+        // 카드 업데이트
+        const dailyTotal = aggregateData('daily').total;
+        const monthTotal = aggregateData('month').total;
+        const yearTotal = aggregateData('year').total;
+        const totalAll = purchases.reduce((acc, p) => acc + (p.amount || 0), 0);
+        const totalCount = realPurchases.length;
 
-        // 그래프 제목 업데이트
+        document.getElementById('dailyAmountCard').textContent = dailyTotal > 0 ? '₩' + dailyTotal.toLocaleString() : '(-)';
+        document.getElementById('monthAmountCard').textContent = monthTotal > 0 ? '₩' + monthTotal.toLocaleString() : '(-)';
+        document.getElementById('yearAmountCard').textContent = yearTotal > 0 ? '₩' + yearTotal.toLocaleString() : '(-)';
+        document.getElementById('totalAmount').textContent = totalAll > 0 ? '₩' + totalAll.toLocaleString() : '(-)';
+        document.getElementById('totalCountCard').textContent = totalCount > 0 ? totalCount.toLocaleString() + '건' : '(-)';
         document.getElementById('chartTitle').textContent = 
             type === 'daily' ? '일별 구매 추이' :
-            type === 'weekly' ? '주별 구매 추이' :
-            '월별 구매 추이';
+            type === 'month' ? '월별 구매 추이' :
+            '연별 구매 추이';
 
         if(chart) chart.destroy();
-
         chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: agg.labels,
                 datasets: [{
                     label: type === 'daily' ? '일별 구매 금액' :
-                           type === 'weekly' ? '주별 구매 금액' :
-                           '월별 구매 금액',
+                           type === 'month' ? '월별 구매 금액' :
+                           '연별 구매 금액',
                     data: agg.data,
                     fill: true,
                     borderColor: 'rgba(54, 162, 235, 1)',
@@ -417,17 +537,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }]
             },
             options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { callback: v => '₩ ' + Number(v).toLocaleString() }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: { label: ctx => '₩ ' + Number(ctx.parsed.y).toLocaleString() }
-                    }
-                }
+                scales: { y: { beginAtZero: true, ticks: { callback: v => '₩ ' + Number(v).toLocaleString() } } },
+                plugins: { tooltip: { callbacks: { label: ctx => '₩ ' + Number(ctx.parsed.y).toLocaleString() } } }
             }
         });
     }
@@ -445,7 +556,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const criterion = orderSelect.value;
         const order = orderToggle.getAttribute('data-order');
 
-        // 검색 후 표시되는 행만 선택
         let rows = Array.from(tableBody.rows);
         rows.forEach(row => {
             const title = row.cells[1].textContent.toLowerCase();
@@ -454,7 +564,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         rows = rows.filter(r => r.style.display !== 'none');
 
-        // 정렬
         rows.sort((a, b) => {
             let valA, valB;
             if(criterion === 'p.order_date'){
@@ -470,7 +579,6 @@ document.addEventListener('DOMContentLoaded', function () {
         rows.forEach(r => tableBody.appendChild(r));
     }
 
-    // 이벤트 연결
     searchInput.addEventListener('keyup', e => { if(e.key==='Enter') filterAndSort(); });
     searchButton.addEventListener('click', filterAndSort);
     orderSelect.addEventListener('change', filterAndSort);
@@ -483,9 +591,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ====== 초기 렌더링 ======
     renderChart('daily');
-    filterAndSort();
 
-    // 차트 버튼 클릭
     document.querySelectorAll('.chartType-btn').forEach(btn => {
         btn.addEventListener('click', function(){
             document.querySelectorAll('.chartType-btn').forEach(b => b.classList.remove('active'));
@@ -495,6 +601,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
 
 </body>
 </html>

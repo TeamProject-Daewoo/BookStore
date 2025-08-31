@@ -23,4 +23,5 @@ public class MyPurchaseView {
     private String img;
     private int quantity;
     private Date order_date;
+    private String category;
 }

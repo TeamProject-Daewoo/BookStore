@@ -256,6 +256,7 @@ public class UserService {
 				.quantity(p.getQuantity())
 				.img(bookMapper.findById(p.getBook_id()).getImg())
 				.order_date(p.getOrder_date())
+				.category(bookMapper.findById(p.getBook_id()).getCategory())
 				.build()
 			);
 		}
