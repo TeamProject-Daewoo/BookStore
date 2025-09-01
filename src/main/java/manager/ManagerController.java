@@ -1,6 +1,11 @@
 package manager;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import data.Book;
+import review.Review;
+import review.ReviewService;
 import user.Member;
 
 @Controller
@@ -19,6 +26,9 @@ public class ManagerController {
 	
     @Autowired
     ManagerService managerService;
+    
+    @Autowired
+    ReviewService reviewService;
     
     final static String MAIN_URL = "manager/";
 
@@ -74,10 +84,63 @@ public class ManagerController {
     }
 
     @GetMapping("/booklist")
-    public String bookList(Model model) {
-        model.addAttribute("list", managerService.getBookList());
-        model.addAttribute("page", MAIN_URL+"booklist");
+    public String bookList(Model model, String keyword) {
+        model.addAttribute("page", MAIN_URL +"booklist");
+
+        List<Book> books;
+        if (keyword != null && !keyword.isEmpty()) {
+            books = managerService.findByKeyword(keyword); // ✅ DB + API 결과
+        } else {
+            books = managerService.getExistBookList(); // ✅ DB 데이터
+        }
+
+        Map<String, Object> pageList = new HashMap<>();
+        pageList.put("list", books);
+        pageList.put("totalCount", books.size());
+        pageList.put("currentPage", 1);
+        pageList.put("totalPage", 1);
+
+        model.addAttribute("pageList", pageList);
+        model.addAttribute("keyword", keyword);
         model.addAttribute("activeTab", "booklist");
+        return "index";
+    }
+    
+ // <<-- 1. bookDetail 메서드 수정 -->>
+    @RequestMapping("bookdetail")
+    // 파라미터를 int id 대신 String isbn으로 받습니다.
+    public String bookDetail(@RequestParam String isbn, Model model, Authentication authentication) {
+        // ISBN으로 책 정보를 가져오는 하이브리드 메서드를 호출합니다.
+        Book book = managerService.getBookByIsbn(isbn);
+        
+        // 만약 책 정보가 DB에 저장된 후라면, book.getId()로 리뷰 조회가 가능합니다.
+        if (book != null && book.getId() != null) {
+			List<Review> reviews = reviewService.getReviewsByBookId(book.getId());
+            model.addAttribute("reviews", reviews);
+            
+            // 평균 평점 계산
+            double averageRating = 0.0;
+            if (!reviews.isEmpty()) {
+                averageRating = reviews.stream()
+                                       .mapToInt(Review::getRating)
+                                       .average()
+                                       .orElse(0.0);
+            }
+            model.addAttribute("averageRating", averageRating);
+        }
+
+        // 네이버 API는 이미지 전체 URL을 제공하므로 경로를 따로 만들 필요가 없습니다.
+        // book.getImg()에 전체 URL이 들어있습니다.
+        // String imagePath = "/static/images/" + book.getImg(); 
+
+        if(authentication != null) {
+            model.addAttribute("user", authentication.getName());
+        }
+
+        model.addAttribute("book", book);
+        // model.addAttribute("imagePath", imagePath);
+        model.addAttribute("page", MAIN_URL + "bookdetail");
+
         return "index";
     }
     
@@ -88,7 +151,7 @@ public class ManagerController {
 	    model.addAttribute("activeTab", "managerview");
 	    return "index";
 	}
-	
+    
 	@GetMapping("/managereditform")
     public String managerEditForm(@RequestParam("id") int id, Model model, RedirectAttributes redirectAttributes) {
         Member member = managerService.getMember(id);
