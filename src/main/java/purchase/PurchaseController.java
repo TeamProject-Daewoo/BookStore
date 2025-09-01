@@ -193,7 +193,9 @@ public class PurchaseController {
                 }
                 // DB에 저장된 book의 id를 사용하여 구매를 진행합니다.
         	    orderId = purchaseService.directPurchase(memberId, book.getId(), quantity);
-        	    cartService.removeItemFromCart(memberId, book.getId());
+        	    //DB -> 쿠키 삭제
+        	    //cartService.removeItemFromCart(memberId, book.getId());
+        	    cookieService.deleteCartCookie(response);
         	    
         	} else if ("cart".equals(purchaseType)) {
         		

@@ -1,5 +1,9 @@
 # BookStore 프로젝트
 
+## 기본페이지
+- `GET /`  
+  도서 목록 페이지로 이동(user/booklist)
+
 ##  Manager 기능
 
 ### 도서 관리 (BookAdmin과 동일)
