@@ -297,11 +297,11 @@
 
   <div class="dash-grid">
 	<div class="card">
-		<h3 class="">시간대별 판매량</h3>
+		<h3 class="">시간대별 매출액</h3>
 		<canvas id="hourlySalesChart"></canvas>
 	</div>
     <div class="card">
-      <h3>책별 판매량 Top5</h3>
+      <h3 class="sales-rank-title">책별 판매량 Top5</h3>
       <div class="sales-rank">
       	<canvas id="salesRank"></canvas>
       </div>
@@ -368,9 +368,9 @@ toggle.addEventListener('click', () => {
 
 //salesChart 목록
 let salesChartPage = 0, salesRankChartPage = 0;
-const salesChartMaxLength = 3, salesRankMaxLength = 4;
+const salesChartMaxLength = 3, salesRankMaxLength = 3;
 const salesChartList = {0:["book", "책"], 1:["category", "카테고리"], 2:["author", "작가"]};
-const salesRankChartList = {0:["book", "책별 판매량"], 1:["rating", "평점"], 2:["visitCount", "방문자 수"], 3:["", "최다 구매 고객"]};
+const salesRankChartList = {0:["quantity", "책별 판매량"], 1:["rating", "평점"], 2:["member_id", "최다 구매 고객"]};
 ['prev', 'next'].forEach((page) => {
 	document.getElementsByClassName('carousel-control-'+page)[0].addEventListener('click', () => {
 		salesChartPage += (page === 'prev') ? -1 : 1;
@@ -552,15 +552,62 @@ function recentSalesRender(result, chartType) {
 }
 
 function salesRankRender(result, chartType) {
-	var bookQtyMap = {};
+	//chartType에 따라 변경될 요소들
+	let chartMap = {};
+	let tooltip, chartX, title, labelTitle, key;
     result.purchase.forEach(function (p) {
       (p.bookList || []).forEach(function (b) {
-        var t = b.book_title || '제목없음';
-        var q = Number(b.quantity || 0);
-        bookQtyMap[t] = (bookQtyMap[t] || 0) + q;
+        switch (chartType) {
+        	case "quantity":
+        		key = b.book_title || '제목없음';
+        		var q = Number(b[chartType] || 0);
+                chartMap[key] = (chartMap[key] || 0) + q;
+                //선택된 종류에 따라 차트 툴팁과 x축 설명 변경
+                tooltip = (i) => (Number(i.raw || 0) + ' 개')
+                chartX = {
+	        		ticks: {
+	        			callback: (v) => (Number(v) + ' 개')
+	        		}
+    			}
+                labelTitle = '판매수량'
+                title = '책별 판매량'
+                break;
+        	case "rating":
+        		key = b.book_title || '제목없음';
+        		if(chartMap[key] === undefined)
+        			chartMap[key] = Number(b[chartType] || 0);
+        		tooltip = (i) => (Number(i.raw || 0) + ' 점')
+    	   		chartX = {
+        			min: 0,
+        	        max: 5,
+	        		ticks: {
+	        			callback: (v) => (Number(v) + ' 점') 
+	      			} 
+	      		} 
+        		labelTitle = title = '평점'
+        		break;
+        	case "member_id":
+        		let pList = p.purchaseList;
+        		key = pList.member_name+"("+pList[chartType]+")";
+        		var q = Number(pList[chartType] || 0);
+                chartMap[key] = (chartMap[key] || 0) + 1;
+                let username = b.member_name;
+        		tooltip = (i) => (Number(i.raw || 0) + ' 번')
+    	   		chartX = {
+	        		ticks: {
+	        			callback: (v) => (Number(v) + ' 번') 
+	      			} 
+	      		} 
+        		labelTitle = '책 구매 개수';
+        		title = '최다 구매 고객';
+        		break;
+        }
       });
     });
-    var topEntries = Object.keys(bookQtyMap).map(function (k) { return [k, bookQtyMap[k]]; })
+    //title 변경
+    document.getElementsByClassName('sales-rank-title')[0].textContent = title + ' top5';
+    
+    var topEntries = Object.keys(chartMap).map(function (k) { return [k, chartMap[k]]; })
                    .sort(function (a,b) { return b[1]-a[1]; }).slice(0,5);
     var topLabels = topEntries.map(function (e) { return e[0]; });
     var topQty    = topEntries.map(function (e) { return e[1]; });
@@ -573,11 +620,19 @@ function salesRankRender(result, chartType) {
 		if(charts[1]) charts[1].destroy();
 		charts[1] = new Chart(chartDiv.getContext('2d'), {
 		      type: 'bar',
-		      data: { labels: tempLabels, datasets: [{ label: '판매수량', data: topQty }] },
+		      data: { labels: tempLabels, datasets: [{ label: labelTitle, data: topQty }] },
 		      options: {
 		        indexAxis: 'y',
-		        plugins: { tooltip: { callbacks: { label: function (i) { return Number(i.raw || 0).toLocaleString() + ' 개'; } } } },
-		        scales:  { x: { ticks: { callback: function (v) { return Number(v).toLocaleString() + ' 개'; } } } }
+		        plugins: { 
+		        	tooltip: { 
+		        		callbacks: { 
+		        			label: tooltip
+		      			} 
+		      		} 
+		      	},
+		        scales: {
+		        	x: chartX
+		        }
 		      }
 		});
 }
@@ -643,6 +698,7 @@ function salesByGroupRender(result, chartType) {
 	const salesMap = {};
 	let colorList = [];
 	let labelName, data;
+	let clickEvent = () => {};
 	document.getElementsByClassName('sales-chart-title')[0].textContent = salesChartList[salesChartPage][1] + "별 "+((isViewCount) ? "판매량" : "매출액");
 	
 	switch (chartType) {
@@ -659,7 +715,13 @@ function salesByGroupRender(result, chartType) {
             	'rgb(70, 130, 180)', // 스틸 블루
             	'rgb(30, 144, 255)', // 도저 블루
             	'rgb(135, 206, 250)' // 라이트 스카이 블루
-            ]
+            ];
+			clickEvent = (event, elements) => {
+	    		 if (elements.length > 0) {
+	    		 	const clickedElementIndex = elements[0].index;
+	    		 	location.href = '/user/bookdetail?isbn='+isbns[labels[clickedElementIndex]];
+	    		 }
+	    	}
 			break;
 		case "category":
 			data = "category";
@@ -731,13 +793,7 @@ function salesByGroupRender(result, chartType) {
 	    },
 	    options: {
 	    	responsive: true,
-	    	onClick: (event, elements) => {
-	    		 if (elements.length > 0) {
-	    		 	const clickedElementIndex = elements[0].index;
-	             	const clickedLabel = labels[clickedElementIndex];
-	    		 	console.log(clickedLabel);
-	    		 }
-	    	},
+	    	onClick: clickEvent,
 	        plugins: {
 	            legend: {
 	            	position: 'left',
@@ -848,7 +904,7 @@ function render(renderElements) {
 	})
 	.then(response => response.json())
 	.then(result => {
-		console.log(result);
+		//console.log(result);
 		
 	  	//총합계 랜더링
 	  	const salesMap = {

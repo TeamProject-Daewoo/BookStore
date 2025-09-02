@@ -26,6 +26,8 @@ import purchase.PurchaseView;
 import purchase.SalesView;
 import purchase.SumList;
 import restapi.SearchRequest;
+import review.Review;
+import review.ReviewService;
 import user.Member;
 import user.MemberMapper;
 import user.NaverBookService;
@@ -210,6 +212,9 @@ public class ManagerService {
 		return purchaseMapper.delete(id);
 	}
 
+	@Autowired
+	ReviewService reviewService;
+	
 	//fetch POST 요청
 	public List<PurchaseView> getPurchaseView(SearchRequest searchReq) {
 		
@@ -225,7 +230,8 @@ public class ManagerService {
 		for (PurchaseQueryResult result : purchaseMapper.getPurchaseView(searchReq)) {
 			int orderId = result.getOrder_id();
             PurchaseView purchaseView = viewMap.get(orderId);
-
+            
+            System.out.println(result);
             if (purchaseView == null) {
                 purchaseView = new PurchaseView();
                 purchaseView.setPurchaseList(
@@ -248,7 +254,8 @@ public class ManagerService {
                     result.getQuantity(),
                     result.getAuthor(),
                     result.getCategory(),
-                    result.getIsbn()
+                    result.getIsbn(),
+                    result.getRating()
             	)
             );
         }

@@ -14,4 +14,5 @@ public class BookDetailFragment {
     private String author;
     private String category;
     private String isbn;
+    private double rating;
 }
