@@ -18,7 +18,6 @@
             background: white; padding: 20px 25px; border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        h2 { margin-top: 0; margin-bottom: 15px; color: #2c3e50; }
         .add-button {
             display: inline-block; margin-bottom: 15px; padding: 8px 14px;
             background-color: #2ecc71; color: white; text-decoration: none;
@@ -78,7 +77,6 @@
 </head>
 <body>
     <div class="container" id="content-container">
-        <h2>책 목록 (관리자)</h2>
 
         <!-- 검색 폼 -->
         <form action="${pageContext.request.contextPath}/manager/booklist" method="get" class="search-form d-flex">

@@ -2,11 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <style>
-  h2 {
-    text-align: center;
-    font-family: 'Segoe UI', sans-serif;
-    margin: 30px 0;
-  }
 
   table {
     width: 95%;
@@ -60,8 +55,6 @@
     background-color: #c82333;
   }
 </style>
-
-<h2>회원 목록 (관리자)</h2>
 
 <table>
   <thead>
