@@ -170,54 +170,55 @@ public class ManagerController {
         return "index";
     }
 	
-	@PostMapping("/manageredit")
-	public String managerEdit(
-	        @ModelAttribute Member member,
-	        @RequestParam(value="profileImageFile", required=false) MultipartFile profileImageFile,
-	        RedirectAttributes redirectAttributes,
-	        HttpSession session) {
+    @PostMapping("/manageredit")
+    public String managerEdit(
+            @ModelAttribute Member member,
+            @RequestParam(value="profileImageFile", required=false) MultipartFile profileImageFile,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
 
-	    try {
-	        // 기존 회원 정보 가져오기
-	        Member existingMember = managerService.getMember(member.getId());
-	        if (existingMember == null) {
-	            redirectAttributes.addFlashAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
-	            return "redirect:/manager/booklist";
-	        }
+        try {
+            // 기존 회원 정보 가져오기
+            Member existingMember = managerService.getMember(member.getId());
+            if (existingMember == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
+                return "redirect:/manager/booklist";
+            }
 
-	        // 비밀번호 처리 (입력 없으면 기존 비밀번호 유지)
-	        if (member.getPassword() == null || member.getPassword().trim().isEmpty()) {
-	            member.setPassword(existingMember.getPassword());
-	        }
+            // 비밀번호 처리 (입력 없으면 기존 비밀번호 유지)
+            if (member.getPassword() == null || member.getPassword().trim().isEmpty()) {
+                member.setPassword(existingMember.getPassword());
+            }
 
-	        // 프로필 이미지 처리
-	        if (profileImageFile != null && !profileImageFile.isEmpty()) {
-	            member.setProfileImage(profileImageFile.getBytes());
-	        } else if (member.getProfileImage() == null) {
-	            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
-	            member.setProfileImage(FileCopyUtils.copyToByteArray(defaultImg.getInputStream()));
-	        }
+            // 프로필 이미지 처리
+            if (profileImageFile != null && !profileImageFile.isEmpty()) {
+                // 새 이미지 업로드 시
+                member.setProfileImage(profileImageFile.getBytes());
+            } else {
+                // 새 이미지 없으면 기존 이미지 유지
+                member.setProfileImage(existingMember.getProfileImage());
+            }
 
-	        // 역할 처리
-	        if (member.getRole() == null || member.getRole().trim().isEmpty()) {
-	            member.setRole(existingMember.getRole());
-	        }
+            // 역할 처리
+            if (member.getRole() == null || member.getRole().trim().isEmpty()) {
+                member.setRole(existingMember.getRole());
+            }
 
-	        // DB 업데이트
-	        managerService.updateManager(member);
+            // DB 업데이트
+            managerService.updateManager(member);
 
-	        // 세션 갱신
-	        Member updated = managerService.getMember(member.getId());
-	        session.setAttribute("login", updated);
+            // 세션 갱신
+            Member updated = managerService.getMember(member.getId());
+            session.setAttribute("login", updated);
 
-	        redirectAttributes.addFlashAttribute("successMessage", "회원 정보가 성공적으로 수정되었습니다.");
-	        return "redirect:/manager/booklist";
+            redirectAttributes.addFlashAttribute("successMessage", "회원 정보가 성공적으로 수정되었습니다.");
+            return "redirect:/manager/booklist";
 
-	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "회원 정보 수정 중 오류가 발생하였습니다: " + e.getMessage());
-	        return "redirect:/manager/managereditform/" + member.getId();
-	    }
-	}
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "회원 정보 수정 중 오류가 발생하였습니다: " + e.getMessage());
+            return "redirect:/manager/managereditform/" + member.getId();
+        }
+    }
 
 
     @GetMapping("/managerdelete")
