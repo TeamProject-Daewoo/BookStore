@@ -86,10 +86,13 @@
         <td>${account.created_at}</td>
         <td>${account.role}</td>
         <td class="actions">
-          <a href="${pageContext.request.contextPath}/manager/managereditform?id=${account.id}">수정</a>
-          <a href="${pageContext.request.contextPath}/manager/managerdelete?id=${account.id}" 
-             onclick="return confirm('정말로 이 회원을 삭제하시겠습니까?');">삭제</a>
-        </td>
+  			<!-- 수정 버튼 -->
+  			<a href="${pageContext.request.contextPath}/manager/managereditform/${account.id}">수정</a>
+
+  			<!-- 삭제 버튼 (GET 방식 그대로 사용 가능) -->
+  			<a href="${pageContext.request.contextPath}/manager/managerdelete?id=${account.id}" 
+     			onclick="return confirm('정말로 이 회원을 삭제하시겠습니까?');">삭제</a>
+			</td>
       </tr>
     </c:forEach>
   </tbody>

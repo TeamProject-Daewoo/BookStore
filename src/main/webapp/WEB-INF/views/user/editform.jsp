@@ -138,7 +138,6 @@ body { font-family: sans-serif; }
         </div>
 		<br>
 		<input type="hidden" name="id" value=${user.id}>
-		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
         <input type="submit" value="개인정보 수정">
     </form>
     
