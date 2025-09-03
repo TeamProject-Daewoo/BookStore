@@ -11,20 +11,38 @@
         body {
             font-family: sans-serif;
             background: #f7f8fa;
-            margin: 0px;
+            margin: 0;
             color: #333;
         }
         .container {
-            background: white; padding: 20px 25px; border-radius: 8px;
+            background: white; 
+            padding: 20px 25px; 
+            border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .add-button {
-            display: inline-block; margin-bottom: 15px; padding: 8px 14px;
-            background-color: #2ecc71; color: white; text-decoration: none;
-            border-radius: 5px; font-weight: 600; transition: background-color 0.3s ease;
+            display: inline-block; 
+            margin-bottom: 15px; 
+            padding: 8px 14px;
+            background-color: #2ecc71; 
+            color: white; 
+            text-decoration: none;
+            border-radius: 5px; 
+            font-weight: 600; 
+            transition: background-color 0.3s ease;
         }
         .add-button:hover { background-color: #27ae60; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 14px; 
+            min-width: 800px; /* 화면이 좁아도 테이블 최소 너비 확보 */
+        }
         thead { background-color: #3498db; color: white; }
         thead th { padding: 12px 10px; text-align: left; }
         tbody tr:nth-child(even) { background-color: #f9f9f9; }
@@ -53,6 +71,7 @@
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            display: flex;
         }
         .search-input {
             border: none;
@@ -70,19 +89,26 @@
             border: none;
             padding: 0 20px;
             font-weight: bold;
+            cursor: pointer;
             transition: background 0.3s;
         }
         .search-btn:hover { background-color: #003d75; }
+
+        /* 반응형 조정 */
+        @media (max-width: 768px) {
+            .truncate-cell { max-width: 150px; }
+            .actions a { padding: 4px 8px; font-size: 12px; }
+        }
     </style>
 </head>
 <body>
     <div class="container" id="content-container">
 
         <!-- 검색 폼 -->
-        <form action="${pageContext.request.contextPath}/manager/booklist" method="get" class="search-form d-flex">
-            <input type="text" name="keyword" class="form-control search-input"
+        <form action="${pageContext.request.contextPath}/manager/booklist" method="get" class="search-form">
+            <input type="text" name="keyword" class="search-input"
                    placeholder="책 제목, 저자, 카테고리로 검색" value="${param.keyword}">
-            <button type="submit" class="btn search-btn">검색</button>
+            <button type="submit" class="search-btn">검색</button>
         </form>
 
         <!-- 검색 결과 표시 -->
@@ -91,49 +117,51 @@
         </c:if>
 
         <!-- 책 목록 테이블 -->
-        <table>
-            <thead>
-                <tr>
-                    <th>제목</th>
-                    <th>저자</th>
-                    <th>가격</th>
-                    <th>재고</th>
-                    <th>이미지</th>
-                    <th>설명</th>
-                    <th>카테고리</th>
-                    <th>관리</th>
-                </tr>
-            </thead>
-           <tbody>
-    <c:forEach var="book" items="${pageList.list}">
-        <tr onclick="location.href='${pageContext.request.contextPath}/manager/bookdetail?isbn=${book.isbn}'" style="cursor:pointer;">
-            <td class="truncate-cell" title="${book.title}">${book.title}</td>
-            <td class="truncate-cell" title="${book.author}">${book.author}</td>
-            <td><fmt:formatNumber value="${book.price}" pattern="#,###" />원</td>
-            <td>${book.stock}</td>
-            <td class="image-cell">
-                <c:if test="${not empty book.img}">
-                    <c:choose>
-                        <c:when test="${book.img.startsWith('http')}">
-                            <img src="${book.img}" alt="책 썸네일">
-                        </c:when>
-                        <c:otherwise>
-                            <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 썸네일">
-                        </c:otherwise>
-                    </c:choose>
-                </c:if>
-            </td>
-            <td class="truncate-cell" title="${book.description}">${book.description}</td>
-            <td>${book.category}</td>
-            <td class="actions">
-                <a href="${pageContext.request.contextPath}/manager/bookeditform?id=${book.id}" onclick="event.stopPropagation();">수정</a>
-                <a href="${pageContext.request.contextPath}/manager/bookdelete?id=${book.id}" 
-                   onclick="event.stopPropagation(); return confirm('정말로 이 책을 삭제하시겠습니까?');">삭제</a>
-            </td>
-        </tr>
-    </c:forEach>
-</tbody>
-        </table>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>제목</th>
+                        <th>저자</th>
+                        <th>가격</th>
+                        <th>재고</th>
+                        <th>이미지</th>
+                        <th>설명</th>
+                        <th>카테고리</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="book" items="${pageList.list}">
+                        <tr onclick="location.href='${pageContext.request.contextPath}/manager/bookdetail?isbn=${book.isbn}'" style="cursor:pointer;">
+                            <td class="truncate-cell" title="${book.title}">${book.title}</td>
+                            <td class="truncate-cell" title="${book.author}">${book.author}</td>
+                            <td><fmt:formatNumber value="${book.price}" pattern="#,###" />원</td>
+                            <td>${book.stock}</td>
+                            <td class="image-cell">
+                                <c:if test="${not empty book.img}">
+                                    <c:choose>
+                                        <c:when test="${book.img.startsWith('http')}">
+                                            <img src="${book.img}" alt="책 썸네일">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/resources/images/${book.img}" alt="책 썸네일">
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:if>
+                            </td>
+                            <td class="truncate-cell" title="${book.description}">${book.description}</td>
+                            <td>${book.category}</td>
+                            <td class="actions">
+                                <a href="${pageContext.request.contextPath}/manager/bookeditform?id=${book.id}" onclick="event.stopPropagation();">수정</a>
+                                <a href="${pageContext.request.contextPath}/manager/bookdelete?id=${book.id}" 
+                                   onclick="event.stopPropagation(); return confirm('정말로 이 책을 삭제하시겠습니까?');">삭제</a>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
