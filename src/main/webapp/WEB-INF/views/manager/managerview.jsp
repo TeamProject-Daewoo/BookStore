@@ -60,6 +60,7 @@
   <thead>
     <tr>
       <th>ID</th>
+      <th>프로필</th>
       <th>유저 ID</th>
       <th>이름</th>
       <th>이메일</th>
@@ -73,6 +74,11 @@
     <c:forEach var="account" items="${members}">
       <tr>
         <td>${account.id}</td>
+         <!-- 이미지 -->
+        <td>
+          <img src="${pageContext.request.contextPath}/user/profileImage/${account.id}" 
+               alt="프로필 이미지" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
+        </td>
         <td>${account.user_id}</td>
         <td>${account.name}</td>
         <td>${account.email}</td>

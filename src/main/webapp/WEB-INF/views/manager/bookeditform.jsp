@@ -95,9 +95,9 @@
     </script>
 </head>
 <body>
+	<br>
+	<h2><strong>책 정보 수정</strong></h2>
     <div class="container">
-        <h2><strong>책 정보 수정</strong></h2>
-        <br>
         <form action="${pageContext.request.contextPath}/manager/bookedit" method="post" onsubmit="return confirm('수정하시겠습니까?');">
             <input type="hidden" name="id" value="${book.id}">
             <input type="hidden" name="isbn" value="${book.isbn}">
