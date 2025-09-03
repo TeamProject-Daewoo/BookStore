@@ -549,8 +549,8 @@ function recentSalesRender(result, chartType) {
 			datasets: [{ 
 				label: datasetLabel,
 				data: amounts,
+			    borderColor: 'rgba(54, 150, 255, 1)',
 				tension: 0.3, 
-				fill: true 
 			}]
 		},
 		options: {
@@ -578,6 +578,7 @@ function salesRankRender(result, chartType) {
                 tooltip = (i) => (Number(i.raw || 0) + ' 개')
                 chartX = {
 	        		ticks: {
+	        			stepSize: 1,
 	        			callback: (v) => (Number(v) + ' 개')
 	        		}
     			}
@@ -586,13 +587,14 @@ function salesRankRender(result, chartType) {
                 break;
         	case "rating":
         		key = b.book_title || '제목없음';
-        		if(chartMap[key] === undefined)
+        		if(chartMap[key] === undefined && b[chartType] !== 0)
         			chartMap[key] = Number(b[chartType] || 0);
         		tooltip = (i) => (Number(i.raw || 0) + ' 점')
     	   		chartX = {
         			min: 0,
         	        max: 5,
 	        		ticks: {
+	        			stepSize: 1,
 	        			callback: (v) => (Number(v) + ' 점') 
 	      			} 
 	      		} 
@@ -607,6 +609,7 @@ function salesRankRender(result, chartType) {
         		tooltip = (i) => (Number(i.raw || 0) + ' 번')
     	   		chartX = {
 	        		ticks: {
+	        			stepSize: 1,
 	        			callback: (v) => (Number(v) + ' 번') 
 	      			}
 	      		} 
@@ -633,7 +636,14 @@ function salesRankRender(result, chartType) {
 		if(charts[1]) charts[1].destroy();
 		charts[1] = new Chart(chartDiv.getContext('2d'), {
 		      type: 'bar',
-		      data: { labels: labels, datasets: [{ label: labelTitle, data: topQty }] },
+		      data: { 
+		    	  labels: labels, 
+		    	  datasets: [{
+		    	  		label: labelTitle, 
+		    	  		backgroundColor: 'rgba(0, 200, 0, 0.3)', 
+		    	  		data: topQty
+		    	  }] 
+			  },
 		      options: {
 		    	onClick: (event, elements) => {
 	   	    		 if (elements.length > 0) {
@@ -739,8 +749,11 @@ function salesByGroupRender(result, chartType) {
             ];
 			clickEvent = (event, elements) => {
 	    		 if (elements.length > 0) {
+	 
 	    		 	const clickedElementIndex = elements[0].index;
-	    		 	location.href = '/manager/bookdetail?isbn='+isbns[labels[clickedElementIndex]];
+	    		 	isbn = isbns[labels[clickedElementIndex]];
+   	    		 	if(isbn !== undefined)
+	    		 		location.href = '/manager/bookdetail?isbn='+isbn;
 	    		 }
 	    	}
 			break;

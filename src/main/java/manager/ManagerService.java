@@ -217,7 +217,7 @@ public class ManagerService {
 	
 	//fetch POST 요청
 	public List<PurchaseView> getPurchaseView(SearchRequest searchReq) {
-		
+		System.out.println("db 요청");
 		//SQL Injection 검증
 		Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
 		if(!checkList.contains(searchReq.getOrderItem()) || 
@@ -231,6 +231,7 @@ public class ManagerService {
 			int orderId = result.getOrder_id();
             PurchaseView purchaseView = viewMap.get(orderId);
             
+            System.out.println("==============================");
             System.out.println(result);
             if (purchaseView == null) {
                 purchaseView = new PurchaseView();

@@ -79,7 +79,6 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     	    +"FROM purchase p "
     	    +"JOIN member m ON p.member_id = m.id "
     	    +"JOIN book b ON p.book_id = b.id "
-    	    +"JOIN review r ON r.book_id = b.id "
     	    +"WHERE b.title LIKE '%' || #{keyword} || '%' OR b.author LIKE '%' || #{keyword} || '%' "
     	    +"ORDER BY ${orderItem} ${order}")
     public List<PurchaseQueryResult> getPurchaseView(SearchRequest searchReq);
