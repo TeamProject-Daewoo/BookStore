@@ -212,7 +212,7 @@ public class ManagerController {
             session.setAttribute("login", updated);
 
             redirectAttributes.addFlashAttribute("successMessage", "회원 정보가 성공적으로 수정되었습니다.");
-            return "redirect:/manager/booklist";
+            return "redirect:/manager/managerview";
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "회원 정보 수정 중 오류가 발생하였습니다: " + e.getMessage());

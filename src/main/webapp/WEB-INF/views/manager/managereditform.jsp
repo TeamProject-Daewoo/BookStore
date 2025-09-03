@@ -24,11 +24,10 @@
   #idMessage { font-size: 13px; margin-left:5px; margin-top:5px; display:block; }
   #checkIdBtn { color: #fff; border:none; border-radius:5px; cursor:pointer; }
   #checkIdBtn:hover { background-color:#0056b3; }
+  h2 { text-align:center; }
 </style>
-
+<h2><strong>회원 정보 수정(관리자)</strong></h2>
 <form class="account-form" action="${pageContext.request.contextPath}/manager/manageredit?${_csrf.parameterName}=${_csrf.token}" method="post" enctype="multipart/form-data">
-  <h2>회원 정보 수정(관리자)</h2>
-  <br>
   <!-- 프로필 이미지 -->
   <div class="form-row" style="flex-direction: column;">
     <c:choose>
@@ -41,6 +40,7 @@
     </c:choose>
     <br>
     <input type="file" id="profileImage" name="profileImageFile" accept="image/*">
+    <br>
   </div>
 
   <!-- 이름 -->
