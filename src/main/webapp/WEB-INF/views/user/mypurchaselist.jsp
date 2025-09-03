@@ -403,26 +403,48 @@ document.addEventListener('DOMContentLoaded', function () {
         </c:forEach>
     ];
 
-    // =============================================
-    // 2. purchases 배열 준비 (데이터 없으면 더미 0)
-    // =============================================
     const purchases = realPurchases.length > 0 
         ? realPurchases 
         : [{ amount: 0, order_ts: new Date().getTime(), category: '기타', quantity: 0 }];
 
+    // KST 기준으로 날짜만 비교하는 함수
+    function isSameDayKST(ts1, ts2) {
+        const d1 = new Date(ts1);
+        const d2 = new Date(ts2);
+        const kst1 = new Date(d1.getTime() + 9*60*60*1000);
+        const kst2 = new Date(d2.getTime() + 9*60*60*1000);
+        return kst1.getFullYear() === kst2.getFullYear() &&
+               kst1.getMonth() === kst2.getMonth() &&
+               kst1.getDate() === kst2.getDate();
+    }
+
+    function isSameMonthKST(ts1, ts2) {
+        const d1 = new Date(ts1);
+        const d2 = new Date(ts2);
+        const kst1 = new Date(d1.getTime() + 9*60*60*1000);
+        const kst2 = new Date(d2.getTime() + 9*60*60*1000);
+        return kst1.getFullYear() === kst2.getFullYear() &&
+               kst1.getMonth() === kst2.getMonth();
+    }
+
+    function isSameYearKST(ts1, ts2) {
+        const d1 = new Date(ts1);
+        const d2 = new Date(ts2);
+        const kst1 = new Date(d1.getTime() + 9*60*60*1000);
+        const kst2 = new Date(d2.getTime() + 9*60*60*1000);
+        return kst1.getFullYear() === kst2.getFullYear();
+    }
+
     // =============================================
-    // 3. 카테고리별 구매 수량 집계
+    // 2. 카테고리별 구매 수량 집계
     // =============================================
     var categoryCounts = {};
     purchases.forEach(p => {
         const cat = p.category || '기타';
-        const qty = Number(p.quantity || 0);  // ← 여기 수정
+        const qty = Number(p.quantity || 0);
         categoryCounts[cat] = (categoryCounts[cat] || 0) + qty;
     });
 
-    // =============================================
-    // 4. 카테고리 Bar Chart 생성
-    // =============================================
     var categoryLabels = Object.keys(categoryCounts);
     var categoryData = Object.values(categoryCounts);
 
@@ -439,46 +461,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 borderWidth: 1
             }]
         },
-        options: {
-            scales: { y: { beginAtZero: true } }
-        }
+        options: { scales: { y: { beginAtZero: true } } }
     });
 
     // =============================================
-    // 5. Line Chart: 일/월/연별 구매 금액 추이
+    // 3. Line Chart: 일/월/연별 구매 금액 추이
     // =============================================
-    var ctx = document.getElementById('dailyAmount') ? document.getElementById('dailyAmount').getContext('2d') : null;
-    var chart; // Chart.js 인스턴스
+    var ctx = document.getElementById('dailyAmount').getContext('2d');
+    var chart;
 
-    function aggregateData(type) {
-        var map = {};
-        var total = 0;
-        var count = 0;
-        var today = new Date();
+    function aggregateData(type){
+        const today = new Date();
+        const labels = [];
+        const data = [];
+        let total = 0;
+        let count = 0;
 
-        if(type === 'daily'){
-            for(var i=6; i>=0; i--){
-                var d = new Date(today);
-                d.setDate(today.getDate() - i);
-                var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-                map[key] = 0;
-            }
-        } else if(type === 'month'){
-            for(var i=5; i>=0; i--){
-                var d = new Date(today.getFullYear(), today.getMonth()-i, 1);
-                var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-                map[key] = 0;
-            }
-        } else if(type === 'year'){
-            for(var i=5; i>=0; i--){
-                var year = today.getFullYear() - i;
-                map[year] = 0;
-            }
-        }
-
-        purchases.forEach(function(p){
-            var d = new Date(p.order_ts);
-            var key;
+        purchases.forEach(p => {
+            const d = new Date(p.order_ts);
+            let key;
             if(type === 'daily'){
                 key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
             } else if(type === 'month'){
@@ -486,39 +487,56 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if(type === 'year'){
                 key = d.getFullYear();
             }
+            if(!labels.includes(key)){
+                labels.push(key);
+                data.push(0);
+            }
+        });
 
-            if(map.hasOwnProperty(key)){
-                map[key] += Number(p.amount || 0);
-                total += Number(p.amount || 0);
+        purchases.forEach(p => {
+            const amount = Number(p.amount || 0);
+            const d = new Date(p.order_ts);
+            let key;
+            if(type === 'daily'){
+                key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+            } else if(type === 'month'){
+                key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+            } else if(type === 'year'){
+                key = d.getFullYear();
+            }
+            const idx = labels.indexOf(key);
+            if(idx !== -1){
+                data[idx] += amount;
+                total += amount;
                 count += 1;
             }
         });
 
-        var labels = Object.keys(map).sort();
-        var data = labels.map(k => map[k]);
-
-        return { labels: labels, data: data, total: total, count: count };
+        return { labels, data, total, count };
     }
 
     function renderChart(type){
-        var agg = aggregateData(type);
+        const agg = aggregateData(type);
 
-        // 카드 업데이트
-        const dailyTotal = aggregateData('daily').total;
-        const monthTotal = aggregateData('month').total;
-        const yearTotal = aggregateData('year').total;
-        const totalAll = purchases.reduce((acc, p) => acc + (p.amount || 0), 0);
-        const totalCount = realPurchases.length;
+        // KST 기준으로 카드 업데이트
+        let dailyTotal = 0, monthTotal = 0, yearTotal = 0;
+        const now = new Date();
+        purchases.forEach(p=>{
+            if(isSameDayKST(p.order_ts, now)) dailyTotal += Number(p.amount || 0);
+            if(isSameMonthKST(p.order_ts, now)) monthTotal += Number(p.amount || 0);
+            if(isSameYearKST(p.order_ts, now)) yearTotal += Number(p.amount || 0);
+        });
+
+        const totalAll = purchases.reduce((acc, p) => acc + Number(p.amount || 0), 0);
+        const totalCount = purchases.length;
 
         document.getElementById('dailyAmountCard').textContent = dailyTotal > 0 ? '₩' + dailyTotal.toLocaleString() : '(-)';
         document.getElementById('monthAmountCard').textContent = monthTotal > 0 ? '₩' + monthTotal.toLocaleString() : '(-)';
         document.getElementById('yearAmountCard').textContent = yearTotal > 0 ? '₩' + yearTotal.toLocaleString() : '(-)';
         document.getElementById('totalAmount').textContent = totalAll > 0 ? '₩' + totalAll.toLocaleString() : '(-)';
-        document.getElementById('totalCountCard').textContent = totalCount > 0 ? totalCount.toLocaleString() + '건' : '(-)';
-        document.getElementById('chartTitle').textContent = 
-            type === 'daily' ? '일별 구매 추이' :
-            type === 'month' ? '월별 구매 추이' :
-            '연별 구매 추이';
+        document.getElementById('totalCountCard').textContent = totalCount + '건';
+        document.getElementById('chartTitle').textContent = type === 'daily' ? '일별 구매 추이' :
+                                                            type === 'month' ? '월별 구매 추이' : '연별 구매 추이';
 
         if(chart) chart.destroy();
         chart = new Chart(ctx, {
@@ -527,8 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 labels: agg.labels,
                 datasets: [{
                     label: type === 'daily' ? '일별 구매 금액' :
-                           type === 'month' ? '월별 구매 금액' :
-                           '연별 구매 금액',
+                           type === 'month' ? '월별 구매 금액' : '연별 구매 금액',
                     data: agg.data,
                     fill: true,
                     borderColor: 'rgba(54, 162, 235, 1)',
@@ -543,55 +560,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ====== 검색 & 정렬 ======
-    const searchInput = document.querySelector('.search-box input');
-    const searchButton = document.querySelector('.search-box button');
-    const tableBody = document.querySelector('table tbody');
-    const orderSelect = document.getElementById('orderSelect');
-    const orderToggle = document.getElementById('orderToggle');
-    const orderText = document.getElementById('orderText');
-
-    function filterAndSort() {
-        const keyword = searchInput.value.toLowerCase();
-        const criterion = orderSelect.value;
-        const order = orderToggle.getAttribute('data-order');
-
-        let rows = Array.from(tableBody.rows);
-        rows.forEach(row => {
-            const title = row.cells[1].textContent.toLowerCase();
-            row.style.display = title.includes(keyword) ? '' : 'none';
-        });
-
-        rows = rows.filter(r => r.style.display !== 'none');
-
-        rows.sort((a, b) => {
-            let valA, valB;
-            if(criterion === 'p.order_date'){
-                valA = new Date(a.cells[5].textContent + 'T00:00:00');
-                valB = new Date(b.cells[5].textContent + 'T00:00:00');
-            } else if(criterion === 'b.price'){
-                valA = parseInt(a.cells[4].textContent.replace(/[^0-9]/g, ''));
-                valB = parseInt(b.cells[4].textContent.replace(/[^0-9]/g, ''));
-            }
-            return order === 'asc' ? valA - valB : valB - valA;
-        });
-
-        rows.forEach(r => tableBody.appendChild(r));
-    }
-
-    searchInput.addEventListener('keyup', e => { if(e.key==='Enter') filterAndSort(); });
-    searchButton.addEventListener('click', filterAndSort);
-    orderSelect.addEventListener('change', filterAndSort);
-    orderToggle.addEventListener('click', function(){
-        const newOrder = orderToggle.getAttribute('data-order') === 'asc' ? 'desc' : 'asc';
-        orderToggle.setAttribute('data-order', newOrder);
-        orderText.textContent = newOrder === 'asc' ? '▲오름차순' : '▼내림차순';
-        filterAndSort();
-    });
-
-    // ====== 초기 렌더링 ======
     renderChart('daily');
-
     document.querySelectorAll('.chartType-btn').forEach(btn => {
         btn.addEventListener('click', function(){
             document.querySelectorAll('.chartType-btn').forEach(b => b.classList.remove('active'));
@@ -600,6 +569,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
 </script>
 
 
