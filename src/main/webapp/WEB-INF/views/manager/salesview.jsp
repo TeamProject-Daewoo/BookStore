@@ -237,9 +237,18 @@
     transition: background 0.2s ease;
   }
   .search-box button:hover {background: #1d4ed8;}
+  #loadingSpinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: none;
+}
   canvas { width:100%; height:360px; }
 </style>
 
+<div class="spinner-border" id="loadingSpinner" role="status">
+  <span class="visually-hidden">Loading...</span>
+</div>
 <div class="container">
 <div class="total-sum-div">
 	<div class="card">
@@ -553,10 +562,13 @@ function recentSalesRender(result, chartType) {
 
 function salesRankRender(result, chartType) {
 	//chartType에 따라 변경될 요소들
-	let chartMap = {};
+	const chartMap = {};
 	let tooltip, chartX, title, labelTitle, key;
+	let clickEvent = () => {};
+	const isbns = {};
     result.purchase.forEach(function (p) {
       (p.bookList || []).forEach(function (b) {
+		isbns[b.book_title] = b.isbn;
         switch (chartType) {
         	case "quantity":
         		key = b.book_title || '제목없음';
@@ -596,7 +608,7 @@ function salesRankRender(result, chartType) {
     	   		chartX = {
 	        		ticks: {
 	        			callback: (v) => (Number(v) + ' 번') 
-	      			} 
+	      			}
 	      		} 
         		labelTitle = '책 구매 개수';
         		title = '최다 구매 고객';
@@ -612,16 +624,25 @@ function salesRankRender(result, chartType) {
     var topLabels = topEntries.map(function (e) { return e[0]; });
     var topQty    = topEntries.map(function (e) { return e[1]; });
 
-    const tempLabels = topLabels.map(text => {
+    const labels = topLabels.map(text => {
 	    return text.length > 15 ? text.substring(0, 15) + '...' : text;
 	});
+
     // 차트 렌더링
     let chartDiv = document.getElementById('salesRank');
 		if(charts[1]) charts[1].destroy();
 		charts[1] = new Chart(chartDiv.getContext('2d'), {
 		      type: 'bar',
-		      data: { labels: tempLabels, datasets: [{ label: labelTitle, data: topQty }] },
+		      data: { labels: labels, datasets: [{ label: labelTitle, data: topQty }] },
 		      options: {
+		    	onClick: (event, elements) => {
+	   	    		 if (elements.length > 0) {
+		   	    		 	const clickedElementIndex = elements[0].index;
+		   	    		 	isbn = isbns[topLabels[clickedElementIndex]];
+		   	    		 	if(isbn !== undefined)
+		   	    		 		location.href = '/manager/bookdetail?isbn='+isbn;
+		   	    		 }
+		   	    	},
 		        indexAxis: 'y',
 		        plugins: { 
 		        	tooltip: { 
@@ -719,7 +740,7 @@ function salesByGroupRender(result, chartType) {
 			clickEvent = (event, elements) => {
 	    		 if (elements.length > 0) {
 	    		 	const clickedElementIndex = elements[0].index;
-	    		 	location.href = '/user/bookdetail?isbn='+isbns[labels[clickedElementIndex]];
+	    		 	location.href = '/manager/bookdetail?isbn='+isbns[labels[clickedElementIndex]];
 	    		 }
 	    	}
 			break;
@@ -886,8 +907,8 @@ function changeChartType(newType) {
  * @return {void}
  */
 function render(renderElements) {
-	 const csrfToken = document.getElementById("_csrf").value;
-	 const csrfHeader = document.getElementById("_csrf_header").value;
+	const csrfToken = document.getElementById("_csrf").value;
+	const csrfHeader = document.getElementById("_csrf_header").value;
 	 
 	fetch("/api/renderSalesList", {
 		method: 'POST',
@@ -929,15 +950,24 @@ function render(renderElements) {
 	    //~별 매출액/판매량 랜더링
 	    if("salesByGroup" in renderElements)
 	 		salesByGroupRender(result, salesChartList[salesChartPage][0]);
+	    //시간별 매출액 랜더링
 	    if("hourlySales" in renderElements)
 	    	hourlySalesChartRender(result);
-	});
+	})
+	.finally(() => {
+		document.getElementById('loadingSpinner').style.display = 'none';
+		document.getElementsByClassName('container')[0].style.visibility = 'visible';
+    });
 	window.addEventListener('resize', () => {
 		charts.forEach((c) => c.resize());
 	});
   }
 
 //render();
-socket.onmessage = (message) => render({'recentSales':'', 'salesRank':'', 'table':'', 'salesByGroup':'', 'hourlySales':''});
+socket.onmessage = (message) => {
+	render({'recentSales':'', 'salesRank':'', 'table':'', 'salesByGroup':'', 'hourlySales':''});
+	document.getElementById('loadingSpinner').style.display = 'block';
+	document.getElementsByClassName('container')[0].style.visibility = 'hidden';
+}
 
 </script>
