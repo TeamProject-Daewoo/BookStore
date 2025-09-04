@@ -245,4 +245,30 @@ public class ManagerController {
         return "index";
     }
     
+    // <<-- 3. 리뷰 삭제 후 리다이렉트 수정 -->>
+    @RequestMapping("/reviewDelete")
+    public String deleteReview(@RequestParam int reviewId) {
+        // bookId로 책을 찾은 후 isbn을 얻어 리다이렉트합니다.
+        int bookId = reviewService.findById(reviewId).getBookId();
+        Book book = managerService.getBook(bookId);
+        reviewService.deleteReview(reviewId);
+        return "redirect:/manager/bookdetail?isbn=" + book.getIsbn();
+    }
+
+    // <<-- 4. 리뷰 수정 후 리다이렉트 수정 -->>
+    @GetMapping("/reviewEdit")
+    public String editForm(@RequestParam Integer reviewId, Model model) {
+        Review review = reviewService.findById(reviewId);
+        model.addAttribute("review", review);
+        model.addAttribute("page", MAIN_URL + "reviewedit");
+        return "index";
+    }
+
+    @PostMapping("/reviewEdit")
+    public String editReview(@ModelAttribute Review review) {
+        reviewService.updateReview(review);
+        Integer bookId = reviewService.findById(review.getReviewId()).getBookId();
+        Book book = managerService.getBook(bookId);
+        return "redirect:/manager/bookdetail?isbn=" + book.getIsbn();
+    }
 }

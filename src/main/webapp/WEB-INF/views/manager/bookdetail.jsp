@@ -241,315 +241,266 @@ th:nth-child(4), td:nth-child(4) { text-align: right; }
 
 
    <c:if test="${not empty book.id}">
-       <div class="book-review-container" style="max-width: 960px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.08);">
+    <div class="book-review-container" style="max-width: 960px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.08);">
     
-           <h3 style="margin-bottom: 20px;">📖 리뷰</h3>
-    
-           <sec:authorize access="isAuthenticated()">
-               <form action="${pageContext.request.contextPath}/user/addReview" method="post" style="margin-bottom: 30px;">
-                   <%-- 3. 리뷰는 우리 DB에 저장된 책의 고유 id를 기준으로 작성 --%>
-                   <input type="hidden" name="bookId" value="${book.id}"> 
-                   <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-    
-                   <label for="rating"><strong>평점:</strong></label>
-                   <select name="rating" id="rating" style="margin-left: 8px; padding: 4px 8px; border-radius: 6px;">
-                       <option value="5">★★★★★</option>
-                       <option value="4">★★★★</option>
-                       <option value="3">★★★</option>
-                       <option value="2">★★</option>
-                       <option value="1">★</option>
-                   </select>
-    
-                   <div style="margin-top: 12px;">
-                       <textarea name="content" rows="4" placeholder="리뷰를 작성해주세요." style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;" required></textarea>
-                   </div>
-    
-                   <button type="submit" class="btn btn-success" style="margin-top: 12px; width: 120px;">리뷰 등록</button>
-               </form>
-           </sec:authorize>
-    
-           <sec:authorize access="!isAuthenticated()">
-               <p>로그인 후 리뷰를 작성할 수 있습니다.</p>
-           </sec:authorize>
-    
-           <hr style="margin: 20px 0;">
-    
-           <h4>리뷰 목록</h4>
-           <c:if test="${not empty reviews}">
-               <c:forEach var="review" items="${reviews}">
-                   	       <div style="display: flex; gap: 16px; padding: 12px; border-bottom: 1px solid #eee;">
-	           <!-- 왼쪽: 프로필 이미지 -->
-	           <div style="flex-shrink: 0;">
-	               <img src="<c:url value='/user/profileImageByUsername/${review.userId}' />"
-     				alt="프로필 이미지"
-     				style="width:70px; height:70px; border-radius:50%; object-fit:cover;">
-	           </div>
+        <h3 style="margin-bottom: 20px;">📖 리뷰</h3>
 
-			   <!-- 오른쪽: 리뷰 내용 -->
-			   <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
-			       
-				<!-- 헤더: 닉네임 + 별점 + 날짜 + 수정/삭제 버튼 -->
-				<div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+        <hr style="margin: 20px 0;">
 
-				    <!-- 왼쪽: 닉네임 + 별점 -->
-				    <div style="display:flex; align-items:center; gap:8px;">
-				        <strong style="font-size:16px;">${review.userId}</strong>
-				        <span style="color:#f5c518;">
-				            <c:forEach var="i" begin="1" end="5">
-				                <c:choose>
-				                    <c:when test="${i <= review.rating}">★</c:when>
-				                    <c:otherwise>☆</c:otherwise>
-				                </c:choose>
-				            </c:forEach>
-				        </span>
-				    </div>
+        <h4>리뷰 목록</h4>
+        <c:if test="${not empty reviews}">
+            <c:forEach var="review" items="${reviews}">
+                <div style="display: flex; gap: 16px; padding: 12px; border-bottom: 1px solid #eee;">
+                    <!-- 왼쪽: 프로필 이미지 -->
+                    <div style="flex-shrink: 0;">
+                        <img src="<c:url value='/user/profileImageByUsername/${review.userId}' />"
+                             alt="프로필 이미지"
+                             style="width:70px; height:70px; border-radius:50%; object-fit:cover;">
+                    </div>
 
-				    <!-- 가운데: 빈 공간 (flex로 자동 확장) -->
-				    <div style="flex:1"></div>
+                    <!-- 오른쪽: 리뷰 내용 -->
+                    <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                        <!-- 헤더: 닉네임 + 별점 + 날짜 + 수정/삭제 버튼 -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                            <!-- 왼쪽: 닉네임 + 별점 -->
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <strong style="font-size:16px;">${review.userId}</strong>
+                                <span style="color:#f5c518;">
+                                    <c:forEach var="i" begin="1" end="5">
+                                        <c:choose>
+                                            <c:when test="${i <= review.rating}">★</c:when>
+                                            <c:otherwise>☆</c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+                                </span>
+                            </div>
 
-				    <!-- 오른쪽: 날짜 -->
-				    <span style="font-size:12px; color:#888; white-space:nowrap; margin-right:8px;">
-				        <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
-				    </span>
+                            <!-- 가운데: 빈 공간 -->
+                            <div style="flex:1"></div>
 
-				    <!-- 오른쪽 끝: 점 3개 버튼 -->
-				    <c:if test="${review.userId == user or pageContext.request.isUserInRole('ROLE_ADMIN')}">
-				        <div style="position:relative;">
-				            <button onclick="toggleMenu(this)" 
-				                    style="background:none; border:none; font-size:20px; cursor:pointer;">⋮</button>
-				            <div class="review-menu" style="display:none; position:absolute; right:0; top:24px; 
-				                 background:#fff; border:1px solid #ccc; border-radius:6px; 
-				                 box-shadow:0 2px 8px rgba(0,0,0,0.15); min-width:100px; z-index:10;">
-				                <form action="/user/reviewEdit" method="get" style="margin:0;">
-				                    <input type="hidden" name="reviewId" value="${review.reviewId}" />
-				                    <button type="submit" style="display:block; width:100%; border:none; background:none; padding:8px; cursor:pointer; text-align:left;">수정</button>
-				                </form>
-				                <form action="/user/reviewDelete" method="post" style="margin:0;">
-				                    <input type="hidden" name="reviewId" value="${review.reviewId}" />
-				                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-				                    <button type="submit" style="display:block; width:100%; border:none; background:none; padding:8px; cursor:pointer; color:red; text-align:left;">삭제</button>
-				                </form>
-				            </div>
-				        </div>
-				    </c:if>
+                            <!-- 오른쪽: 날짜 -->
+                            <span style="font-size:12px; color:#888; white-space:nowrap; margin-right:8px;">
+                                <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
+                            </span>
 
-				</div>
+                            <!-- 수정/삭제 버튼 -->
+                            <c:if test="${review.userId == user or pageContext.request.isUserInRole('ROLE_ADMIN')}">
+                                <div style="position:relative;">
+                                    <button onclick="toggleMenu(this)" 
+                                            style="background:none; border:none; font-size:20px; cursor:pointer;">⋮</button>
+                                    <div class="review-menu" style="display:none; position:absolute; right:0; top:24px; 
+                                         background:#fff; border:1px solid #ccc; border-radius:6px; 
+                                         box-shadow:0 2px 8px rgba(0,0,0,0.15); min-width:100px; z-index:10;">
+                                        <form action="/manager/reviewEdit" method="get" style="margin:0;">
+                                            <input type="hidden" name="reviewId" value="${review.reviewId}" />
+                                            <button type="submit" style="display:block; width:100%; border:none; background:none; padding:8px; cursor:pointer; text-align:left;">수정</button>
+                                        </form>
+                                        <form action="/manager/reviewDelete" method="post" style="margin:0;">
+                                            <input type="hidden" name="reviewId" value="${review.reviewId}" />
+                                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                            <button type="submit" style="display:block; width:100%; border:none; background:none; padding:8px; cursor:pointer; color:red; text-align:left;">삭제</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </c:if>
+                        </div>
 
+                        <!-- 리뷰 내용 -->
+                        <p style="margin:0; line-height:1.4;">${review.content}</p>
+                    </div>
+                </div>
+            </c:forEach>
+        </c:if>
+        <c:if test="${empty reviews}">
+            <p>아직 등록된 리뷰가 없습니다.</p>
+        </c:if>
+    </div>
+</c:if>
 
-			       <!-- 리뷰 내용 -->
-			       <p style="margin:0; line-height:1.4;">${review.content}</p>
-			   </div>
-	       </div>
-               </c:forEach>
-           </c:if>
-           <c:if test="${empty reviews}">
-               <p>아직 등록된 리뷰가 없습니다.</p>
-           </c:if>
-       </div>
-   </c:if>
+<script>
+   // 리뷰 수정/삭제 메뉴 토글
+   function toggleMenu(btn) {
+       const menu = btn.nextElementSibling;
+       menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+   }
 
-   <script>
-	  function toggleMenu(btn) {
-	          const menu = btn.nextElementSibling;
-	          menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-	      }
+   // 클릭 외부 영역 시 메뉴 닫기
+   document.addEventListener('click', function(e) {
+       const menus = document.querySelectorAll('.review-menu');
+       menus.forEach(menu => {
+           if (!menu.contains(e.target) && !menu.previousElementSibling.contains(e.target)) {
+               menu.style.display = 'none';
+           }
+       });
+   });
 
-	      // 클릭 외부 영역 시 메뉴 닫기
-	      document.addEventListener('click', function(e) {
-	          const menus = document.querySelectorAll('.review-menu');
-	          menus.forEach(menu => {
-	              if (!menu.contains(e.target) && !menu.previousElementSibling.contains(e.target)) {
-	                  menu.style.display = 'none';
-	              }
-	          });
-	      });
-	      
-	      
-	      document.addEventListener('DOMContentLoaded', function () {
-	    	    const realPurchases = [
-	    	        <c:forEach var="p" items="${purchaseList}" varStatus="st">
-	    	        {
-	    	            category: "${p.category}",
-	    	            quantity: ${p.quantity},
-	    	            order_ts: ${p.order_date.time}
-	    	        }<c:if test="${!st.last}">,</c:if>
-	    	        </c:forEach>
-	    	    ];
+   document.addEventListener('DOMContentLoaded', function () {
+       // 판매 권수/차트 관련 기존 코드
+       const realPurchases = [
+           <c:forEach var="p" items="${purchaseList}" varStatus="st">
+           {
+               category: "${p.category}",
+               quantity: ${p.quantity},
+               order_ts: ${p.order_date.time}
+           }<c:if test="${!st.last}">,</c:if>
+           </c:forEach>
+       ];
 
-	    	    const purchases = realPurchases.length > 0 
-	    	        ? realPurchases 
-	    	        : [{ quantity: 0, order_ts: new Date().getTime(), category: '기타' }];
+       const purchases = realPurchases.length > 0 
+           ? realPurchases 
+           : [{ quantity: 0, order_ts: new Date().getTime(), category: '기타' }];
 
-	    	    var ctx = document.getElementById('dailyAmount') ? document.getElementById('dailyAmount').getContext('2d') : null;
-	    	    var chart;
+       var ctx = document.getElementById('dailyAmount') ? document.getElementById('dailyAmount').getContext('2d') : null;
+       var chart;
 
-	    	    function aggregateData(type) {
-	    	        var map = {};
-	    	        var total = 0;
-	    	        var count = 0;
-	    	        var today = new Date();
+       function aggregateData(type) {
+           var map = {};
+           var total = 0;
+           var count = 0;
+           var today = new Date();
 
-	    	        if(type === 'daily'){
-	    	            for(var i=6; i>=0; i--){
-	    	                var d = new Date(today);
-	    	                d.setDate(today.getDate() - i);
-	    	                var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-	    	                map[key] = 0;
-	    	            }
-	    	        } else if(type === 'month'){
-	    	            for(var i=5; i>=0; i--){
-	    	                var d = new Date(today.getFullYear(), today.getMonth()-i, 1);
-	    	                var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-	    	                map[key] = 0;
-	    	            }
-	    	        } else if(type === 'year'){
-	    	            for(var i=5; i>=0; i--){
-	    	                var year = today.getFullYear() - i;
-	    	                map[year] = 0;
-	    	            }
-	    	        }
+           if(type === 'daily'){
+               for(var i=6; i>=0; i--){
+                   var d = new Date(today);
+                   d.setDate(today.getDate() - i);
+                   var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+                   map[key] = 0;
+               }
+           } else if(type === 'month'){
+               for(var i=5; i>=0; i--){
+                   var d = new Date(today.getFullYear(), today.getMonth()-i, 1);
+                   var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                   map[key] = 0;
+               }
+           } else if(type === 'year'){
+               for(var i=5; i>=0; i--){
+                   var year = today.getFullYear() - i;
+                   map[year] = 0;
+               }
+           }
 
-	    	        purchases.forEach(function(p){
-	    	            var d = new Date(p.order_ts);
-	    	            var key;
-	    	            if(type === 'daily'){
-	    	                key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-	    	            } else if(type === 'month'){
-	    	                key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-	    	            } else if(type === 'year'){
-	    	                key = d.getFullYear();
-	    	            }
+           purchases.forEach(function(p){
+               var d = new Date(p.order_ts);
+               var key;
+               if(type === 'daily'){
+                   key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+               } else if(type === 'month'){
+                   key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+               } else if(type === 'year'){
+                   key = d.getFullYear();
+               }
 
-	    	            if(map.hasOwnProperty(key)){
-	    	                map[key] += Number(p.quantity || 0);
-	    	                total += Number(p.quantity || 0);
-	    	                count += 1;
-	    	            }
-	    	        });
+               if(map.hasOwnProperty(key)){
+                   map[key] += Number(p.quantity || 0);
+                   total += Number(p.quantity || 0);
+                   count += 1;
+               }
+           });
 
-	    	        var labels = Object.keys(map).sort();
-	    	        var data = labels.map(k => map[k]);
+           var labels = Object.keys(map).sort();
+           var data = labels.map(k => map[k]);
 
-	    	        return { labels: labels, data: data, total: total, count: count };
-	    	    }
+           return { labels: labels, data: data, total: total, count: count };
+       }
 
-	    	    function renderChart(type){
-	    	        const agg = aggregateData(type);
-	    	        const dailyTotal = agg.data.slice(-1)[0]; // 오늘 권수
-	    	        const monthTotal = aggregateData('month').data.slice(-1)[0]; // 이번달 권수
-	    	        const yearTotal = aggregateData('year').data.slice(-1)[0]; // 올해 권수
-	    	        const totalCount = purchases.reduce((acc, p) => acc + Number(p.quantity || 0), 0);
+       function renderChart(type){
+           const agg = aggregateData(type);
+           const dailyTotal = agg.data.slice(-1)[0]; 
+           const monthTotal = aggregateData('month').data.slice(-1)[0];
+           const yearTotal = aggregateData('year').data.slice(-1)[0];
+           const totalCount = purchases.reduce((acc, p) => acc + Number(p.quantity || 0), 0);
 
-	    	        document.getElementById('dailyAmountCard').textContent = dailyTotal ? dailyTotal + '권' : '(-)';
-	    	        document.getElementById('monthAmountCard').textContent = monthTotal ? monthTotal + '권' : '(-)';
-	    	        document.getElementById('yearAmountCard').textContent = yearTotal ? yearTotal + '권' : '(-)';
-	    	        document.getElementById('totalCountCard').textContent = totalCount ? totalCount + '권' : '(-)';
+           document.getElementById('dailyAmountCard').textContent = dailyTotal ? dailyTotal + '권' : '(-)';
+           document.getElementById('monthAmountCard').textContent = monthTotal ? monthTotal + '권' : '(-)';
+           document.getElementById('yearAmountCard').textContent = yearTotal ? yearTotal + '권' : '(-)';
+           document.getElementById('totalCountCard').textContent = totalCount ? totalCount + '권' : '(-)';
 
-	    	        document.getElementById('chartTitle').textContent = 
-	    	            type === 'daily' ? '일별 판매 권수' :
-	    	            type === 'month' ? '월별 판매 권수' :
-	    	            '연별 판매 권수';
+           document.getElementById('chartTitle').textContent = 
+               type === 'daily' ? '일별 판매 권수' :
+               type === 'month' ? '월별 판매 권수' :
+               '연별 판매 권수';
 
-	    	        if(chart) chart.destroy();
-	    	        chart = new Chart(ctx, {
-	    	            type: 'line',
-	    	            data: {
-	    	                labels: agg.labels,
-	    	                datasets: [{
-	    	                    label: type === 'daily' ? '일별 판매 권수' :
-	    	                           type === 'month' ? '월별 판매 권수' :
-	    	                           '연별 판매 권수',
-	    	                    data: agg.data,
-	    	                    fill: true,
-	    	                    borderColor: 'rgba(54, 162, 235, 1)',
-	    	                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-	    	                    tension: 0.3
-	    	                }]
-	    	            },
-	    	            options: {
-	    	            	responsive: false, // <- 반응형 끄기
-	    	                maintainAspectRatio: false, // <- 캔버스 비율 유지 끄기
-	    	                scales: { y: { beginAtZero: true } },
-	    	                plugins: { tooltip: { callbacks: { label: ctx => ctx.parsed.y + '권' } } }
-	    	            }
-	    	        });
-	    	    }
+           if(chart) chart.destroy();
+           chart = new Chart(ctx, {
+               type: 'line',
+               data: {
+                   labels: agg.labels,
+                   datasets: [{
+                       label: type === 'daily' ? '일별 판매 권수' :
+                              type === 'month' ? '월별 판매 권수' :
+                              '연별 판매 권수',
+                       data: agg.data,
+                       fill: true,
+                       borderColor: 'rgba(54, 162, 235, 1)',
+                       backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                       tension: 0.3
+                   }]
+               },
+               options: {
+                   responsive: false,
+                   maintainAspectRatio: false,
+                   scales: { y: { beginAtZero: true } },
+                   plugins: { tooltip: { callbacks: { label: ctx => ctx.parsed.y + '권' } } }
+               }
+           });
+       }
 
-	    	    renderChart('daily');
+       renderChart('daily');
 
-	    	    document.querySelectorAll('.chartType-btn').forEach(btn => {
-	    	        btn.addEventListener('click', function(){
-	    	            document.querySelectorAll('.chartType-btn').forEach(b => b.classList.remove('active'));
-	    	            btn.classList.add('active');
-	    	            renderChart(btn.id.replace('-btn',''));
-	    	        });
-	    	    });
-	    	    // 리뷰 집계
-	    	    const ratingData = [0,0,0,0,0];
-	    	    <c:forEach var="review" items="${reviews}">
-	    	        const rating = ${review.rating};
-	    	        if(rating >= 1 && rating <= 5){
-	    	            ratingData[rating-1] += 1;
-	    	        }
-	    	    </c:forEach>
+       document.querySelectorAll('.chartType-btn').forEach(btn => {
+           btn.addEventListener('click', function(){
+               document.querySelectorAll('.chartType-btn').forEach(b => b.classList.remove('active'));
+               btn.classList.add('active');
+               renderChart(btn.id.replace('-btn',''));
+           });
+       });
 
-	    	    const totalReviews = ratingData.reduce((a,b)=>a+b,0);
-	    	    const ratingPercent = ratingData.map(r => totalReviews ? (r/totalReviews*100).toFixed(1) : 0);
+       // 리뷰 통계 차트
+       const ratingData = [0,0,0,0,0];
+       <c:forEach var="review" items="${reviews}">
+           const rating = ${review.rating};
+           if(rating >= 1 && rating <= 5){
+               ratingData[rating-1] += 1;
+           }
+       </c:forEach>
 
-	    	    const ratingCtx = document.getElementById('ratingChart').getContext('2d');
-	    	    const ratingChart = new Chart(ratingCtx, {
-	    	        type: 'bar',
-	    	        data: {
-	    	            labels: ['★','★★','★★★','★★★★','★★★★★'], // 별점 레이블
-	    	            datasets: [{
-	    	                label: '리뷰 비율',
-	    	                data: ratingPercent,
-	    	                backgroundColor: ['#ff6b6b','#ff8787','#ffa8a8','#ffd6d6','#ffe3e3'], // 그라데이션 느낌
-	    	                borderRadius: 8, // 막대 끝 둥글게
-	    	                borderSkipped: false
-	    	            }]
-	    	        },
-	    	        options: {
-	    	            indexAxis: 'y',
-	    	            scales: {
-	    	                x: { 
-	    	                    beginAtZero: true,
-	    	                    max: 100,
-	    	                    ticks: {
-	    	                        callback: function(value){ return value + '%'; },
-	    	                        color: '#555',
-	    	                        font: { size: 13 }
-	    	                    },
-	    	                    grid: {
-	    	                        color: '#eee'
-	    	                    }
-	    	                },
-	    	                y: { 
-	    	                    ticks: { color: '#333', font: { size: 14, weight: '500' } },
-	    	                    grid: { drawTicks: false, color: '#f5f5f5' }
-	    	                }
-	    	            },
-	    	            plugins: {
-	    	                legend: { display: false },
-	    	                tooltip: { 
-	    	                    backgroundColor: '#333',
-	    	                    titleColor: '#fff',
-	    	                    bodyColor: '#fff',
-	    	                    callbacks: { label: ctx => ctx.parsed.x + '%' }
-	    	                },
-	    	                datalabels: {
-	    	                	anchor: 'center',   // 막대 안쪽 중앙
-	    	                    align: 'right',
-	    	                    formatter: function(value){ return value + '%'; },
-	    	                    color: '#333',
-	    	                    font: { weight: 'bold', size: 13 },
-	    	                    offset: 6
-	    	                }
-	    	            }
-	    	        },
-	    	        plugins: [ChartDataLabels]
-	    	    });
-	    	});
-   </script>
+       const totalReviews = ratingData.reduce((a,b)=>a+b,0);
+       const ratingPercent = ratingData.map(r => totalReviews ? (r/totalReviews*100).toFixed(1) : 0);
+
+       const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+       const ratingChart = new Chart(ratingCtx, {
+           type: 'bar',
+           data: {
+               labels: ['★','★★','★★★','★★★★','★★★★★'],
+               datasets: [{
+                   label: '리뷰 비율',
+                   data: ratingPercent,
+                   backgroundColor: ['#ff6b6b','#ff8787','#ffa8a8','#ffd6d6','#ffe3e3'],
+                   borderRadius: 8,
+                   borderSkipped: false
+               }]
+           },
+           options: {
+               indexAxis: 'y',
+               scales: {
+                   x: { 
+                       beginAtZero: true,
+                       max: 100,
+                       ticks: { callback: function(value){ return value + '%'; }, color: '#555', font: { size: 13 } },
+                       grid: { color: '#eee' }
+                   },
+                   y: { ticks: { color: '#333', font: { size: 14, weight: '500' } }, grid: { drawTicks: false, color: '#f5f5f5' } }
+               },
+               plugins: {
+                   legend: { display: false },
+                   tooltip: { backgroundColor: '#333', titleColor: '#fff', bodyColor: '#fff', callbacks: { label: ctx => ctx.parsed.x + '%' } },
+                   datalabels: { anchor: 'center', align: 'right', formatter: function(value){ return value + '%'; }, color: '#333', font: { weight: 'bold', size: 13 }, offset: 6 }
+               }
+           },
+           plugins: [ChartDataLabels]
+       });
+   });
+</script>
+
 </body>
 </html>
