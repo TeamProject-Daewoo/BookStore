@@ -143,6 +143,8 @@ public class ManagerController {
             model.addAttribute("user", authentication.getName());
         }
 
+        model.addAttribute("purchaseList", managerService.getMyPurchaseView(book.getId()));
+        
         model.addAttribute("book", book);
         // model.addAttribute("imagePath", imagePath);
         model.addAttribute("page", MAIN_URL + "bookdetail");

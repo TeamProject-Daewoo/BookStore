@@ -18,6 +18,7 @@ import cart.CartMapper;
 import data.Book;
 import data.BookMapper;
 import purchase.BookDetailFragment;
+import purchase.MyPurchaseView;
 import purchase.Purchase;
 import purchase.PurchaseFragment;
 import purchase.PurchaseMapper;
@@ -108,15 +109,15 @@ public class ManagerService {
 		return bookMapper.delete(id);
 	}
     
-	// <<-- 3. Å°¿öµå °Ë»ö ¸Þ¼­µå¸¦ ÇÏÀÌºê¸®µå ¹æ½ÄÀ¸·Î ¼öÁ¤ÇÕ´Ï´Ù.
+	// <<-- 3. Å°ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½ ï¿½Þ¼ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½Ìºê¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 		public List<Book> findByKeyword(String keyword) {
-			// 3-1. ¿ì¼± ³» DB¿¡¼­ Å°¿öµå·Î °Ë»öÇÕ´Ï´Ù.
+			// 3-1. ï¿½ì¼± ï¿½ï¿½ DBï¿½ï¿½ï¿½ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½ï¿½Õ´Ï´ï¿½.
 			List<Book> localResults = bookMapper.findByKeyword(keyword);
 			
-			// 3-2. ³×ÀÌ¹ö API¸¦ È£ÃâÇÏ¿© °á°ú¸¦ °¡Á®¿É´Ï´Ù.
+			// 3-2. ï¿½ï¿½ï¿½Ì¹ï¿½ APIï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
 			List<Book> apiResults = naverBookService.searchBooks(keyword);
 			
-			// 3-3. (Áß¿ä) API °á°ú Áß¿¡¼­ ÀÌ¹Ì ³» DB¿¡ ÀÖ´Â Ã¥(ISBN ±âÁØ)Àº Á¦¿ÜÇÏ¿© Áßº¹À» ¹æÁöÇÕ´Ï´Ù.
+			// 3-3. (ï¿½ß¿ï¿½) API ï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ DBï¿½ï¿½ ï¿½Ö´ï¿½ Ã¥(ISBN ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ßºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	        Map<String, Book> localBooksByIsbn = localResults.stream()
 	            .filter(book -> book.getIsbn() != null && !book.getIsbn().isEmpty())
 	            .collect(Collectors.toMap(Book::getIsbn, book -> book));
@@ -125,7 +126,7 @@ public class ManagerService {
 	            .filter(apiBook -> !localBooksByIsbn.containsKey(apiBook.getIsbn()))
 	            .collect(Collectors.toList());
 			
-			// 3-4. DB °á°ú¿Í (Áßº¹ÀÌ Á¦°ÅµÈ) API °á°ú¸¦ ÇÕÃÄ¼­ ¹ÝÈ¯ÇÕ´Ï´Ù.
+			// 3-4. DB ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ßºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Åµï¿½) API ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ä¼ï¿½ ï¿½ï¿½È¯ï¿½Õ´Ï´ï¿½.
 			List<Book> finalResults = new ArrayList<>();
 			finalResults.addAll(localResults);
 			finalResults.addAll(uniqueApiResults);
@@ -133,35 +134,35 @@ public class ManagerService {
 			return finalResults;
 		}
 		
-		// <<-- 4. Ã¥ »ó¼¼ Á¤º¸¸¦ °¡Á®¿À´Â »õ·Î¿î ¸Þ¼­µå¸¦ Á¤ÀÇÇÕ´Ï´Ù. (ISBN ±â¹Ý)
+		// <<-- 4. Ã¥ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½Þ¼ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½. (ISBN ï¿½ï¿½ï¿½)
 	    public Book getBookByIsbn(String isbn) {
-	        // 4-1. ¸ÕÀú ¿ì¸® DB¿¡¼­ ISBNÀ¸·Î Ã¥À» Ã£¾Æº¾´Ï´Ù.
+	        // 4-1. ï¿½ï¿½ï¿½ï¿½ ï¿½ì¸® DBï¿½ï¿½ï¿½ï¿½ ISBNï¿½ï¿½ï¿½ï¿½ Ã¥ï¿½ï¿½ Ã£ï¿½Æºï¿½ï¿½Ï´ï¿½.
 	        Book book = bookMapper.findByIsbn(isbn);
 
-	        // 4-2. DB¿¡ Ã¥ÀÌ Á¸ÀçÇÏ¸é, ±× Á¤º¸¸¦ ¹Ù·Î ¹ÝÈ¯ÇÕ´Ï´Ù.
+	        // 4-2. DBï¿½ï¿½ Ã¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½, ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½È¯ï¿½Õ´Ï´ï¿½.
 	        if (book != null) {
 	            return book;
 	        } 
-	        // 4-3. DB¿¡ Ã¥ÀÌ ¾øÀ¸¸é, ³×ÀÌ¹ö API¿¡ »ó¼¼ Á¤º¸¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+	        // 4-3. DBï¿½ï¿½ Ã¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½Ì¹ï¿½ APIï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½Õ´Ï´ï¿½.
 	        else {
 	            Book newBookFromApi = naverBookService.searchBookByIsbn(isbn);
 
 	            if (newBookFromApi != null) {
-	            	if ("±âÅ¸".equals(newBookFromApi.getCategory()) && newBookFromApi.getLink() != null) {
+	            	if ("ï¿½ï¿½Å¸".equals(newBookFromApi.getCategory()) && newBookFromApi.getLink() != null) {
 	                    String scrapedCategory = naverBookService.scrapeCategoryFromUrl(newBookFromApi.getLink());
 	                    if (scrapedCategory != null) {
-	                        // ½ºÅ©·¡ÇÎÀ¸·Î ¾òÀº Ä«Å×°í¸®·Î ´Ù½Ã ºÐ·ù
+	                        // ï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½×°ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½Ð·ï¿½
 	                        newBookFromApi.setCategory(naverBookService.classifyCategory(scrapedCategory));
 	                    }
 	                }
-	                // 4-4. API¿¡¼­ ¹Þ¾Æ¿Â »õ·Î¿î Ã¥ Á¤º¸¸¦ ¿ì¸® DB¿¡ ÀúÀå(INSERT)ÇÕ´Ï´Ù.
-	                // ÀÌ·¸°Ô ÇÏ¸é ´ÙÀ½ºÎÅÍ´Â DB¿¡¼­ ¹Ù·Î Á¶È¸°¡ °¡´ÉÇØÁý´Ï´Ù.
+	                // 4-4. APIï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾Æ¿ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ Ã¥ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ì¸® DBï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(INSERT)ï¿½Õ´Ï´ï¿½.
+	                // ï¿½Ì·ï¿½ï¿½ï¿½ ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í´ï¿½ DBï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	                bookMapper.save(newBookFromApi);
-	                // ÀúÀå ÈÄ ¹ÝÈ¯
+	                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½È¯
 	                return newBookFromApi;
 	            }
 	        }
-	        return null; // DB¿Í API ¾çÂÊ ¸ðµÎ¿¡¼­ Ã¥À» Ã£Áö ¸øÇÑ °æ¿ì
+	        return null; // DBï¿½ï¿½ API ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Î¿ï¿½ï¿½ï¿½ Ã¥ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	    }
 	    
 	// cart
@@ -215,10 +216,10 @@ public class ManagerService {
 	@Autowired
 	ReviewService reviewService;
 	
-	//fetch POST ¿äÃ»
+	//fetch POST ï¿½ï¿½Ã»
 	public List<PurchaseView> getPurchaseView(SearchRequest searchReq) {
-		System.out.println("db ¿äÃ»");
-		//SQL Injection °ËÁõ
+		System.out.println("db ï¿½ï¿½Ã»");
+		//SQL Injection ï¿½ï¿½ï¿½ï¿½
 		Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
 		if(!checkList.contains(searchReq.getOrderItem()) || 
 			(!searchReq.getOrder().equals("asc") && !searchReq.getOrder().equals("desc"))) {
@@ -265,6 +266,25 @@ public class ManagerService {
 
 	public SalesView getSalesView(SearchRequest searchReq) {
 		return new SalesView(getPurchaseView(searchReq), purchaseMapper.getTotalList());
+	}
+
+	public Object getMyPurchaseView(int id) {
+		List<MyPurchaseView> result = new ArrayList<>();
+		
+		for (Purchase p : purchaseMapper.findByBookId(id)) {
+			
+			result.add(
+				MyPurchaseView.builder()
+				.price(purchaseMapper.getTotalPrice(p.getId()))
+				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
+				.quantity(p.getQuantity())
+				.img(bookMapper.findById(p.getBook_id()).getImg())
+				.order_date(p.getOrder_date())
+				.category(bookMapper.findById(p.getBook_id()).getCategory())
+				.build()
+			);
+		}
+		return result;
 	}
 
 	
