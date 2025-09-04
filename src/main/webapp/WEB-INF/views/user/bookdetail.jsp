@@ -10,6 +10,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>책 상세 정보</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <style>
    /* 스타일 코드는 변경사항이 없으므로 생략 */
    body {
@@ -168,6 +170,31 @@
          flex-direction: column;
       }
    }
+   .graph-card {
+    padding: 24px;
+    background: linear-gradient(145deg, #ffffff, #f1f4f8);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.graph-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.graph-card h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+#ratingChart {
+    border-radius: 12px;
+    background-color: #fff;
+    padding: 12px;
+}
 </style>
 
 <script>
@@ -255,7 +282,11 @@
         			</c:choose>
     			</span>
 			</p>
-    
+    		<div class="card graph-card">
+    			<h3 style="margin-bottom: 16px; font-size: 18px; color: #333;">별점별 리뷰 비율</h3>
+    			<canvas id="ratingChart" style="width:100%; height:225px;"></canvas>
+			</div>
+
             <c:if test="${book.stock > 0}">
                <div class="book-actions">
                   <p><strong>재고:</strong> ${book.stock}</p>
@@ -424,6 +455,97 @@
 	              }
 	          });
 	      });
+	      document.addEventListener('DOMContentLoaded', function () {
+	    	    const ratingData = [0,0,0,0,0];
+	    	    <c:forEach var="review" items="${reviews}">
+	    	        const rating = ${review.rating};
+	    	        if(rating >= 1 && rating <= 5){
+	    	            ratingData[rating-1] += 1;
+	    	        }
+	    	    </c:forEach>
+
+	    	    const totalReviews = ratingData.reduce((a,b)=>a+b,0);
+	    	    const ratingPercent = ratingData.map(r => totalReviews ? (r/totalReviews*100).toFixed(1) : 0);
+
+	    	    const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+
+	    	 // 각 막대에 파란색 그라데이션 적용
+	    	    const colors = [];
+	    	    const baseColors = ['#b3d9ff','#80bfff','#4da6ff','#1a8cff','#0066cc']; // 연한 → 진한 파랑
+	    	    ratingPercent.forEach((_, i) => {
+	    	        const gradient = ratingCtx.createLinearGradient(0, 0, ratingCtx.canvas.width, 0);
+	    	        gradient.addColorStop(0, baseColors[i] + 'cc'); // 반투명 시작
+	    	        gradient.addColorStop(1, baseColors[i] + 'ff'); // 불투명 끝
+	    	        colors.push(gradient);
+	    	    });
+
+	    	    // Chart 옵션에서 글자색 검은색으로 변경
+	    	    new Chart(ratingCtx, {
+	    	        type: 'bar',
+	    	        data: {
+	    	            labels: ['★','★★','★★★','★★★★','★★★★★'],
+	    	            datasets: [{
+	    	                label: '리뷰 비율',
+	    	                data: ratingPercent,
+	    	                backgroundColor: colors,
+	    	                borderRadius: 16,
+	    	                borderSkipped: false,
+	    	                barThickness: 28,
+	    	                hoverOffset: 4,
+	    	            }]
+	    	        },
+	    	        options: {
+	    	            indexAxis: 'y',
+	    	            scales: {
+	    	                x: { 
+	    	                    beginAtZero: true,
+	    	                    max: 100,
+	    	                    ticks: { 
+	    	                        callback: function(value){ return value + '%'; }, 
+	    	                        color: '#000', // 검은색
+	    	                        font: { size: 13, weight: '600', family: "'Segoe UI', sans-serif" } 
+	    	                    },
+	    	                    grid: { color: '#eee', drawBorder: false }
+	    	                },
+	    	                y: { 
+	    	                    ticks: { 
+	    	                        color: '#000', // 검은색
+	    	                        font: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" } 
+	    	                    }, 
+	    	                    grid: { drawTicks: false, color: '#f5f5f5', drawBorder: false } 
+	    	                }
+	    	            },
+	    	            plugins: {
+	    	                legend: { display: false },
+	    	                tooltip: { 
+	    	                    backgroundColor: '#fff', // 흰색 배경
+	    	                    titleColor: '#000',      // 검은색
+	    	                    bodyColor: '#000',       // 검은색
+	    	                    bodyFont: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" },
+	    	                    callbacks: { label: ctx => ctx.parsed.x + '%' }
+	    	                },
+	    	                datalabels: { 
+	    	                    anchor: 'center', 
+	    	                    align: 'right', 
+	    	                    formatter: function(value){ return value + '%'; }, 
+	    	                    color: '#000',  // 검은색
+	    	                    font: { weight: '700', size: 13, family: "'Segoe UI', sans-serif" }, 
+	    	                    offset: 6 
+	    	                }
+	    	            },
+	    	            interaction: {
+	    	                intersect: false,
+	    	                mode: 'nearest'
+	    	            },
+	    	            animation: {
+	    	                duration: 1000,
+	    	                easing: 'easeOutQuart'
+	    	            }
+	    	        },
+	    	        plugins: [ChartDataLabels]
+	    	    });
+	    	});
+
    </script>
 </body>
 </html>
