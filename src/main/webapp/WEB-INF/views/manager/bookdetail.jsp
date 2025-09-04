@@ -141,25 +141,25 @@ th:nth-child(4), td:nth-child(4) { text-align: right; }
                <p><strong>재고:</strong> ${book.stock}</p>
             </div>
     			<span style="color:#f5c518; font-size: 24px; line-height: 1;">
-    			<c:choose>
-        			<c:when test="${not empty reviews}">
-            			<c:set var="roundedRating" value="${averageRating - (averageRating % 1)}"/>
-            			<c:forEach var="i" begin="1" end="5">
-                			<c:choose>
-                    			<c:when test="${i <= roundedRating}">★</c:when>
-                    			<c:otherwise>☆</c:otherwise>
-                			</c:choose>
-            			</c:forEach>
-            			(<fmt:formatNumber value="${averageRating}" pattern="#0.0"/>점)
-        			</c:when>
-        			<c:otherwise>
-            			<c:forEach var="i" begin="1" end="5">
-                			<span style="color:#ccc; font-size: 24px;">★</span>
-            			</c:forEach>
-            			(0점)
-        			</c:otherwise>
-    			</c:choose>
-			</span>
+    <c:choose>
+        <c:when test="${not empty reviews}">
+            <c:set var="roundedRating" value="${averageRating - (averageRating % 1)}"/>
+            <c:forEach var="i" begin="1" end="5">
+                <c:choose>
+                    <c:when test="${i <= roundedRating}">★</c:when>
+                    <c:otherwise>☆</c:otherwise>
+                </c:choose>
+            </c:forEach>
+            (<fmt:formatNumber value="${averageRating}" pattern="#0.0"/>점)[${reviews.size()}]
+        </c:when>
+        <c:otherwise>
+            <c:forEach var="i" begin="1" end="5">
+                <span style="color:#ccc; font-size: 24px;">★</span>
+            </c:forEach>
+            (0점, 0건)
+        </c:otherwise>
+    </c:choose>
+</span>
 			<div class="card graph-card">
     				<h3 style="margin-bottom: 16px; font-size: 18px; color: #333;">별점별 리뷰 비율</h3>
     				<canvas id="ratingChart" style="width:100%; height:225px;"></canvas>
