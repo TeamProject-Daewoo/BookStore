@@ -47,7 +47,30 @@ body { font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background-co
     border-radius: 16px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     background-color: #fff;
-    min-height: 325px; /* 필요시 최소 높이만 지정 */
+    min-height: 325px;
+    padding: 24px;
+    background: linear-gradient(145deg, #ffffff, #f1f4f8);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.graph-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.graph-card h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+#ratingChart {
+    border-radius: 12px;
+    background-color: #fff;
+    padding: 12px;
 }
 .total-card { display: flex; align-items: center; justify-content: center; flex-direction: column; font-size: 24px; padding: 5px; border-radius: 16px; background: linear-gradient(135deg, #6c7ae0, #42a5f5); color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.25); transition: transform 0.3s, box-shadow 0.3s; min-height: 130px; }
 .total-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
@@ -481,23 +504,54 @@ th:nth-child(4), td:nth-child(4) { text-align: right; }
                }]
            },
            options: {
-               indexAxis: 'y',
-               scales: {
-                   x: { 
-                       beginAtZero: true,
-                       max: 100,
-                       ticks: { callback: function(value){ return value + '%'; }, color: '#555', font: { size: 13 } },
-                       grid: { color: '#eee' }
-                   },
-                   y: { ticks: { color: '#333', font: { size: 14, weight: '500' } }, grid: { drawTicks: false, color: '#f5f5f5' } }
-               },
-               plugins: {
-                   legend: { display: false },
-                   tooltip: { backgroundColor: '#333', titleColor: '#fff', bodyColor: '#fff', callbacks: { label: ctx => ctx.parsed.x + '%' } },
-                   datalabels: { anchor: 'center', align: 'right', formatter: function(value){ return value + '%'; }, color: '#333', font: { weight: 'bold', size: 13 }, offset: 6 }
-               }
-           },
-           plugins: [ChartDataLabels]
+	            indexAxis: 'y',
+	            scales: {
+	                x: { 
+	                    beginAtZero: true,
+	                    max: 100,
+	                    ticks: { 
+	                        callback: function(value){ return value + '%'; }, 
+	                        color: '#000', // 검은색
+	                        font: { size: 13, weight: '600', family: "'Segoe UI', sans-serif" } 
+	                    },
+	                    grid: { color: '#eee', drawBorder: false }
+	                },
+	                y: { 
+	                    ticks: { 
+	                        color: '#000', // 검은색
+	                        font: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" } 
+	                    }, 
+	                    grid: { drawTicks: false, color: '#f5f5f5', drawBorder: false } 
+	                }
+	            },
+	            plugins: {
+	                legend: { display: false },
+	                tooltip: { 
+	                    backgroundColor: '#fff', // 흰색 배경
+	                    titleColor: '#000',      // 검은색
+	                    bodyColor: '#000',       // 검은색
+	                    bodyFont: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" },
+	                    callbacks: { label: ctx => ctx.parsed.x + '%' }
+	                },
+	                datalabels: { 
+	                    anchor: 'center', 
+	                    align: 'right', 
+	                    formatter: function(value){ return value + '%'; }, 
+	                    color: '#000',  // 검은색
+	                    font: { weight: '700', size: 13, family: "'Segoe UI', sans-serif" }, 
+	                    offset: 6 
+	                }
+	            },
+	            interaction: {
+	                intersect: false,
+	                mode: 'nearest'
+	            },
+	            animation: {
+	                duration: 1000,
+	                easing: 'easeOutQuart'
+	            }
+	        },
+	        plugins: [ChartDataLabels]
        });
    });
 </script>

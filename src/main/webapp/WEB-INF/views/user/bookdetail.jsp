@@ -260,7 +260,7 @@
             </div>
 
  			<p>
-    			<span style="color:#f5c518;">
+    			<span style="color:#f5c518; font-size: 24px; line-height: 1;">
         			<c:choose>
             		<c:when test="${not empty reviews}">
                 		<%-- 소수점 없이 정수로 변환 --%>
@@ -271,7 +271,7 @@
         					<c:otherwise>☆</c:otherwise>
     					</c:choose>
 						</c:forEach>
-                			(<fmt:formatNumber value="${averageRating}" pattern="#0.0"/>점)
+                			(<fmt:formatNumber value="${averageRating}" pattern="#0.0"/>점)[${reviews.size()}]
             			</c:when>
             			<c:otherwise>
                 			<c:forEach var="i" begin="1" end="5">
