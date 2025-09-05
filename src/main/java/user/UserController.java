@@ -302,11 +302,15 @@ public class UserController {
             return "redirect:/user/mypage/" + member.getUser_id();
         }
 
+        // 기존 회원 정보 조회
+        Member existingMember = service.findById(member.getId());
+
         if (profileImageFile != null && !profileImageFile.isEmpty()) {
+            // 새 파일 업로드 시 → 이미지 교체
             member.setProfileImage(profileImageFile.getBytes());
-        } else if (member.getProfileImage() == null) {
-            ClassPathResource defaultImg = new ClassPathResource("static/profileimage/default.jpg");
-            member.setProfileImage(FileCopyUtils.copyToByteArray(defaultImg.getInputStream()));
+        } else {
+            // 새 파일 없으면 → 기존 이미지 유지
+            member.setProfileImage(existingMember.getProfileImage());
         }
 
         service.updateMember(member);
