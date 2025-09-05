@@ -35,6 +35,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cart.CookieService;
 import data.Book;
 import login.CustomUserDetailsService;
@@ -79,7 +82,7 @@ public class UserController {
     // <<-- 1. bookDetail 메서드 수정 -->>
     @RequestMapping("bookdetail")
     // 파라미터를 int id 대신 String isbn으로 받습니다.
-    public String bookDetail(@RequestParam String isbn, Model model, Authentication authentication) {
+    public String bookDetail(@RequestParam String isbn, Model model, Authentication authentication) throws JsonProcessingException {
         // ISBN으로 책 정보를 가져오는 하이브리드 메서드를 호출합니다.
         Book book = service.getBookByIsbn(isbn);
         
@@ -88,14 +91,11 @@ public class UserController {
             List<Review> reviews = reviewService.getReviewsByBookId(book.getId());
             model.addAttribute("reviews", reviews);
             
-            // 평균 평점 계산
-            double averageRating = 0.0;
-            if (!reviews.isEmpty()) {
-                averageRating = reviews.stream()
-                                       .mapToInt(Review::getRating)
-                                       .average()
-                                       .orElse(0.0);
-            }
+            ObjectMapper mapper = new ObjectMapper();
+            String reviewJson = mapper.writeValueAsString(reviews);
+            model.addAttribute("reviewJson", reviewJson); // JSON 형태로 전달
+
+            double averageRating = reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
             model.addAttribute("averageRating", averageRating);
         }
 

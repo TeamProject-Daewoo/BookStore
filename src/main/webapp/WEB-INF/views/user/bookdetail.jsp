@@ -456,96 +456,82 @@
 	          });
 	      });
 	      document.addEventListener('DOMContentLoaded', function () {
-	    	    const ratingData = [0,0,0,0,0];
-	    	    <c:forEach var="review" items="${reviews}">
-	    	        const rating = ${review.rating};
-	    	        if(rating >= 1 && rating <= 5){
-	    	            ratingData[rating-1] += 1;
-	    	        }
-	    	    </c:forEach>
+	    	    // 1. JSP에서 reviews 데이터를 JSON 문자열로 안전하게 전달
+	    	    // bookDetail 컨트롤러에서 model.addAttribute("reviewJson", reviewJson)로 전달 필요
+	    	    let reviewData = [];
+	    	    <%-- reviewJson 모델 속성이 존재할 경우 --%>
+	    	    <% if (request.getAttribute("reviewJson") != null) { %>
+	    	        reviewData = JSON.parse('<%= request.getAttribute("reviewJson") %>');
+	    	    <% } %>
 
-	    	    const totalReviews = ratingData.reduce((a,b)=>a+b,0);
-	    	    const ratingPercent = ratingData.map(r => totalReviews ? (r/totalReviews*100).toFixed(1) : 0);
-
-	    	    const ratingCtx = document.getElementById('ratingChart').getContext('2d');
-
-	    	 // 각 막대에 파란색 그라데이션 적용
-	    	    const colors = [];
-	    	    const baseColors = ['#b3d9ff','#80bfff','#4da6ff','#1a8cff','#0066cc']; // 연한 → 진한 파랑
-	    	    ratingPercent.forEach((_, i) => {
-	    	        const gradient = ratingCtx.createLinearGradient(0, 0, ratingCtx.canvas.width, 0);
-	    	        gradient.addColorStop(0, baseColors[i] + 'cc'); // 반투명 시작
-	    	        gradient.addColorStop(1, baseColors[i] + 'ff'); // 불투명 끝
-	    	        colors.push(gradient);
+	    	    // 2. 별점별 리뷰 개수 계산 (1~5)
+	    	    const ratingCount = [0, 0, 0, 0, 0]; // index 0 = 1점, ..., index 4 = 5점
+	    	    reviewData.forEach(r => {
+	    	        const rating = parseInt(r.rating);
+	    	        if (rating >= 1 && rating <= 5) ratingCount[rating - 1]++;
 	    	    });
 
-	    	    // Chart 옵션에서 글자색 검은색으로 변경
-	    	    new Chart(ratingCtx, {
+	    	    // 3. 총 리뷰 수 및 퍼센트 계산
+	    	    const totalReviews = ratingCount.reduce((a, b) => a + b, 0);
+	    	    const ratingPercent = ratingCount.map(c => totalReviews ? (c / totalReviews * 100).toFixed(1) : 0);
+
+	    	    // 4. Chart.js로 막대그래프 그리기
+	    	    const ctx = document.getElementById('ratingChart').getContext('2d');
+
+	    	    new Chart(ctx, {
 	    	        type: 'bar',
 	    	        data: {
 	    	            labels: ['★','★★','★★★','★★★★','★★★★★'],
 	    	            datasets: [{
 	    	                label: '리뷰 비율',
 	    	                data: ratingPercent,
-	    	                backgroundColor: colors,
+	    	                backgroundColor: ['#b3d9ff','#80bfff','#4da6ff','#1a8cff','#0066cc'],
 	    	                borderRadius: 16,
 	    	                borderSkipped: false,
-	    	                barThickness: 28,
-	    	                hoverOffset: 4,
+	    	                barThickness: 28
 	    	            }]
 	    	        },
 	    	        options: {
 	    	            indexAxis: 'y',
 	    	            scales: {
-	    	                x: { 
+	    	                x: {
 	    	                    beginAtZero: true,
 	    	                    max: 100,
-	    	                    ticks: { 
-	    	                        callback: function(value){ return value + '%'; }, 
-	    	                        color: '#000', // 검은색
-	    	                        font: { size: 13, weight: '600', family: "'Segoe UI', sans-serif" } 
+	    	                    ticks: {
+	    	                        callback: value => value + '%',
+	    	                        color: '#000',
+	    	                        font: { size: 13, weight: '600' }
 	    	                    },
 	    	                    grid: { color: '#eee', drawBorder: false }
 	    	                },
-	    	                y: { 
-	    	                    ticks: { 
-	    	                        color: '#000', // 검은색
-	    	                        font: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" } 
-	    	                    }, 
-	    	                    grid: { drawTicks: false, color: '#f5f5f5', drawBorder: false } 
+	    	                y: {
+	    	                    ticks: {
+	    	                        color: '#000',
+	    	                        font: { size: 14, weight: '600' }
+	    	                    },
+	    	                    grid: { drawTicks: false, color: '#f5f5f5', drawBorder: false }
 	    	                }
 	    	            },
 	    	            plugins: {
 	    	                legend: { display: false },
-	    	                tooltip: { 
-	    	                    backgroundColor: '#fff', // 흰색 배경
-	    	                    titleColor: '#000',      // 검은색
-	    	                    bodyColor: '#000',       // 검은색
-	    	                    bodyFont: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" },
-	    	                    callbacks: { label: ctx => ctx.parsed.x + '%' }
+	    	                tooltip: {
+	    	                    callbacks: { label: ctx => ctx.parsed.x + '%' },
+	    	                    backgroundColor: '#fff',
+	    	                    titleColor: '#000',
+	    	                    bodyColor: '#000'
 	    	                },
-	    	                datalabels: { 
-	    	                    anchor: 'center', 
-	    	                    align: 'right', 
-	    	                    formatter: function(value){ return value + '%'; }, 
-	    	                    color: '#000',  // 검은색
-	    	                    font: { weight: '700', size: 13, family: "'Segoe UI', sans-serif" }, 
-	    	                    offset: 6 
+	    	                datalabels: {
+	    	                    anchor: 'center',
+	    	                    align: 'right',
+	    	                    formatter: val => val + '%',
+	    	                    color: '#000',
+	    	                    font: { weight: '700', size: 13 }
 	    	                }
-	    	            },
-	    	            interaction: {
-	    	                intersect: false,
-	    	                mode: 'nearest'
-	    	            },
-	    	            animation: {
-	    	                duration: 1000,
-	    	                easing: 'easeOutQuart'
 	    	            }
 	    	        },
 	    	        plugins: [ChartDataLabels]
 	    	    });
 	    	});
-
    </script>
 </body>
 </html>
