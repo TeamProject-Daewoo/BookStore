@@ -269,17 +269,27 @@ th:nth-child(4), td:nth-child(4) {
     text-align: center;       /* 가운데 정렬 */
     color: #FF2F2F;           /* 빨간색 */
 }
+.total-amount-wrapper {
+    display: flex;
+    justify-content: center;   /* 가운데 정렬 */
+}
+.total-amount-card {
+    flex: 0 0 250px;   /* 고정 너비 250px */
+    max-width: 300px;  /* 최대 너비 제한 */
+}
 </style>
 </head>
 <body>
 	<div class="container">
 	<!-- 총 구매 금액 카드 -->
-    <div class="card total-card">
+	<div class="total-amount-wrapper">
+    <div class="card total-card total-amount-card">
         <div class="total-content">
             <div class="total-icon">💰</div>
             <span class="total-label">총 구매 금액</span>
             <span id="totalAmount" class="total-amount">₩ 0</span>
         </div>
+    </div>
     </div>
 		<div class="dash-grid">
     	<div class="amount-cards">
@@ -391,15 +401,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // 1. JSP에서 넘어온 실제 구매 데이터
     // =============================================
     const realPurchases = [
-        <c:forEach var="p" items="${purchaseList}" varStatus="st">
-        {
-            category: "${p.category}",
-            quantity: ${p.quantity},
-            amount: ${p.price * p.quantity},
-            order_ts: ${p.order_date.time}
-        }<c:if test="${!st.last}">,</c:if>
-        </c:forEach>
-    ];
+    <c:forEach var="p" items="${purchaseList}" varStatus="st">
+    {
+        	category: "${p.category}",
+        	quantity: ${p.quantity},
+        	amount: ${p.price},    // ✅ 이미 총액이므로 그냥 price만 넘김
+        	order_ts: ${p.order_date.time}
+    	}<c:if test="${!st.last}">,</c:if>
+    	</c:forEach>
+	];
 
     const purchases = realPurchases.length > 0 
         ? realPurchases 
@@ -478,9 +488,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if(map.hasOwnProperty(key)){
-                map[key] += Number(p.amount || 0);
-                total += Number(p.amount || 0);
-                count += 1;
+                // price는 이미 총액이므로 그대로 합산
+                map[key] += Number(p.price || 0);
+                total += Number(p.price || 0);
+
+                // count는 수량 기준으로 세고 싶으면 ↓
+                count += Number(p.quantity || 0);
+
+                // 주문 건수만 세고 싶으면 ↓
+                // count += 1;
             }
         });
 
@@ -489,6 +505,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         return { labels: labels, data: data, total: total, count: count };
     }
+
 
     // =============================================
     // 4. 오늘/이번달/올해 총액 계산
