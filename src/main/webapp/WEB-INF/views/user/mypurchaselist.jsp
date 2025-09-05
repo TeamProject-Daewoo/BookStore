@@ -385,8 +385,6 @@ th:nth-child(4), td:nth-child(4) {
 			</tbody>
 		</table>	
 </div>
-
-<!-- 그래프 JS -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // =============================================
@@ -403,26 +401,20 @@ document.addEventListener('DOMContentLoaded', function () {
         </c:forEach>
     ];
 
-    // =============================================
-    // 2. purchases 배열 준비 (데이터 없으면 더미 0)
-    // =============================================
     const purchases = realPurchases.length > 0 
         ? realPurchases 
         : [{ amount: 0, order_ts: new Date().getTime(), category: '기타', quantity: 0 }];
 
     // =============================================
-    // 3. 카테고리별 구매 수량 집계
+    // 2. 카테고리별 구매 수량 집계
     // =============================================
     var categoryCounts = {};
     purchases.forEach(p => {
         const cat = p.category || '기타';
-        const qty = Number(p.quantity || 0);  // ← 여기 수정
+        const qty = Number(p.quantity || 0);
         categoryCounts[cat] = (categoryCounts[cat] || 0) + qty;
     });
 
-    // =============================================
-    // 4. 카테고리 Bar Chart 생성
-    // =============================================
     var categoryLabels = Object.keys(categoryCounts);
     var categoryData = Object.values(categoryCounts);
 
@@ -439,13 +431,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 borderWidth: 1
             }]
         },
-        options: {
-            scales: { y: { beginAtZero: true } }
-        }
+        options: { scales: { y: { beginAtZero: true } } }
     });
 
     // =============================================
-    // 5. Line Chart: 일/월/연별 구매 금액 추이
+    // 3. Line Chart: 일/월/연별 구매 금액 추이
     // =============================================
     var ctx = document.getElementById('dailyAmount') ? document.getElementById('dailyAmount').getContext('2d') : null;
     var chart; // Chart.js 인스턴스
@@ -500,13 +490,50 @@ document.addEventListener('DOMContentLoaded', function () {
         return { labels: labels, data: data, total: total, count: count };
     }
 
+    // =============================================
+    // 4. 오늘/이번달/올해 총액 계산
+    // =============================================
+    function getTodayTotal() {
+        const today = new Date();
+        const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+        return purchases
+            .filter(p => {
+                const d = new Date(p.order_ts);
+                const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+                return key === todayStr;
+            })
+            .reduce((acc, p) => acc + Number(p.amount || 0), 0);
+    }
+
+    function getMonthTotal() {
+        const today = new Date();
+        const monthStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0');
+        return purchases
+            .filter(p => {
+                const d = new Date(p.order_ts);
+                const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                return key === monthStr;
+            })
+            .reduce((acc, p) => acc + Number(p.amount || 0), 0);
+    }
+
+    function getYearTotal() {
+        const year = new Date().getFullYear();
+        return purchases
+            .filter(p => (new Date(p.order_ts)).getFullYear() === year)
+            .reduce((acc, p) => acc + Number(p.amount || 0), 0);
+    }
+
+    // =============================================
+    // 5. 차트 렌더링 및 카드 업데이트
+    // =============================================
     function renderChart(type){
-        var agg = aggregateData(type);
+        const agg = aggregateData(type);
 
         // 카드 업데이트
-        const dailyTotal = aggregateData('daily').total;
-        const monthTotal = aggregateData('month').total;
-        const yearTotal = aggregateData('year').total;
+        const dailyTotal = getTodayTotal();
+        const monthTotal = getMonthTotal();
+        const yearTotal = getYearTotal();
         const totalAll = purchases.reduce((acc, p) => acc + (p.amount || 0), 0);
         const totalCount = realPurchases.length;
 
@@ -515,6 +542,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('yearAmountCard').textContent = yearTotal > 0 ? '₩' + yearTotal.toLocaleString() : '(-)';
         document.getElementById('totalAmount').textContent = totalAll > 0 ? '₩' + totalAll.toLocaleString() : '(-)';
         document.getElementById('totalCountCard').textContent = totalCount > 0 ? totalCount.toLocaleString() + '건' : '(-)';
+
         document.getElementById('chartTitle').textContent = 
             type === 'daily' ? '일별 구매 추이' :
             type === 'month' ? '월별 구매 추이' :
@@ -543,7 +571,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ====== 검색 & 정렬 ======
+    // =============================================
+    // 6. 검색 & 정렬 기능
+    // =============================================
     const searchInput = document.querySelector('.search-box input');
     const searchButton = document.querySelector('.search-box button');
     const tableBody = document.querySelector('table tbody');
@@ -589,7 +619,9 @@ document.addEventListener('DOMContentLoaded', function () {
         filterAndSort();
     });
 
-    // ====== 초기 렌더링 ======
+    // =============================================
+    // 7. 초기 렌더링
+    // =============================================
     renderChart('daily');
 
     document.querySelectorAll('.chartType-btn').forEach(btn => {
@@ -601,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
 
 
 </body>

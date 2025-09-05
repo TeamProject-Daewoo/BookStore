@@ -41,6 +41,12 @@ public interface MemberMapper extends BaseMapper<Member> {
 	        + "WHERE id=#{id}")
 	int update(Member member);
 	
+	@Update("UPDATE member SET user_id=#{user_id}, name=#{name}, email=#{email}, "
+	        + "phone_number=#{phone_number}, profile_image=#{profileImage,jdbcType=BLOB}, "
+	        + "password=#{password}, role=#{role} "
+	        + "WHERE id=#{id}")
+	int updateManager(Member member);
+	
 	@Override
 	@Delete("delete from member where id=#{id}")
 	int delete(int id);

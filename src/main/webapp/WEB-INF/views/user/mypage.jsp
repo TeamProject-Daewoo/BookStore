@@ -170,8 +170,6 @@ body {
     	<ul>
         	<li><a href="#">프로필</a></li>
         	<li><a href="#">구매 내역</a></li>
-        	<li><a href="#">쿠폰/포인트</a></li>
-        	<li><a href="#">설정</a></li>
     	</ul>
 	</div>
 

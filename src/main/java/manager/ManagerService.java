@@ -18,6 +18,7 @@ import cart.CartMapper;
 import data.Book;
 import data.BookMapper;
 import purchase.BookDetailFragment;
+import purchase.MyPurchaseView;
 import purchase.Purchase;
 import purchase.PurchaseFragment;
 import purchase.PurchaseMapper;
@@ -69,8 +70,8 @@ public class ManagerService {
 		return memberMapper.findAll();
 	}
 
-	public int updateMember(Member member) {
-		return memberMapper.update(member);
+	public int updateManager(Member member) {
+	    return memberMapper.updateManager(member);
 	}
 
 	public int deleteMember(int id) {
@@ -108,15 +109,15 @@ public class ManagerService {
 		return bookMapper.delete(id);
 	}
     
-	// <<-- 3. 키워드 검색 메서드를 하이브리드 방식으로 수정합니다.
+	// <<-- 3. Ű���� �˻� �޼��带 ���̺긮�� ������� �����մϴ�.
 		public List<Book> findByKeyword(String keyword) {
-			// 3-1. 우선 내 DB에서 키워드로 검색합니다.
+			// 3-1. �켱 �� DB���� Ű����� �˻��մϴ�.
 			List<Book> localResults = bookMapper.findByKeyword(keyword);
 			
-			// 3-2. 네이버 API를 호출하여 결과를 가져옵니다.
+			// 3-2. ���̹� API�� ȣ���Ͽ� ����� �����ɴϴ�.
 			List<Book> apiResults = naverBookService.searchBooks(keyword);
 			
-			// 3-3. (중요) API 결과 중에서 이미 내 DB에 있는 책(ISBN 기준)은 제외하여 중복을 방지합니다.
+			// 3-3. (�߿�) API ��� �߿��� �̹� �� DB�� �ִ� å(ISBN ����)�� �����Ͽ� �ߺ��� �����մϴ�.
 	        Map<String, Book> localBooksByIsbn = localResults.stream()
 	            .filter(book -> book.getIsbn() != null && !book.getIsbn().isEmpty())
 	            .collect(Collectors.toMap(Book::getIsbn, book -> book));
@@ -125,7 +126,7 @@ public class ManagerService {
 	            .filter(apiBook -> !localBooksByIsbn.containsKey(apiBook.getIsbn()))
 	            .collect(Collectors.toList());
 			
-			// 3-4. DB 결과와 (중복이 제거된) API 결과를 합쳐서 반환합니다.
+			// 3-4. DB ����� (�ߺ��� ���ŵ�) API ����� ���ļ� ��ȯ�մϴ�.
 			List<Book> finalResults = new ArrayList<>();
 			finalResults.addAll(localResults);
 			finalResults.addAll(uniqueApiResults);
@@ -133,35 +134,35 @@ public class ManagerService {
 			return finalResults;
 		}
 		
-		// <<-- 4. 책 상세 정보를 가져오는 새로운 메서드를 정의합니다. (ISBN 기반)
+		// <<-- 4. å �� ������ �������� ���ο� �޼��带 �����մϴ�. (ISBN ���)
 	    public Book getBookByIsbn(String isbn) {
-	        // 4-1. 먼저 우리 DB에서 ISBN으로 책을 찾아봅니다.
+	        // 4-1. ���� �츮 DB���� ISBN���� å�� ã�ƺ��ϴ�.
 	        Book book = bookMapper.findByIsbn(isbn);
 
-	        // 4-2. DB에 책이 존재하면, 그 정보를 바로 반환합니다.
+	        // 4-2. DB�� å�� �����ϸ�, �� ������ �ٷ� ��ȯ�մϴ�.
 	        if (book != null) {
 	            return book;
 	        } 
-	        // 4-3. DB에 책이 없으면, 네이버 API에 상세 정보를 요청합니다.
+	        // 4-3. DB�� å�� ������, ���̹� API�� �� ������ ��û�մϴ�.
 	        else {
 	            Book newBookFromApi = naverBookService.searchBookByIsbn(isbn);
 
 	            if (newBookFromApi != null) {
-	            	if ("기타".equals(newBookFromApi.getCategory()) && newBookFromApi.getLink() != null) {
+	            	if ("��Ÿ".equals(newBookFromApi.getCategory()) && newBookFromApi.getLink() != null) {
 	                    String scrapedCategory = naverBookService.scrapeCategoryFromUrl(newBookFromApi.getLink());
 	                    if (scrapedCategory != null) {
-	                        // 스크래핑으로 얻은 카테고리로 다시 분류
+	                        // ��ũ�������� ���� ī�װ��� �ٽ� �з�
 	                        newBookFromApi.setCategory(naverBookService.classifyCategory(scrapedCategory));
 	                    }
 	                }
-	                // 4-4. API에서 받아온 새로운 책 정보를 우리 DB에 저장(INSERT)합니다.
-	                // 이렇게 하면 다음부터는 DB에서 바로 조회가 가능해집니다.
+	                // 4-4. API���� �޾ƿ� ���ο� å ������ �츮 DB�� ����(INSERT)�մϴ�.
+	                // �̷��� �ϸ� �������ʹ� DB���� �ٷ� ��ȸ�� ���������ϴ�.
 	                bookMapper.save(newBookFromApi);
-	                // 저장 후 반환
+	                // ���� �� ��ȯ
 	                return newBookFromApi;
 	            }
 	        }
-	        return null; // DB와 API 양쪽 모두에서 책을 찾지 못한 경우
+	        return null; // DB�� API ���� ��ο��� å�� ã�� ���� ���
 	    }
 	    
 	// cart
@@ -215,10 +216,10 @@ public class ManagerService {
 	@Autowired
 	ReviewService reviewService;
 	
-	//fetch POST 요청
+	//fetch POST ��û
 	public List<PurchaseView> getPurchaseView(SearchRequest searchReq) {
-		System.out.println("db 요청");
-		//SQL Injection 검증
+		System.out.println("db ��û");
+		//SQL Injection ����
 		Set<String> checkList = new HashSet<String>(Arrays.asList("p.order_date", "p.id", "b.price"));
 		if(!checkList.contains(searchReq.getOrderItem()) || 
 			(!searchReq.getOrder().equals("asc") && !searchReq.getOrder().equals("desc"))) {
@@ -265,6 +266,25 @@ public class ManagerService {
 
 	public SalesView getSalesView(SearchRequest searchReq) {
 		return new SalesView(getPurchaseView(searchReq), purchaseMapper.getTotalList());
+	}
+
+	public Object getMyPurchaseView(int id) {
+		List<MyPurchaseView> result = new ArrayList<>();
+		
+		for (Purchase p : purchaseMapper.findByBookId(id)) {
+			
+			result.add(
+				MyPurchaseView.builder()
+				.price(purchaseMapper.getTotalPrice(p.getId()))
+				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
+				.quantity(p.getQuantity())
+				.img(bookMapper.findById(p.getBook_id()).getImg())
+				.order_date(p.getOrder_date())
+				.category(bookMapper.findById(p.getBook_id()).getCategory())
+				.build()
+			);
+		}
+		return result;
 	}
 
 	

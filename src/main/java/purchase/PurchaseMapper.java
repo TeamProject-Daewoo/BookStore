@@ -92,4 +92,7 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     @Select("SELECT * FROM purchase WHERE order_date BETWEEN #{startDate} AND #{endDate}")
     List<Purchase> findByDateRange(@Param("startDate") LocalDateTime startDate,
                                    @Param("endDate") LocalDateTime endDate);
+    
+    @Select("SELECT * FROM purchase WHERE book_id = #{bookId}")
+    List<Purchase> findByBookId(int bookId);
 } 

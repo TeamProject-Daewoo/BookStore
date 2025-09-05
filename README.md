@@ -147,10 +147,6 @@
 - `POST /delete`  
   게시글 삭제 처리  
   
- 
-=======
-# Book_Project
->>>>>>> bestseller
 
 ---
 

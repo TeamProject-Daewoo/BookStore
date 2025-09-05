@@ -4,15 +4,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import data.Book;
@@ -137,6 +143,8 @@ public class ManagerController {
             model.addAttribute("user", authentication.getName());
         }
 
+        model.addAttribute("purchaseList", managerService.getMyPurchaseView(book.getId()));
+        
         model.addAttribute("book", book);
         // model.addAttribute("imagePath", imagePath);
         model.addAttribute("page", MAIN_URL + "bookdetail");
@@ -152,51 +160,68 @@ public class ManagerController {
 	    return "index";
 	}
     
-	@GetMapping("/managereditform")
-    public String managerEditForm(@RequestParam("id") int id, Model model, RedirectAttributes redirectAttributes) {
+    @GetMapping("/managereditform/{id}")
+    public String managerEditForm(@PathVariable("id") int id, Model model, RedirectAttributes redirectAttributes) {
         Member member = managerService.getMember(id);
         if (member == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
-            return "redirect:/"+MAIN_URL+"booklist";
+            return "redirect:/manager/booklist";
         }
         model.addAttribute("member", member);
         model.addAttribute("page", MAIN_URL+"managereditform");
         return "index";
     }
 	
-	@PostMapping("/manageredit")
-	    public String managerEdit(@ModelAttribute Member member, RedirectAttributes redirectAttributes, javax.servlet.http.HttpSession session) {
-		try {
-	        // 1. 湲곗〈 �쉶�썝 �젙蹂� 議고쉶
-	        Member existingMember = managerService.getMember(member.getId());
+    @PostMapping("/manageredit")
+    public String managerEdit(
+            @ModelAttribute Member member,
+            @RequestParam(value="profileImageFile", required=false) MultipartFile profileImageFile,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
 
-	        if (existingMember == null) {
-	            redirectAttributes.addFlashAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
-	            return "redirect:/"+MAIN_URL+"booklist";
-	        }
+        try {
+            // 기존 회원 정보 가져오기
+            Member existingMember = managerService.getMember(member.getId());
+            if (existingMember == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "회원 정보를 찾을 수 없습니다.");
+                return "redirect:/manager/booklist";
+            }
 
-	        // 2. 鍮꾨�踰덊샇 蹂�寃� �뿬遺� �솗�씤
-	        String newPassword = member.getPassword();
-	        if (newPassword == null || newPassword.trim().isEmpty()) {
-	            // 鍮꾩뼱�엳�쑝硫� 湲곗〈 鍮꾨�踰덊샇 �쑀吏�
-	            member.setPassword(existingMember.getPassword());
-	        }
+            // 비밀번호 처리 (입력 없으면 기존 비밀번호 유지)
+            if (member.getPassword() == null || member.getPassword().trim().isEmpty()) {
+                member.setPassword(existingMember.getPassword());
+            }
 
-	        // 4. �뾽�뜲�씠�듃
-	        managerService.updateMember(member);
-	        
-	        Member updated = managerService.getMember(member.getId());
-	        session.setAttribute("login", updated);
-	        
-	        redirectAttributes.addFlashAttribute("successMessage", "회원 정보가 성공적으로 수정되었습니다.");
-	        return "redirect:/"+MAIN_URL+"booklist";
+            // 프로필 이미지 처리
+            if (profileImageFile != null && !profileImageFile.isEmpty()) {
+                // 새 이미지 업로드 시
+                member.setProfileImage(profileImageFile.getBytes());
+            } else {
+                // 새 이미지 없으면 기존 이미지 유지
+                member.setProfileImage(existingMember.getProfileImage());
+            }
 
-	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "회원 정보 수정 중 오류가 발생하였습니다: " + e.getMessage());
-	        return "redirect:/"+MAIN_URL+"managereditform";
-	    }
-		
-	 }
+            // 역할 처리
+            if (member.getRole() == null || member.getRole().trim().isEmpty()) {
+                member.setRole(existingMember.getRole());
+            }
+
+            // DB 업데이트
+            managerService.updateManager(member);
+
+            // 세션 갱신
+            Member updated = managerService.getMember(member.getId());
+            session.setAttribute("login", updated);
+
+            redirectAttributes.addFlashAttribute("successMessage", "회원 정보가 성공적으로 수정되었습니다.");
+            return "redirect:/manager/managerview";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "회원 정보 수정 중 오류가 발생하였습니다: " + e.getMessage());
+            return "redirect:/manager/managereditform/" + member.getId();
+        }
+    }
+
 
     @GetMapping("/managerdelete")
     public String mangerDelete(@RequestParam("id") int id, RedirectAttributes redirectAttributes, javax.servlet.http.HttpSession session) {
@@ -220,4 +245,30 @@ public class ManagerController {
         return "index";
     }
     
+    // <<-- 3. 리뷰 삭제 후 리다이렉트 수정 -->>
+    @RequestMapping("/reviewDelete")
+    public String deleteReview(@RequestParam int reviewId) {
+        // bookId로 책을 찾은 후 isbn을 얻어 리다이렉트합니다.
+        int bookId = reviewService.findById(reviewId).getBookId();
+        Book book = managerService.getBook(bookId);
+        reviewService.deleteReview(reviewId);
+        return "redirect:/manager/bookdetail?isbn=" + book.getIsbn();
+    }
+
+    // <<-- 4. 리뷰 수정 후 리다이렉트 수정 -->>
+    @GetMapping("/reviewEdit")
+    public String editForm(@RequestParam Integer reviewId, Model model) {
+        Review review = reviewService.findById(reviewId);
+        model.addAttribute("review", review);
+        model.addAttribute("page", MAIN_URL + "reviewedit");
+        return "index";
+    }
+
+    @PostMapping("/reviewEdit")
+    public String editReview(@ModelAttribute Review review) {
+        reviewService.updateReview(review);
+        Integer bookId = reviewService.findById(review.getReviewId()).getBookId();
+        Book book = managerService.getBook(bookId);
+        return "redirect:/manager/bookdetail?isbn=" + book.getIsbn();
+    }
 }
