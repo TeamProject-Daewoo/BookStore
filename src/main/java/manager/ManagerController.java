@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import data.Book;
 import review.Review;
 import review.ReviewService;
@@ -115,7 +118,7 @@ public class ManagerController {
  // <<-- 1. bookDetail 메서드 수정 -->>
     @RequestMapping("bookdetail")
     // 파라미터를 int id 대신 String isbn으로 받습니다.
-    public String bookDetail(@RequestParam String isbn, Model model, Authentication authentication) {
+    public String bookDetail(@RequestParam String isbn, Model model, Authentication authentication) throws JsonProcessingException {
         // ISBN으로 책 정보를 가져오는 하이브리드 메서드를 호출합니다.
         Book book = managerService.getBookByIsbn(isbn);
         
@@ -123,6 +126,10 @@ public class ManagerController {
         if (book != null && book.getId() != null) {
 			List<Review> reviews = reviewService.getReviewsByBookId(book.getId());
             model.addAttribute("reviews", reviews);
+            
+            ObjectMapper mapper = new ObjectMapper();
+            String reviewJson = mapper.writeValueAsString(reviews);
+            model.addAttribute("reviewJson", reviewJson);
             
             // 평균 평점 계산
             double averageRating = 0.0;

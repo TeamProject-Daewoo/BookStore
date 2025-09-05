@@ -53,6 +53,7 @@ body { font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background-co
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s, box-shadow 0.2s;
+    position:realtive
 }
 
 .graph-card:hover {
@@ -98,46 +99,55 @@ th:nth-child(4), td:nth-child(4) { text-align: right; }
 .add-button { display: inline-block; align-self: flex-start; padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
 .add-button:hover { background-color: #218838; }
 .book-img { width: 80px; height: auto; border-radius: 5px; object-fit: cover; }
-
+#dailyAmount {
+    width: 100%;
+    height: 100%;          /* 부모 높이를 채우도록 */
+}
 </style>
 
 <script>
-   // 스크립트 코드는 변경사항 없습니다.
-   function updateTotalPrice() {
-      var price = parseFloat('${book.price}');
-      var quantity = document.getElementById('quantity').value;
-      var totalPrice = price * quantity;
-      document.getElementById('total-price').innerText =
-         totalPrice.toLocaleString() + ' 원';
-      document.getElementById('cart-quantity-input').value = quantity;
-      document.getElementById('buy-now-quantity-input').value = quantity;
+//수량 변경 및 총 가격 계산
+function updateTotalPrice() {
+    var price = parseFloat('${book.price}');
+    var quantityInput = document.getElementById('quantity');
+    var quantity = parseInt(quantityInput.value) || 1;
+    var stock = parseInt('${book.stock}');
 
-      var stock = parseInt('${book.stock}');
-      if (quantity > stock) {
-         document.getElementById('error-message').style.display = 'block';
-         document.getElementById('quantity').value = stock;
-      } else {
-         document.getElementById('error-message').style.display = 'none';
-      }
-   }
+    if(stock <= 0){
+        quantity = 0;
+        document.getElementById('error-message').style.display = 'block';
+    } else if(quantity > stock){
+        quantity = stock;
+        document.getElementById('error-message').style.display = 'block';
+    } else {
+        document.getElementById('error-message').style.display = 'none';
+    }
 
-   function changeQuantity(change) {
-      var quantityInput = document.getElementById('quantity');
-      var currentQuantity = parseInt(quantityInput.value);
-      var stock = parseInt('${book.stock}');
+    quantityInput.value = quantity;
+    document.getElementById('cart-quantity-input').value = quantity;
+    document.getElementById('buy-now-quantity-input').value = quantity;
 
-      if (change === 'increment' && currentQuantity < stock) {
-         currentQuantity += 1;
-      } else if (change === 'decrement' && currentQuantity > 1) {
-         currentQuantity -= 1;
-      }
+    var totalPrice = price * quantity;
+    document.getElementById('total-price').innerText = totalPrice.toLocaleString() + ' 원';
+}
 
-      quantityInput.value = currentQuantity;
-      document.getElementById('cart-quantity-input').value = currentQuantity;
-      document.getElementById('buy-now-quantity-input').value = currentQuantity;
+function changeQuantity(change) {
+    var quantityInput = document.getElementById('quantity');
+    var currentQuantity = parseInt(quantityInput.value) || 1;
+    var stock = parseInt('${book.stock}');
 
-      updateTotalPrice();
-   }
+    if(change === 'increment' && currentQuantity < stock) {
+        currentQuantity += 1;
+    } else if(change === 'decrement' && currentQuantity > 1) {
+        currentQuantity -= 1;
+    }
+
+    quantityInput.value = currentQuantity;
+    document.getElementById('cart-quantity-input').value = currentQuantity;
+    document.getElementById('buy-now-quantity-input').value = currentQuantity;
+
+    updateTotalPrice();
+}
 </script>
 </head>
 
@@ -253,9 +263,9 @@ th:nth-child(4), td:nth-child(4) { text-align: right; }
     <div class="card graph-card">
         <h3 id="chartTitle">최근 7일 일별 판매 권수</h3>
         <div class="chart-buttons">
-            <button id="daily-btn" class="chartType-btn active" onclick="changeChartType('daily')">일별</button>
-            <button id="month-btn" class="chartType-btn" onclick="changeChartType('month')">월별</button>
-            <button id="year-btn" class="chartType-btn" onclick="changeChartType('year')">연별</button>
+            <button id="daily-btn" class="chartType-btn active">일별</button>
+			<button id="month-btn" class="chartType-btn">월별</button>
+			<button id="year-btn" class="chartType-btn">연별</button>
         </div>
         <canvas id="dailyAmount" style="width:100%; height:325px"></canvas>
     </div>
@@ -341,220 +351,203 @@ th:nth-child(4), td:nth-child(4) { text-align: right; }
 </c:if>
 
 <script>
-   // 리뷰 수정/삭제 메뉴 토글
-   function toggleMenu(btn) {
-       const menu = btn.nextElementSibling;
-       menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-   }
+document.addEventListener('DOMContentLoaded', function () {
+    // ----------------------------
+    // 1. 판매 데이터 차트 (기존 daily/month/year)
+    // ----------------------------
+     // 페이지 로드 시 realPurchases 배열 초기화
+    const realPurchases = [
+        <c:forEach var="p" items="${purchaseList}" varStatus="st">
+        {
+            category: "${p.category}",
+            quantity: ${p.quantity},
+            order_ts: ${p.order_date.time}
+        }<c:if test="${!st.last}">,</c:if>
+        </c:forEach>
+    ];
 
-   // 클릭 외부 영역 시 메뉴 닫기
-   document.addEventListener('click', function(e) {
-       const menus = document.querySelectorAll('.review-menu');
-       menus.forEach(menu => {
-           if (!menu.contains(e.target) && !menu.previousElementSibling.contains(e.target)) {
-               menu.style.display = 'none';
-           }
-       });
-   });
+    var ctx = document.getElementById('dailyAmount')?.getContext('2d');
+    var chart;
 
-   document.addEventListener('DOMContentLoaded', function () {
-       // 판매 권수/차트 관련 기존 코드
-       const realPurchases = [
-           <c:forEach var="p" items="${purchaseList}" varStatus="st">
-           {
-               category: "${p.category}",
-               quantity: ${p.quantity},
-               order_ts: ${p.order_date.time}
-           }<c:if test="${!st.last}">,</c:if>
-           </c:forEach>
-       ];
+    function aggregateData(type) {
+        let map = {};
+        let today = new Date();
 
-       const purchases = realPurchases.length > 0 
-           ? realPurchases 
-           : [{ quantity: 0, order_ts: new Date().getTime(), category: '기타' }];
+        if(type === 'daily'){
+            for(let i=6; i>=0; i--){
+                let d = new Date(today);
+                d.setDate(today.getDate() - i);
+                let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+                map[key] = 0;
+            }
+        } else if(type === 'month'){
+            for(let i=5; i>=0; i--){
+                let d = new Date(today.getFullYear(), today.getMonth()-i, 1);
+                let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+                map[key] = 0;
+            }
+        } else if(type === 'year'){
+            for(let i=5; i>=0; i--){
+                let year = today.getFullYear() - i;
+                map[year] = 0;
+            }
+        }
 
-       var ctx = document.getElementById('dailyAmount') ? document.getElementById('dailyAmount').getContext('2d') : null;
-       var chart;
+        let total = 0;
+        const purchases = [...realPurchases]; // 실시간 데이터 복사본 사용
 
-       function aggregateData(type) {
-           var map = {};
-           var total = 0;
-           var count = 0;
-           var today = new Date();
+        purchases.forEach(p => {
+            let d = new Date(Number(p.order_ts));
+            let key;
+            if(type === 'daily') key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+            else if(type === 'month') key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+            else key = d.getFullYear();
+            if(map.hasOwnProperty(key)){
+                map[key] += Number(p.quantity || 0);
+                total += Number(p.quantity || 0);
+            }
+        });
 
-           if(type === 'daily'){
-               for(var i=6; i>=0; i--){
-                   var d = new Date(today);
-                   d.setDate(today.getDate() - i);
-                   var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-                   map[key] = 0;
-               }
-           } else if(type === 'month'){
-               for(var i=5; i>=0; i--){
-                   var d = new Date(today.getFullYear(), today.getMonth()-i, 1);
-                   var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-                   map[key] = 0;
-               }
-           } else if(type === 'year'){
-               for(var i=5; i>=0; i--){
-                   var year = today.getFullYear() - i;
-                   map[year] = 0;
-               }
-           }
+        let labels = Object.keys(map).sort();
+        let data = labels.map(k => map[k]);
+        return { labels, data, total };
+    }
+    
+ 	
+ 
+    function renderChart(type){
+        const agg = aggregateData(type);
+        const dailyTotal = aggregateData('daily').data.slice(-1)[0] || 0;
+        const monthTotal = aggregateData('month').data.slice(-1)[0] || 0;
+        const yearTotal = aggregateData('year').data.slice(-1)[0] || 0;
+        const totalCount = [...realPurchases].reduce((acc,p)=>acc+Number(p.quantity||0),0);
 
-           purchases.forEach(function(p){
-               var d = new Date(p.order_ts);
-               var key;
-               if(type === 'daily'){
-                   key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-               } else if(type === 'month'){
-                   key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-               } else if(type === 'year'){
-                   key = d.getFullYear();
-               }
+        document.getElementById('dailyAmountCard').textContent = dailyTotal + '권';
+        document.getElementById('monthAmountCard').textContent = monthTotal + '권';
+        document.getElementById('yearAmountCard').textContent = yearTotal + '권';
+        document.getElementById('totalCountCard').textContent = totalCount + '권';
 
-               if(map.hasOwnProperty(key)){
-                   map[key] += Number(p.quantity || 0);
-                   total += Number(p.quantity || 0);
-                   count += 1;
-               }
-           });
+        document.getElementById('chartTitle').textContent = 
+            type === 'daily' ? '일별 판매 권수' :
+            type === 'month' ? '월별 판매 권수' :
+            '연별 판매 권수';
 
-           var labels = Object.keys(map).sort();
-           var data = labels.map(k => map[k]);
+        if(chart) chart.destroy();  // 기존 차트 삭제
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: agg.labels,
+                datasets: [{
+                    label: type === 'daily' ? '일별 판매 권수' :
+                           type === 'month' ? '월별 판매 권수' :
+                           '연별 판매 권수',
+                    data: agg.data,
+                    fill: true,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { tooltip: { callbacks: { label: ctx => ctx.parsed.y + '권' } } }
+            }
+        });
+        chart.resize();  // 차트 리사이즈
+        
+    }
 
-           return { labels: labels, data: data, total: total, count: count };
-       }
+    renderChart('daily');  // 처음 로드될 때 차트 렌더링
 
-       function renderChart(type){
-           const agg = aggregateData(type);
-           const dailyTotal = agg.data.slice(-1)[0]; 
-           const monthTotal = aggregateData('month').data.slice(-1)[0];
-           const yearTotal = aggregateData('year').data.slice(-1)[0];
-           const totalCount = purchases.reduce((acc, p) => acc + Number(p.quantity || 0), 0);
+    document.querySelectorAll('.chartType-btn').forEach(btn => {
+        btn.addEventListener('click', function(){
+            document.querySelectorAll('.chartType-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderChart(btn.id.replace('-btn',''));
+        });
+    });
 
-           document.getElementById('dailyAmountCard').textContent = dailyTotal ? dailyTotal + '권' : '(-)';
-           document.getElementById('monthAmountCard').textContent = monthTotal ? monthTotal + '권' : '(-)';
-           document.getElementById('yearAmountCard').textContent = yearTotal ? yearTotal + '권' : '(-)';
-           document.getElementById('totalCountCard').textContent = totalCount ? totalCount + '권' : '(-)';
+    // ----------------------------
+    // 2. 리뷰 평점 차트
+    // ----------------------------
+ 	// 서버에서 전달한 JSON 문자열을 JS 배열로 변환
+    let reviewData = [];
+    <% if (request.getAttribute("reviewJson") != null) { %>
+        reviewData = JSON.parse('<%= request.getAttribute("reviewJson") %>');
+    <% } %>
 
-           document.getElementById('chartTitle').textContent = 
-               type === 'daily' ? '일별 판매 권수' :
-               type === 'month' ? '월별 판매 권수' :
-               '연별 판매 권수';
+    // 별점 카운트 초기화 (1~5)
+    const ratingData = [0,0,0,0,0];
 
-           if(chart) chart.destroy();
-           chart = new Chart(ctx, {
-               type: 'line',
-               data: {
-                   labels: agg.labels,
-                   datasets: [{
-                       label: type === 'daily' ? '일별 판매 권수' :
-                              type === 'month' ? '월별 판매 권수' :
-                              '연별 판매 권수',
-                       data: agg.data,
-                       fill: true,
-                       borderColor: 'rgba(54, 162, 235, 1)',
-                       backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                       tension: 0.3
-                   }]
-               },
-               options: {
-                   responsive: false,
-                   maintainAspectRatio: false,
-                   scales: { y: { beginAtZero: true } },
-                   plugins: { tooltip: { callbacks: { label: ctx => ctx.parsed.y + '권' } } }
-               }
-           });
-       }
+    // 안전하게 반복하며 갯수 집계
+    reviewData.forEach(r => {
+        let rating = Number(r.rating) || 0;
+        if(rating >= 1 && rating <= 5) ratingData[rating-1] += 1;
+    });
 
-       renderChart('daily');
+    // 총 리뷰 수 및 퍼센트 계산
+    const totalReviews = ratingData.reduce((a,b)=>a+b,0);
+    const ratingPercent = totalReviews > 0
+        ? ratingData.map(r => (r/totalReviews*100).toFixed(1))
+        : [0,0,0,0,0];
 
-       document.querySelectorAll('.chartType-btn').forEach(btn => {
-           btn.addEventListener('click', function(){
-               document.querySelectorAll('.chartType-btn').forEach(b => b.classList.remove('active'));
-               btn.classList.add('active');
-               renderChart(btn.id.replace('-btn',''));
-           });
-       });
-
-       // 리뷰 통계 차트
-       const ratingData = [0,0,0,0,0];
-       <c:forEach var="review" items="${reviews}">
-           const rating = ${review.rating};
-           if(rating >= 1 && rating <= 5){
-               ratingData[rating-1] += 1;
-           }
-       </c:forEach>
-
-       const totalReviews = ratingData.reduce((a,b)=>a+b,0);
-       const ratingPercent = ratingData.map(r => totalReviews ? (r/totalReviews*100).toFixed(1) : 0);
-
-       const ratingCtx = document.getElementById('ratingChart').getContext('2d');
-       const ratingChart = new Chart(ratingCtx, {
-           type: 'bar',
-           data: {
-               labels: ['★','★★','★★★','★★★★','★★★★★'],
-               datasets: [{
-                   label: '리뷰 비율',
-                   data: ratingPercent,
-                   backgroundColor: ['#ff6b6b','#ff8787','#ffa8a8','#ffd6d6','#ffe3e3'],
-                   borderRadius: 8,
-                   borderSkipped: false
-               }]
-           },
-           options: {
-	            indexAxis: 'y',
-	            scales: {
-	                x: { 
-	                    beginAtZero: true,
-	                    max: 100,
-	                    ticks: { 
-	                        callback: function(value){ return value + '%'; }, 
-	                        color: '#000', // 검은색
-	                        font: { size: 13, weight: '600', family: "'Segoe UI', sans-serif" } 
-	                    },
-	                    grid: { color: '#eee', drawBorder: false }
-	                },
-	                y: { 
-	                    ticks: { 
-	                        color: '#000', // 검은색
-	                        font: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" } 
-	                    }, 
-	                    grid: { drawTicks: false, color: '#f5f5f5', drawBorder: false } 
-	                }
-	            },
-	            plugins: {
-	                legend: { display: false },
-	                tooltip: { 
-	                    backgroundColor: '#fff', // 흰색 배경
-	                    titleColor: '#000',      // 검은색
-	                    bodyColor: '#000',       // 검은색
-	                    bodyFont: { size: 14, weight: '600', family: "'Segoe UI', sans-serif" },
-	                    callbacks: { label: ctx => ctx.parsed.x + '%' }
-	                },
-	                datalabels: { 
-	                    anchor: 'center', 
-	                    align: 'right', 
-	                    formatter: function(value){ return value + '%'; }, 
-	                    color: '#000',  // 검은색
-	                    font: { weight: '700', size: 13, family: "'Segoe UI', sans-serif" }, 
-	                    offset: 6 
-	                }
-	            },
-	            interaction: {
-	                intersect: false,
-	                mode: 'nearest'
-	            },
-	            animation: {
-	                duration: 1000,
-	                easing: 'easeOutQuart'
-	            }
-	        },
-	        plugins: [ChartDataLabels]
-       });
-   });
+    // 차트 그리기
+    const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+    new Chart(ratingCtx, {
+        type: 'bar',
+        data: {
+            labels: ['★','★★','★★★','★★★★','★★★★★'],
+            datasets: [{
+                label: '리뷰 비율',
+                data: ratingPercent,
+                backgroundColor: ['#ff6b6b','#ff8787','#ffa8a8','#ffd6d6','#ffe3e3'],
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero:true,
+                    max:100,
+                    ticks:{
+                        callback: v => v + '%',
+                        color:'#000',
+                        font:{ size:13, weight:'600', family:"'Segoe UI', sans-serif" }
+                    },
+                    grid:{ color:'#eee', drawBorder:false }
+                },
+                y: {
+                    ticks:{
+                        color:'#000',
+                        font:{ size:14, weight:'600', family:"'Segoe UI', sans-serif" }
+                    },
+                    grid:{ drawTicks:false, color:'#f5f5f5', drawBorder:false }
+                }
+            },
+            plugins: {
+                legend:{ display:false },
+                tooltip:{ callbacks:{ label: ctx => ctx.parsed.x + '%' } },
+                datalabels:{
+                    anchor:'center',
+                    align:'right',
+                    formatter: v => v+'%',
+                    color:'#000',
+                    font:{ weight:'700', size:13, family:"'Segoe UI', sans-serif" },
+                    offset:6
+                }
+            },
+            interaction:{ intersect:false, mode:'nearest' },
+            animation:{ duration:1000, easing:'easeOutQuart' },
+        },
+        plugins:[ChartDataLabels]
+    });
+});
 </script>
+
 
 </body>
 </html>
