@@ -150,7 +150,7 @@
 
 ---
 
-<<<<<<< HEAD
+
 ##  Manager 기능
 
 ### 도서 관리 (BookAdmin과 동일)
