@@ -80,7 +80,7 @@
 <body>
 	<br>
 	<div class="container my-5">
-  	<h2 class="text-center mb-4 fw-bold">📚 책 목록</h2>
+
 	<!-- 검색창 -->
   	<!-- 검색창 -->
 <div class="row justify-content-center mb-4">
@@ -124,8 +124,8 @@
   </div>
   <!-- 자동 배너 끝 -->
   
-
-  
+    	<h2 class="text-center mb-4 fw-bold">📚 책 목록</h2>
+ 
 
   <!-- 책 목록 카드 -->
   <div class="row">

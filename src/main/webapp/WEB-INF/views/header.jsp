@@ -54,7 +54,7 @@
 <body>
 	<header>
 	  <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-	    <a class="navbar-brand fw-bold" href="<c:url value='/user/booklist'/>">📚 BookStore</a>
+	    <a class="navbar-brand fw-bold" href="<c:url value='/user/booklist'/>">📚 책숲</a>
 
 	    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
 	            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
