@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Delivery {
     private int id;
-    private int orderId;
+    private String orderId;
     private String receiverName;
     private String address;
     private String phoneNumber;
@@ -13,7 +13,7 @@ public class Delivery {
     
     
     // 생성자
-    public Delivery(int memberId, int orderId, String receiverName, String address, String phoneNumber, String deliveryMessage) {
+    public Delivery(int memberId, String orderId, String receiverName, String address, String phoneNumber, String deliveryMessage) {
         this.id = memberId;
         this.orderId = orderId;
         this.receiverName = receiverName;

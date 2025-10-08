@@ -153,7 +153,7 @@
         
         <div class="delivery-address">
             <h4>배송지 정보</h4>
-            <form action="${pageContext.request.contextPath}/purchase/confirm" method="post">
+            <form action="${pageContext.request.contextPath}/purchase/payment" method="get">
                 <input type="hidden" name="purchaseType" value="${purchaseType}">
                 <c:if test="${purchaseType eq 'direct'}">
                     <%-- 1. (핵심) 파라미터 이름을 bookId에서 bookIsbn으로 수정 --%>

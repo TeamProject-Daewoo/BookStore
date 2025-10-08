@@ -9,7 +9,7 @@
   <meta charset="UTF-8">
   <title>게시글 보기</title>
   <style>
-    #pageBody { font-family: Arial, sans-serif; background:#f4f4f4; }
+    #pageBody { font-family: sans-serif; background:#f4f4f4; }
     .view-wrap { width: 50%; margin: 20px auto; background:#fff; padding: 20px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,.1);}
     .view-row { margin: 10px 0; }
     .label { font-weight: bold; width: 80px; display:inline-block; }

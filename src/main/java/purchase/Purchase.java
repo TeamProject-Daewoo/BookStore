@@ -19,5 +19,6 @@ public class Purchase {
 	private int book_id;
 	private int quantity; // Changed from String to int
 	private Date order_date;
-	private int order_id;
+	private String order_id;
+	private String status;
 }

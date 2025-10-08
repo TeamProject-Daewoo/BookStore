@@ -10,7 +10,7 @@
     <style>
         /* 레이아웃 컨테이너 */
         body {
-            font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      font-family: sans-serif;
         }
 
         .bestseller-container {

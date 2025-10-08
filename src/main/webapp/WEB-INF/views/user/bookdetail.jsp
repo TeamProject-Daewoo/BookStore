@@ -15,7 +15,7 @@
 <style>
    /* 스타일 코드는 변경사항이 없으므로 생략 */
    body {
-      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      font-family: sans-serif;
       background-color: #f4f6f9;
       margin: 0;
       padding: 0;

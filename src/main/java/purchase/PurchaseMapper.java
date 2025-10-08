@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -18,7 +19,7 @@ import restapi.SearchRequest;
 public interface PurchaseMapper extends BaseMapper<Purchase> {
 	
 	@Override
-	@Insert("insert into purchase(id, member_id, book_id, quantity, order_date, order_id) values(#{id}, #{member_id}, #{book_id}, #{quantity}, SYSDATE, #{order_id})")
+	@Insert("insert into purchase(id, member_id, book_id, quantity, order_date, order_id) values(#{id}, #{member_id}, #{book_id}, #{quantity}, SYSDATE, #{order_id}, #{status})")
 	@SelectKey(statement = "SELECT purchase_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
 	public int save(Purchase purchase);
 	
@@ -30,7 +31,7 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	@Select("select * from purchase where id=#{id}")
 	Purchase findById(int id);
 	
-	@Select("select * from purchase where member_id=#{id}")
+	@Select("select * from purchase where member_id=#{id} and status='COMPLETED'")
 	List<Purchase> findByUserId(int id);
 	
 	@Override
@@ -58,7 +59,7 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 
 	
 	@Select("SELECT * FROM delivery_info WHERE order_id = #{orderId}")
-    Delivery findByOrderId(int orderId);
+    Delivery findByOrderId(String orderId);
 
     @Insert("INSERT INTO delivery_info(id, order_id, receiver_name, address, phone_number, delivery_message) " +
             "VALUES (delivery_info_seq.nextval, #{orderId}, #{receiverName}, #{address}, #{phoneNumber}, #{deliveryMessage})")
@@ -69,7 +70,7 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     void deliveryupdate(Delivery deliveryInfo);
     
     @Select("SELECT order_id FROM (SELECT order_id FROM purchase WHERE member_id = #{memberId} ORDER BY order_date DESC) WHERE ROWNUM = 1")
-    Integer findMostRecentOrderIdByMemberId(int memberId);
+    String findMostRecentOrderIdByMemberId(int memberId);
 
 //    @Select("SELECT * FROM purchase p JOIN book b on p.book_id=b.id JOIN member m on p.member_id=m.id "
 //    		+ "where b.title LIKE '%'||#{keyword}||'%' OR b.author LIKE '%'||#{keyword}||'%' order by ${orderItem} ${order}")
@@ -95,4 +96,16 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     
     @Select("SELECT * FROM purchase WHERE book_id = #{bookId}")
     List<Purchase> findByBookId(int bookId);
+
+    @InsertProvider(type = PurchaseSqlProvider.class, method = "savePurchaseListSql")
+	public void savePurchaseList(List<Purchase> purchaseList);
+
+    @Select("SELECT * FROM PURCHASE WHERE ORDER_ID = #{orderId} AND STATUS = 'PENDING'")
+	public List<Purchase> findPendingByOrderId(String orderId);
+	
+    @Update("UPDATE PURCHASE SET STATUS = 'COMPLETED', PAYMENT_KEY = #{paymentKey} WHERE ORDER_ID = #{orderId} AND STATUS = 'PENDING'")
+	void updateStatusToCompleted(@Param("orderId") String orderId, @Param("paymentKey") String paymentKey);
+
+    @Delete("DELETE FROM PURCHASE WHERE STATUS = 'PENDING' AND ORDER_DATE <= SYSDATE - (10 / 1440)")
+	public int deleteOldPendingPurchases(int i);
 } 

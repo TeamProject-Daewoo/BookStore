@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <title>글 작성</title>
     <style>
+            body { font-family: sans-serif; }
         #pageBody { font-family: Arial, sans-serif; background-color: #f4f4f4; }
         #formTitle { text-align: center; }
         #writeForm {
