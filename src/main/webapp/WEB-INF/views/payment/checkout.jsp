@@ -1,52 +1,95 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
+<head>
     <meta charset="utf-8" />
-    <title>토스페이먼츠 결제 페이지</title>
+    <title>결제</title>
     <script src="https://js.tosspayments.com/v2/standard"></script>
     <style>
-      body {
-        font-family: "Noto Sans KR", sans-serif;
-        padding: 40px;
-        text-align: center;
-      }
-      #payment-method, #agreement {
-        width: 360px;
-        margin: 20px auto;
-        text-align: left;
-      }
-      button {
-        background-color: #0064ff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-      }
+        body { font-family: sans-serif; 
+        }
+        h2 {
+            font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+            max-width: 480px; /* 전체 콘텐츠 너비 통일 */
+            margin: 4rem auto 2rem auto; /* 위쪽, 좌우, 아래쪽 여백 */
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            color: #333d4b;
+        }
+
+        /* 주문 정보 요약 (h2 바로 다음에 오는 div) */
+        h2 + div {
+            font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+            max-width: 480px;
+            margin: 1.5rem auto;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e5e8eb;
+            box-sizing: border-box;
+        }
+        
+        /* 주문 정보 내부 p 태그 */
+        h2 + div p {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 16px;
+            color: #5a6775;
+        }
+        
+        h2 + div p b {
+            font-weight: 500;
+            color: #333d4b;
+        }
+
+        /* 토스페이먼츠 위젯이 렌더링될 영역 */
+        #payment-method, #agreement {
+            max-width: 480px; /* 전체 너비 통일 */
+            margin: 25px auto;
+            text-align: left;
+        }
+
+        /* 결제하기 버튼 */
+        #payment-button {
+            display: block; /* 너비를 100%로 설정하기 위해 block으로 변경 */
+            width: 100%;
+            max-width: 480px; /* 전체 너비 통일 */
+            margin: 20px auto;
+            margin-bottom: 50px;
+            background-color: #0064ff;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        #payment-button:hover {
+            background-color: #0053d1;
+        }
     </style>
-  </head>
-  <body>
-    <h2>토스페이먼츠 결제 테스트</h2>
+</head>
+<body>
+    <h2>결제</h2>
 
     <div>
-      <p><b>주문번호:</b> ${orderId}</p>
       <p><b>상품명:</b> ${orderName}</p>
       <p><b>구매자명:</b> ${customerName}</p>
       <p><b>결제금액:</b> ${totalAmount}원</p>
     </div>
 
-    <!-- 결제 UI -->
     <div id="payment-method"></div>
 
-    <!-- 이용약관 UI -->
     <div id="agreement"></div>
 
-    <!-- 결제 버튼 -->
     <button id="payment-button">결제하기</button>
 
     <script>
+      // JavaScript 로직은 변경 없이 그대로 유지됩니다.
       main();
 
       async function main() {
@@ -100,5 +143,5 @@
         });
       }
     </script>
-  </body>
+</body>
 </html>
