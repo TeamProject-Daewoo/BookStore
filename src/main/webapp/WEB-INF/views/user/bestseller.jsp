@@ -173,7 +173,7 @@
                             </a>
                         </div>
                         <div class="bestseller-buttons">
-                            <form action="${pageContext.request.contextPath}/cart/add" method="post">
+                            <form action="${pageContext.request.contextPath}/cart/addcookie" method="post">
                                 <input type="hidden" name="bookIsbn" value="${b.isbn}" />
                                 <input type="hidden" name="quantity" value="1" />
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />

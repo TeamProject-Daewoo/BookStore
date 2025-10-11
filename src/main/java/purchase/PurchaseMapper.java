@@ -49,7 +49,9 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 			+ "IFNULL(SUM(CASE WHEN DATE_FORMAT(p.order_date, '%Y%m') = DATE_FORMAT(NOW(), '%Y%m') THEN p.quantity * b.price ELSE 0 END), 0) AS monthly, "
 			+ "IFNULL(SUM(CASE WHEN DATE_FORMAT(p.order_date, '%Y') = DATE_FORMAT(NOW(), '%Y') THEN p.quantity * b.price ELSE 0 END), 0) AS yearly "
 			+ "FROM purchase p "
-			+ "JOIN book b ON p.book_id = b.id")
+			+ "JOIN book b ON p.book_id = b.id "
+			+ "WHERE p.status = 'COMPLETED'")
+			
 	public SumList getTotalList();
 	
 	@Select("SELECT SUM(p.quantity * b.price) AS total_price FROM purchase p JOIN book b ON p.book_id = b.id WHERE p.id = #{Id} GROUP BY p.id")

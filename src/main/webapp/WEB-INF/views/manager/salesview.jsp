@@ -412,9 +412,9 @@ function changeRateRender(result) {
 
 	// 키를 추출하는 함수
 	const getKey = {
-	  day: (d) => d.getDate(),
-	  month: (d) => d.getMonth(),
-	  year: (d) => d.getFullYear()
+	  day: (d) => d.getUTCDate(),
+	  month: (d) => d.getUTCMonth(),
+	  year: (d) => d.getUTCFullYear()
 	};
 	
 	['day', 'month', 'year'].forEach((dateType) => {
