@@ -12,31 +12,24 @@ import java.util.List;
 @Mapper
 public interface BoardMapper {
 
-	@Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount " +
-	        "FROM board " +
-	        "ORDER BY id DESC")
-	List<Board> selectAll();
+    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount " +
+            "FROM board " +
+            "ORDER BY id DESC")
+    List<Board> selectAll();
 
-	@Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount " +
-	        "FROM board " +
-	        "WHERE id = #{id}")
-	Board selectById(@Param("id") Long id);
+    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount " +
+            "FROM board " +
+            "WHERE id = #{id}")
+    Board selectById(@Param("id") Long id);
 
-    @Insert("INSERT INTO board (id, title, author, content, created_at, user_id) " +
-            "VALUES (board_seq.NEXTVAL, #{title}, #{author}, #{content}, SYSDATE, #{user_id})")
+    @Insert("INSERT INTO board (title, author, content, created_at, user_id) " +
+            "VALUES (#{title}, #{author}, #{content}, NOW(), #{user_id})")
     int insert(Board post);
 
-    // 페이징
-    /* Oracle 12g 이상 문법
-    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id " +
+    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount " +
             "FROM board " +
             "ORDER BY id DESC " +
-            "OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY")*/
-    @Select("SELECT id, title, author, content, created_at AS createdAt, user_id, view_count AS viewCount FROM "
-            + "(SELECT a.*, ROWNUM rnum FROM "
-            + "(SELECT id, title, author, content, created_at, user_id, view_count FROM board ORDER BY id DESC) a "
-            + "WHERE ROWNUM <= #{offset} + #{limit}) "
-            + "WHERE rnum > #{offset}")
+            "LIMIT #{limit} OFFSET #{offset}")
     List<Board> selectPage(@Param("offset") int offset, @Param("limit") int limit);
 
     @Select("SELECT COUNT(*) FROM board")
@@ -55,11 +48,11 @@ public interface BoardMapper {
 
     // 관리자는 모든 게시글 삭제 가능
     @Delete("DELETE FROM board WHERE id = #{id}")
-    int delete(@Param("id") Long id); // 관리자 전용 삭제 메서드
+    int delete(@Param("id") Long id);
 
-	// 조회수 증가
-	@Update("UPDATE board " +
-	        "SET view_count = view_count + 1 " +
-	        "WHERE id = #{id}")
-	void updateViewCount(@Param("id") Long id);
+    // 조회수 증가
+    @Update("UPDATE board " +
+            "SET view_count = view_count + 1 " +
+            "WHERE id = #{id}")
+    void updateViewCount(@Param("id") Long id);
 }

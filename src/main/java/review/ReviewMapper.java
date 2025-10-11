@@ -14,14 +14,14 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface ReviewMapper{
 
-    // 由щ럭 �벑濡�
-    @Insert("INSERT INTO review (review_id, book_id, user_id, rating, content) " +
-            "VALUES (#{reviewId}, #{bookId}, #{userId}, #{rating}, #{content})")
-    @SelectKey(statement = "SELECT review_seq.NEXTVAL FROM dual", keyProperty = "reviewId", before = true, resultType = Integer.class)
+    @Insert("INSERT INTO review (book_id, user_id, rating, content) " +
+            "VALUES (#{bookId}, #{userId}, #{rating}, #{content})")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "reviewId", before = false, resultType = Integer.class)
     int insertReview(Review review);
 
-    // 梨낅퀎 由щ럭 議고쉶
-    @Select("SELECT * FROM review WHERE book_id = #{bookId} ORDER BY created_at DESC")
+    // 책별 리뷰 조회
+    @Select("SELECT review_id, book_id, user_id, rating, content, created_at " +
+            "FROM review WHERE book_id = #{bookId} ORDER BY created_at DESC")
     @Results({
         @Result(column="review_id", property="reviewId"),
         @Result(column="book_id", property="bookId"),
@@ -30,11 +30,13 @@ public interface ReviewMapper{
     })
     List<Review> findByBookId(Integer bookId);
 
-    // 由щ럭 �궘�젣
+    // 리뷰 삭제
     @Delete("DELETE FROM review WHERE review_id = #{reviewId}")
     int deleteReview(int reviewId);
 
-    @Select("SELECT * FROM review WHERE review_id = #{reviewId}")
+    // 리뷰 ID로 조회
+    @Select("SELECT review_id, book_id, user_id, rating, content, created_at " +
+            "FROM review WHERE review_id = #{reviewId}")
     @Results({
         @Result(column="review_id", property="reviewId"),
         @Result(column="book_id", property="bookId"),
@@ -43,7 +45,8 @@ public interface ReviewMapper{
     })
     Review findById(int reviewId);
 
-    @Update("UPDATE review SET rating=#{rating}, content=#{content} WHERE review_id=#{reviewId}")
+    // 리뷰 수정
+    @Update("UPDATE review SET rating = #{rating}, content = #{content} WHERE review_id = #{reviewId}")
 	void updateReview(Review review);
 
 }

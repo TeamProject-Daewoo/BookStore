@@ -15,5 +15,5 @@ public class PurchaseFragment {
     private String member_name;
     private Date order_date;
     private int total_price;
-    private int order_id;
+    private String order_id;
 }

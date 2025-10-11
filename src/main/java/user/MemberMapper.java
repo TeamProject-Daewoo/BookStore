@@ -16,42 +16,44 @@ import data.BaseMapper;
 @Mapper
 public interface MemberMapper extends BaseMapper<Member> {
 	
+    // MySQL AUTO_INCREMENT 적용 및 SYSDATE -> NOW() 변경
 	@Override
-	@Insert("insert into member(id, user_id, name, email, password, phone_number, profile_image, created_at, role) "
-	        + "values(#{id}, #{user_id}, #{name}, #{email}, #{password}, #{phone_number}, #{profileImage,jdbcType=BLOB}, SYSDATE, #{role})")
-	@SelectKey(statement = "SELECT member_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
+	@Insert("INSERT INTO member(user_id, name, email, password, phone_number, profile_image, created_at, role) "
+			+ "VALUES(#{user_id}, #{name}, #{email}, #{password}, #{phone_number}, #{profileImage,jdbcType=BLOB}, NOW(), #{role})")
+	@SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
 	public int save(Member member);
 	
 	@Override
-	@Select("select * from member")
+	@Select("SELECT id, user_id, name, email, password, phone_number, created_at, role, profile_image FROM member")
 	List<Member> findAll();
 		
-	@Select("SELECT * FROM member WHERE id=#{id}")
+    // profile_image 컬럼이 BLOB 타입이므로 @Results 유지
+	@Select("SELECT id, user_id, name, email, password, phone_number, created_at, role, profile_image FROM member WHERE id = #{id}")
     @Results({@Result(column="profile_image", property="profileImage")})
     Member findById(int id);
 	
-	@Select("select * from member where user_id=#{userId}")
+	@Select("SELECT id, user_id, name, email, password, phone_number, created_at, role, profile_image FROM member WHERE user_id = #{userId}")
     @Results({@Result(column="profile_image", property="profileImage")})
 	Member findByUserId(String user_id);
 	
 	@Override
-	@Update("UPDATE member SET user_id=#{user_id}, name=#{name}, email=#{email}, "
-	        + "phone_number=#{phone_number}, profile_image=#{profileImage,jdbcType=BLOB}, "
-	        + "password=#{password} "
-	        + "WHERE id=#{id}")
+	@Update("UPDATE member SET user_id = #{user_id}, name = #{name}, email = #{email}, "
+			+ "phone_number = #{phone_number}, profile_image = #{profileImage,jdbcType=BLOB}, "
+			+ "password = #{password} "
+			+ "WHERE id = #{id}")
 	int update(Member member);
 	
-	@Update("UPDATE member SET user_id=#{user_id}, name=#{name}, email=#{email}, "
-	        + "phone_number=#{phone_number}, profile_image=#{profileImage,jdbcType=BLOB}, "
-	        + "password=#{password}, role=#{role} "
-	        + "WHERE id=#{id}")
+	@Update("UPDATE member SET user_id = #{user_id}, name = #{name}, email = #{email}, "
+			+ "phone_number = #{phone_number}, profile_image = #{profileImage,jdbcType=BLOB}, "
+			+ "password = #{password}, role = #{role} "
+			+ "WHERE id = #{id}")
 	int updateManager(Member member);
 	
 	@Override
-	@Delete("delete from member where id=#{id}")
+	@Delete("DELETE FROM member WHERE id = #{id}")
 	int delete(int id);
 	
-	@Select("select * from member where user_id=#{username}")
+	@Select("SELECT id, user_id, name, email, password, phone_number, created_at, role, profile_image FROM member WHERE user_id = #{username}")
     @Results({@Result(column="profile_image", property="profileImage")})
 	public Member findByUsername(String username);
 	

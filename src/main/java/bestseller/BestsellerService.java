@@ -88,7 +88,6 @@ public class BestsellerService {
             if (rank > 100) break;
 
             Bestseller b = Bestseller.builder()
-                    .id(bestsellerMapper.getNextId())
                     .bookId(entry.getKey())
                     .totalSales(entry.getValue())
                     .rank(rank)

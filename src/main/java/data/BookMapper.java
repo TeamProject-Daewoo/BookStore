@@ -14,10 +14,10 @@ import org.apache.ibatis.annotations.Update;
 public interface BookMapper extends BaseMapper<Book> {
 	
 	@Override
-	// 1. (핵심 수정) INSERT 문에 isbn 컬럼과 #{isbn} 값을 추가
-	@Insert("insert into book(id, isbn, title, author, price, stock, img, category, description) values(#{id}, #{isbn}, #{title}, #{author}, #{price}, #{stock}, #{img}, #{category}, #{description})")
-	@SelectKey(statement = "SELECT book_seq.NEXTVAL FROM DUAL", keyProperty = "id", before = true, resultType = int.class)
-	public int save(Book book);
+    @Insert("INSERT INTO book(isbn, title, author, price, stock, img, category, description) " +
+            "VALUES(#{isbn}, #{title}, #{author}, #{price}, #{stock}, #{img}, #{category}, #{description})")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
+    public int save(Book book);
 	
 	@Override
 	@Select("select * from book")

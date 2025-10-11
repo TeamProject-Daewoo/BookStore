@@ -226,14 +226,12 @@ public class ManagerService {
 			throw new IllegalArgumentException("Invaild");
 		}
 		
-		Map<Integer, PurchaseView> viewMap = new LinkedHashMap<>();
+		Map<String, PurchaseView> viewMap = new LinkedHashMap<>();
 		
 		for (PurchaseQueryResult result : purchaseMapper.getPurchaseView(searchReq)) {
-			int orderId = result.getOrder_id();
+			String orderId = result.getOrder_id();
             PurchaseView purchaseView = viewMap.get(orderId);
             
-            System.out.println("==============================");
-            System.out.println(result);
             if (purchaseView == null) {
                 purchaseView = new PurchaseView();
                 purchaseView.setPurchaseList(
