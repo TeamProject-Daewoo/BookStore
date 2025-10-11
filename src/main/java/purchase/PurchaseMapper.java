@@ -76,7 +76,7 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
     	    +"FROM purchase p "
     	    +"JOIN member m ON p.member_id = m.id "
     	    +"JOIN book b ON p.book_id = b.id "
-    	    +"WHERE b.title LIKE CONCAT('%', #{searchReq.keyword}, '%') OR b.author LIKE CONCAT('%', #{searchReq.keyword}, '%') "
+    	    +"WHERE p.status = 'COMPLETED' AND (b.title LIKE CONCAT('%', #{searchReq.keyword}, '%') OR b.author LIKE CONCAT('%', #{searchReq.keyword}, '%')) "
     	    +"ORDER BY ${searchReq.orderItem} ${searchReq.order}")
     public List<PurchaseQueryResult> getPurchaseView(@Param("searchReq") SearchRequest searchReq);
     

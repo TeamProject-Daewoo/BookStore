@@ -479,11 +479,16 @@ function recentSalesRender(result, chartType) {
 			for (const day of tempDate) amountMap[day] = 0;
 			
 			result.purchase.forEach(function (p) {
-				const d = new Date(p.purchaseList.order_date);
-				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+			    const d = new Date(p.purchaseList.order_date);
+		        const y   = d.getUTCFullYear();
+		        const m   = String(d.getUTCMonth() + 1).padStart(2, '0');
+		        const dd  = String(d.getUTCDate()).padStart(2, '0');
+		        
+		        const key = y + '-' + m + '-' + dd; // UTC 기준으로 YYYY-MM-DD 키 생성
 				if (amountMap.hasOwnProperty(key)) {
 					amountMap[key] += Number(p.purchaseList.total_price || 0);
 				}
+				
 			});
 
 			// 최종 데이터 할당
