@@ -511,7 +511,7 @@ function recentSalesRender(result, chartType) {
 
 			result.purchase.forEach(function (p) {
 				const d = new Date(p.purchaseList.order_date);
-				const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+				const key = d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
 				if (amountMap.hasOwnProperty(key)) {
 					amountMap[key] += Number(p.purchaseList.total_price || 0);
 				}
@@ -534,7 +534,7 @@ function recentSalesRender(result, chartType) {
 		    
 		    result.purchase.forEach(function (p) {
 		        const d = new Date(p.purchaseList.order_date);
-		        const year = d.getFullYear();
+		        const year = d.getUTCFullYear();
 		        if (amountMap.hasOwnProperty(year))
 		        	amountMap[year] += Number(p.purchaseList.total_price || 0);
 		    });

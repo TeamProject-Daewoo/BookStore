@@ -399,9 +399,9 @@ document.addEventListener('DOMContentLoaded', function () {
         purchases.forEach(p => {
             let d = new Date(Number(p.order_ts));
             let key;
-            if(type === 'daily') key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-            else if(type === 'month') key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-            else key = d.getFullYear();
+            if(type === 'daily') key = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0');
+            else if(type === 'month') key = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0');
+            else key = d.getUTCFullYear();
             if(map.hasOwnProperty(key)){
                 map[key] += Number(p.quantity || 0);
                 total += Number(p.quantity || 0);
