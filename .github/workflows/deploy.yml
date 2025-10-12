@@ -37,9 +37,8 @@ jobs:
       - name: Zip the deployment package
         run: |
           WAR_FILE=$(ls target/*.war | head -n 1)
-          # 파일명을 ROOT.war로 변경하여 EB가 기본 웹 애플리케이션으로 인식하도록 합니다.
           mv $WAR_FILE target/ROOT.war
-          zip -r deploy.zip target/ROOT.war
+          mv target/ROOT.war deploy.zip
 
       # 6. AWS CLI를 사용하여 직접 배포 (이름이 수정됨)
       - name: Deploy to Elastic Beanstalk using AWS CLI
