@@ -1,4 +1,3 @@
-# 최종 수정: AWS CLI 배포 순서 수정
 name: BookStoreProject CI/CD with AWS CLI
 
 on:
@@ -38,23 +37,25 @@ jobs:
       - name: Zip the deployment package
         run: |
           WAR_FILE=$(ls target/*.war | head -n 1)
+          # 파일명을 ROOT.war로 변경하여 EB가 기본 웹 애플리케이션으로 인식하도록 합니다.
           mv $WAR_FILE target/ROOT.war
           zip -r deploy.zip target/ROOT.war
 
-      # 6. AWS CLI를 사용하여 직접 배포 (순서 수정됨)
+      # 6. AWS CLI를 사용하여 직접 배포 (이름이 수정됨)
       - name: Deploy to Elastic Beanstalk using AWS CLI
         run: |
           # ⭐️ 1단계: 파일을 S3에 먼저 업로드합니다.
-          aws s3 cp deploy.zip s3://elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}/BookForest/${{ github.sha }}.zip
+          # S3 경로: elasticbeanstalk-ap-northeast-2-[계정ID]/[애플리케이션 이름]/[버전].zip
+          aws s3 cp deploy.zip s3://elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}/bookproject/${{ github.sha }}.zip
 
           # ⭐️ 2단계: 파일 업로드 후, 새 버전을 생성하라고 알립니다.
           aws elasticbeanstalk create-application-version \
-            --application-name BookForest \
+            --application-name bookproject \
             --version-label ${{ github.sha }} \
-            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="BookForest/${{ github.sha }}.zip"
+            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="bookproject/${{ github.sha }}.zip"
 
           # ⭐️ 3단계: 생성된 새 버전으로 환경을 업데이트합니다.
           aws elasticbeanstalk update-environment \
-            --application-name BookForest \
-            --environment-name BookForest-env \
+            --application-name bookproject \
+            --environment-name Bookproject-env \
             --version-label ${{ github.sha }}
