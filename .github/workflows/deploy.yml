@@ -1,5 +1,5 @@
-# 최종 수정된 GitHub Actions 워크플로우 (v2)
-name: BookStoreProject CI/CD
+# 최종 수정: AWS CLI를 직접 사용하여 배포
+name: BookStoreProject CI/CD with AWS CLI
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
-      # 4. AWS 자격 증명 설정
+      # 4. AWS 자격 증명 설정 (성공이 확인된 단계)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,21 +34,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 5. 배포 패키지 압축
+      # 5. 빌드된 .war 파일을 압축
       - name: Zip the deployment package
         run: |
           WAR_FILE=$(ls target/*.war | head -n 1)
           zip -r deploy.zip $WAR_FILE
 
-      # 6. AWS Elastic Beanstalk에 배포
-      - name: Deploy to Elastic Beanstalk
-        uses: einaregilsson/beanstalk-deploy@v21
-        with:
-          application_name: BookForest
-          environment_name: BookForest-env
-          region: ap-northeast-2
-          version_label: ${{ github.sha }}
-          deployment_package: deploy.zip
-        env: # ⭐️ 자격 증명을 명시적으로 다시 주입합니다.
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # 6. AWS CLI를 사용하여 직접 배포 (핵심 변경 사항)
+      - name: Deploy to Elastic Beanstalk using AWS CLI
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name BookForest \
+            --version-label ${{ github.sha }} \
+            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="BookForest/${{ github.sha }}.zip" \
+            --auto-create-application
+
+          aws s3 cp deploy.zip s3://elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}/BookForest/${{ github.sha }}.zip
+
+          aws elasticbeanstalk update-environment \
+            --application-name BookForest \
+            --environment-name BookForest-env \
+            --version-label ${{ github.sha }}
