@@ -1,0 +1,51 @@
+#v0.3
+name: BookStoreProject
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 레포지토리 코드 가져오기
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. JDK 환경 설정 (v4 사용 권장)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Maven으로 .war 파일 빌드
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      # 4. AWS 자격 증명 설정 (이후 단계에서 환경 변수 자동 사용)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      # 5. 빌드된 .war 파일을 압축 (파일명 유동적으로 처리)
+      - name: Zip the deployment package
+        run: |
+          WAR_FILE=$(ls target/*.war | head -n 1)
+          zip -r deploy.zip $WAR_FILE
+
+      # 6. AWS Elastic Beanstalk에 배포 (환경 변수 사용)
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v20
+        with:
+          application_name: BookForest
+          environment_name: BookForest-env
+          region: ap-northeast-2
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
