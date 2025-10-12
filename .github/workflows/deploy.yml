@@ -1,3 +1,4 @@
+# 최종 수정된 GitHub Actions 워크플로우 (v2)
 name: BookStoreProject CI/CD
 
 on:
@@ -8,11 +9,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
-      # 1. 레포지토리 코드 가져오기 (최신 v4 사용)
+      # 1. 레포지토리 코드 가져오기
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -27,7 +26,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
-      # 4. AWS 자격 증명 설정 (최신 v4 사용)
+      # 4. AWS 자격 증명 설정
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -35,17 +34,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 5. 빌드된 .war 파일을 압축 (.ebextensions 폴더가 있을 경우에만 포함)
+      # 5. 배포 패키지 압축
       - name: Zip the deployment package
         run: |
           WAR_FILE=$(ls target/*.war | head -n 1)
-          if [ -d ".ebextensions" ]; then
-            zip -r deploy.zip $WAR_FILE .ebextensions
-          else
-            zip -r deploy.zip $WAR_FILE
-          fi
+          zip -r deploy.zip $WAR_FILE
 
-      # 6. AWS Elastic Beanstalk에 배포 (최신 v21 사용 및 env 블록 추가)
+      # 6. AWS Elastic Beanstalk에 배포
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
@@ -54,6 +49,6 @@ jobs:
           region: ap-northeast-2
           version_label: ${{ github.sha }}
           deployment_package: deploy.zip
-        env: # <-- 이 부분이 핵심입니다! 배포 액션에 자격 증명을 직접 주입합니다.
+        env: # ⭐️ 자격 증명을 명시적으로 다시 주입합니다.
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
