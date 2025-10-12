@@ -1,3 +1,4 @@
+# 최종 수정: AWS CLI 배포 순서 수정
 name: BookStoreProject CI/CD with AWS CLI
 
 on:
@@ -25,7 +26,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
-      # 4. AWS 자격 증명 설정 (성공이 확인된 단계)
+      # 4. AWS 자격 증명 설정
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -39,17 +40,19 @@ jobs:
           WAR_FILE=$(ls target/*.war | head -n 1)
           zip -r deploy.zip $WAR_FILE
 
-      # 6. AWS CLI를 사용하여 직접 배포 (핵심 변경 사항)
+      # 6. AWS CLI를 사용하여 직접 배포 (순서 수정됨)
       - name: Deploy to Elastic Beanstalk using AWS CLI
         run: |
+          # ⭐️ 1단계: 파일을 S3에 먼저 업로드합니다.
+          aws s3 cp deploy.zip s3://elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}/BookForest/${{ github.sha }}.zip
+
+          # ⭐️ 2단계: 파일 업로드 후, 새 버전을 생성하라고 알립니다.
           aws elasticbeanstalk create-application-version \
             --application-name BookForest \
             --version-label ${{ github.sha }} \
-            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="BookForest/${{ github.sha }}.zip" \
-            --auto-create-application
+            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="BookForest/${{ github.sha }}.zip"
 
-          aws s3 cp deploy.zip s3://elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}/BookForest/${{ github.sha }}.zip
-
+          # ⭐️ 3단계: 생성된 새 버전으로 환경을 업데이트합니다.
           aws elasticbeanstalk update-environment \
             --application-name BookForest \
             --environment-name BookForest-env \
