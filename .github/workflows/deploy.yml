@@ -39,7 +39,7 @@ jobs:
         run: |
           WAR_FILE=$(ls target/*.war | head -n 1)
           mv $WAR_FILE target/ROOT.war
-          zip -r deploy.zip target/ROOT.war Procfile
+          zip -r deploy.zip target/ROOT.war
 
       # 6. AWS CLI를 사용하여 직접 배포 (순서 수정됨)
       - name: Deploy to Elastic Beanstalk using AWS CLI
