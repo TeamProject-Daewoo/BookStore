@@ -1,4 +1,3 @@
-# 최종 수정: AWS CLI를 직접 사용하여 배포
 name: BookStoreProject CI/CD with AWS CLI
 
 on:
