@@ -8,7 +8,15 @@
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 	<import resource="setting.xml"/>
-	<context:component-scan base-package="home,bestseller,board,cart,data,login,manager,purchase,restapi,user,category,review,comment"/>
+	<!-- <context:component-scan base-package="home,bestseller,board,cart,data,login,manager,purchase,restapi,user,category,review,comment"/> -->
+	
+	<!-- 컨트롤러만 스캔 -->
+	<context:component-scan base-package="home,bestseller,board,cart,data,login,manager,purchase,restapi,user,category,review,comment">
+	    <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	    
+	    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+	    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan>
 	
 	<!-- injection하지 않고 메모리 upload되는 bean은 id not use -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

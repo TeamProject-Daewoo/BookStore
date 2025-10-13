@@ -11,7 +11,12 @@
 
 	<!-- url확인, 로그인, 로그아웃(http) / 회원에 대한 로그인 정보(authentication-manager) intercept-url을 
 		자바파일에서 처리 가능 회원에 대한 로그인 정보를 데이터베이스로 사용하기 위해 자바를 이용 -->
-	<context:component-scan base-package="user, login, cart, review" />
+	<!--<context:component-scan base-package="user, login, cart, review" /> -->
+	
+	<!-- 컨트롤러 제외 스캔 -->
+	<context:component-scan base-package="home,bestseller,board,cart,data,login,manager,purchase,restapi,user,category,review,comment">
+	    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
 	
 
 
