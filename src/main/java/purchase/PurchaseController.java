@@ -229,13 +229,13 @@ public class PurchaseController {
                 }
                 CartItem directItem = new CartItem(book, quantity);
                 itemsToPurchase = new ArrayList<>(Collections.singletonList(directItem));
-//                
-//                totalAmount = directItem.getItemTotal();
-//                
-//                if (!itemsToPurchase.isEmpty()) {
-//                    orderName = itemsToPurchase.get(0).getBook().getTitle();
-//                }
-//                
+                
+                totalAmount = directItem.getItemTotal();
+                
+                if (!itemsToPurchase.isEmpty()) {
+                    orderName = itemsToPurchase.get(0).getBook().getTitle();
+                }
+                
             } //else if ("cart".equals(purchaseType)) {
 //            	
 //            	List<CartItem> cartItems = new ArrayList<>();
