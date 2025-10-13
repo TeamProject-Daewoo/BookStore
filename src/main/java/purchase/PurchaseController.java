@@ -277,7 +277,7 @@ public class PurchaseController {
             
             // 2. PENDING 상태의 주문을 생성합니다.
             String orderId = UUID.randomUUID().toString();
-//            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
+            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
             
             Delivery deliveryInfo = new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage);
             session.setAttribute("pendingOrderId", orderId);

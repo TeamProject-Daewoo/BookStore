@@ -152,37 +152,43 @@ public class PurchaseService {
     
     @Transactional
     public void createPendingOrder(int memberId, String orderId, List<CartItem> itemsToPurchase) {
-        
-        if (itemsToPurchase == null || itemsToPurchase.isEmpty()) {
-            throw new IllegalArgumentException("주문할 상품이 없습니다.");
-        }
-
-        List<Purchase> purchaseList = new ArrayList<>();
-
-        for (CartItem item : itemsToPurchase) {
-            Book book = item.getBook();
-            int quantity = item.getQuantity();
-
-            // 재고 확인
-            if (book.getStock() < quantity) {
-                throw new IllegalArgumentException("재고가 부족한 상품이 있습니다: " + book.getTitle());
+        try {
+        	if (itemsToPurchase == null || itemsToPurchase.isEmpty()) {
+                throw new IllegalArgumentException("주문할 상품이 없습니다.");
             }
 
-            // Purchase 객체 생성
-            Purchase purchase = new Purchase();
-            purchase.setMember_id(memberId);
-            purchase.setBook_id(book.getId());
-            purchase.setQuantity(quantity);
-            purchase.setOrder_id(orderId);
-            purchase.setStatus("PENDING");
-            
-            purchaseList.add(purchase);
-        }
+            List<Purchase> purchaseList = new ArrayList<>();
 
-        // 2. 리스트에 담긴 모든 구매 항목을 DB에 한 번에 저장 (Batch Insert)
-        if (!purchaseList.isEmpty()) {
-            purchaseMapper.savePurchaseList(purchaseList);
-        }
+            for (CartItem item : itemsToPurchase) {
+                Book book = item.getBook();
+                int quantity = item.getQuantity();
+
+                // 재고 확인
+                if (book.getStock() < quantity) {
+                    throw new IllegalArgumentException("재고가 부족한 상품이 있습니다: " + book.getTitle());
+                }
+
+                // Purchase 객체 생성
+                Purchase purchase = new Purchase();
+                purchase.setMember_id(memberId);
+                purchase.setBook_id(book.getId());
+                purchase.setQuantity(quantity);
+                purchase.setOrder_id(orderId);
+                purchase.setStatus("PENDING");
+                
+                purchaseList.add(purchase);
+            }
+
+            // 2. 리스트에 담긴 모든 구매 항목을 DB에 한 번에 저장 (Batch Insert)
+            if (!purchaseList.isEmpty()) {
+                purchaseMapper.savePurchaseList(purchaseList);
+            }
+		} catch (Exception e) {
+			System.out.println("===== createPendingOrder에서 심각한 오류 발생! =====");
+	        e.printStackTrace(); // <-- 이 부분이 에러의 원인과 위치를 정확하게 알려줍니다.
+	        System.out.println("==============================================");
+	        throw e;
+		} 
     }
 
 	public List<Purchase> findPendingOrderItemsByOrderId(String orderId) {
