@@ -439,14 +439,10 @@ function changeRateRender(result) {
 	});
 }
 
-
-/* <중요!> 배포 환경일 때 웹 소켓 */
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const host = window.location.host;
 const socket = new WebSocket(protocol+"//"+host+"/salesSocket");
 
-/* <중요!> 로컬 환경일 때 웹 소켓 */
-//const socket = new WebSocket("ws://localhost:8888/salesSocket");
 function getBookInfor(books, td) {
 	  books.forEach((book, index) => {
 	    const textNode = document.createTextNode(
@@ -574,7 +570,7 @@ function recentSalesRender(result, chartType) {
 function salesRankRender(result, chartType) {
 	//chartType에 따라 변경될 요소들
 	const chartMap = {};
-	let tooltip, chartX, title, labelTitle, key;
+	let tooltip, chartX = {}, title, labelTitle, key;
 	let clickEvent = () => {};
 	const isbns = {};
     result.purchase.forEach(function (p) {
@@ -593,8 +589,6 @@ function salesRankRender(result, chartType) {
 	        			callback: (v) => (Number(v) + ' 개')
 	        		}
     			}
-                labelTitle = '판매수량'
-                title = '책별 판매량'
                 break;
         	case "rating":
         		key = b.book_title || '제목없음';
@@ -608,8 +602,7 @@ function salesRankRender(result, chartType) {
 	        			stepSize: 1,
 	        			callback: (v) => (Number(v) + ' 점') 
 	      			} 
-	      		} 
-        		labelTitle = title = '평점'
+	      		}
         		break;
         	case "member_id":
         		let pList = p.purchaseList;
@@ -624,12 +617,26 @@ function salesRankRender(result, chartType) {
 	        			callback: (v) => (Number(v) + ' 번') 
 	      			}
 	      		} 
-        		labelTitle = '책 구매 개수';
-        		title = '최다 구매 고객';
         		break;
         }
       });
     });
+    
+    //데이터 없는 경우 대비해서 밖으로 뺌
+    switch (chartType) {
+		case "quantity":
+			labelTitle = '판매수량'
+            title = '책별 판매량'
+            break;
+		case "rating":
+			labelTitle = title = '평점'
+			break;
+		case "member_id":
+			labelTitle = '책 구매 개수';
+    		title = '최다 구매 고객';
+    		break;
+    }
+			
     //title 변경
     document.getElementsByClassName('sales-rank-title')[0].textContent = title + ' top5';
     

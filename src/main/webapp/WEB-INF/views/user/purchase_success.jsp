@@ -19,13 +19,11 @@ body {
   </div>
 </div>
 <script>
-/* <중요!> 배포 환경일 때 웹 소켓 */
+/* 배포&로컬 환경 호환되는 웹 소켓 */
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const host = window.location.host;
 const socket = new WebSocket(protocol+"//"+host+"/salesSocket");
 
-/* <중요!> 로컬 환경일 때 웹 소켓 */
-//const socket = new WebSocket("ws://localhost:8888/salesSocket");
  socket.onopen = () => {
      socket.send("소켓 전달");
  };
