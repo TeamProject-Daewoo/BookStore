@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <title>결제</title>
-    <!-- <script src="https://js.tosspayments.com/v2/standard"></script>-->
+    <script src="https://js.tosspayments.com/v2/standard"></script>
     <style>
         body { font-family: sans-serif; 
         }
@@ -90,11 +90,8 @@
 
     <script>
       // JavaScript 로직은 변경 없이 그대로 유지됩니다.
-      //main();
-      console.log("1. main 호출");
-
+      main();
       async function main() {
-    	  console.log("2. main 호출됨");
         const orderId = "${orderId}";
         const orderName = "${orderName}";
         const customerName = "${customerName}";
