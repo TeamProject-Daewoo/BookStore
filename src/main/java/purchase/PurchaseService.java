@@ -184,8 +184,8 @@ public class PurchaseService {
                 purchaseMapper.savePurchaseList(purchaseList);
             }
 		} catch (Exception e) {
-			System.out.println("===== createPendingOrder에서 심각한 오류 발생! =====");
-	        e.printStackTrace(); // <-- 이 부분이 에러의 원인과 위치를 정확하게 알려줍니다.
+			log.error("createPendingOrder에서 심각한 오류 발생!", e);
+	        e.printStackTrace();
 	        System.out.println("==============================================");
 	        throw e;
 		} 
