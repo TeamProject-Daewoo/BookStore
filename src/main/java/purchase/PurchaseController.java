@@ -236,48 +236,48 @@ public class PurchaseController {
                     orderName = itemsToPurchase.get(0).getBook().getTitle();
                 }
                 
-            } //else if ("cart".equals(purchaseType)) {
-//            	
-//            	List<CartItem> cartItems = new ArrayList<>();
-//
-//                // CookieService를 통해 쿠키 읽기
-//                Map<String, Integer> cartMap = cookieService.readCartCookie(request);
-//                
-//             // --- ❗️ 디버깅 코드 추가 ---
-//                System.out.println("=========================================");
-//                System.out.println("읽어온 장바구니 쿠키 내용: " + cartMap);
-//                System.out.println("=========================================");
-//
-//                for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
-//                    String isbn = entry.getKey();
-//                    int cookie_quantity = entry.getValue();
-//
-//                    // isbn으로 DB에서 Book 조회
-//                    Book book = bookMapper.findByIsbn(isbn);
-//                    
-//                    if (book != null) {
-//                        cartItems.add(new CartItem(book, cookie_quantity));
-//                    }
-//                }
-//                
-//                itemsToPurchase = cartItems;
-//                
-//                totalAmount = cartItems.stream().mapToInt(CartItem::getItemTotal).sum();
-//                
-//                if (!itemsToPurchase.isEmpty()) {
-//                    orderName = itemsToPurchase.get(0).getBook().getTitle();
-//                    if (itemsToPurchase.size() > 1) {
-//                        orderName += " 외 " + (itemsToPurchase.size() - 1) + "건";
-//                    }
-//                }
-//                
-//            } else {
-//                throw new IllegalArgumentException("Invalid purchase type");
-//            }
-//            
-//            // 2. PENDING 상태의 주문을 생성합니다.
+            } else if ("cart".equals(purchaseType)) {
+            	
+            	List<CartItem> cartItems = new ArrayList<>();
+
+                // CookieService를 통해 쿠키 읽기
+                Map<String, Integer> cartMap = cookieService.readCartCookie(request);
+                
+             // --- ❗️ 디버깅 코드 추가 ---
+                System.out.println("=========================================");
+                System.out.println("읽어온 장바구니 쿠키 내용: " + cartMap);
+                System.out.println("=========================================");
+
+                for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
+                    String isbn = entry.getKey();
+                    int cookie_quantity = entry.getValue();
+
+                    // isbn으로 DB에서 Book 조회
+                    Book book = bookMapper.findByIsbn(isbn);
+                    
+                    if (book != null) {
+                        cartItems.add(new CartItem(book, cookie_quantity));
+                    }
+                }
+                
+                itemsToPurchase = cartItems;
+                
+                totalAmount = cartItems.stream().mapToInt(CartItem::getItemTotal).sum();
+                
+                if (!itemsToPurchase.isEmpty()) {
+                    orderName = itemsToPurchase.get(0).getBook().getTitle();
+                    if (itemsToPurchase.size() > 1) {
+                        orderName += " 외 " + (itemsToPurchase.size() - 1) + "건";
+                    }
+                }
+                
+            } else {
+                throw new IllegalArgumentException("Invalid purchase type");
+            }
+            
+            // 2. PENDING 상태의 주문을 생성합니다.
             String orderId = UUID.randomUUID().toString();
-            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
+//            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
             
             Delivery deliveryInfo = new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage);
             session.setAttribute("pendingOrderId", orderId);
