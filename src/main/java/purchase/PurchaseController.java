@@ -213,7 +213,10 @@ public class PurchaseController {
             HttpServletRequest request,
             HttpSession session
     ) {
-        try {
+    	model.addAttribute("page", "/payment/checkout");
+        // 5. 'payment.jsp' 뷰를 렌더링합니다.
+        return "index";
+        /*try {
             int memberId = getLoginedMemberId(user);
             List<CartItem> itemsToPurchase = null;
             int totalAmount = 0;
@@ -224,10 +227,10 @@ public class PurchaseController {
                 // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
                 // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
                 Book book = userService.getBookByIsbn(bookIsbn);
-//                if (book == null) {
-//                    redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
-//                    return "redirect:/user/booklist";
-//                }
+                if (book == null) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
+                    return "redirect:/user/booklist";
+                }
                 CartItem directItem = new CartItem(book, quantity);
                 itemsToPurchase = new ArrayList<>(Collections.singletonList(directItem));
                 
@@ -296,7 +299,7 @@ public class PurchaseController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "결제 진행 중 오류가 발생했습니다.");
             return "redirect:/purchase/checkout"; // 오류 발생 시 이전 페이지로
-        }
+        }*/
     }
 
     // <<-- 3. '구매 확정' 메서드 수정 -->>
