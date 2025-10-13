@@ -45,16 +45,19 @@ jobs:
         run: |
           # ⭐️ 1단계: 파일을 S3에 먼저 업로드합니다.
           # S3 경로: elasticbeanstalk-ap-northeast-2-[계정ID]/[애플리케이션 이름]/[버전].zip
-          aws s3 cp deploy.zip s3://elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}/bookproject/${{ github.sha }}.zip
+          # S3 Key의 디렉토리를 애플리케이션 이름과 동일하게 'bookforest'로 가정하고 수정했습니다.
+          aws s3 cp deploy.zip s3://elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}/bookforest/${{ github.sha }}.zip
 
           # ⭐️ 2단계: 파일 업로드 후, 새 버전을 생성하라고 알립니다.
+          # --application-name을 BookForest로 변경
           aws elasticbeanstalk create-application-version \
-            --application-name bookproject \
+            --application-name BookForest \
             --version-label ${{ github.sha }} \
-            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="bookproject/${{ github.sha }}.zip"
+            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="bookforest/${{ github.sha }}.zip"
 
           # ⭐️ 3단계: 생성된 새 버전으로 환경을 업데이트합니다.
+          # --application-name을 BookForest로 변경 (선택사항이지만 일관성을 위해), --environment-name을 BookForest-env로 변경
           aws elasticbeanstalk update-environment \
-            --application-name bookproject \
-            --environment-name Bookproject-env \
+            --application-name BookForest \
+            --environment-name BookForest-env \
             --version-label ${{ github.sha }}
