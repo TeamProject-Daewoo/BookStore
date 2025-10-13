@@ -440,7 +440,13 @@ function changeRateRender(result) {
 }
 
 
-const socket = new WebSocket("ws://localhost:8888/salesSocket");
+/* <중요!> 배포 환경일 때 웹 소켓 */
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const host = window.location.host;
+const socket = new WebSocket(protocol+"//"+host+"/salesSocket");
+
+/* <중요!> 로컬 환경일 때 웹 소켓 */
+//const socket = new WebSocket("ws://localhost:8888/salesSocket");
 function getBookInfor(books, td) {
 	  books.forEach((book, index) => {
 	    const textNode = document.createTextNode(

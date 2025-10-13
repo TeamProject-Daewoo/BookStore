@@ -22,11 +22,6 @@
 
 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 	<property name="dataSource" ref="hikariDataSource"/>
-	<property name="configurationProperties">
-	        <props>
-	            <prop key="defaultSchema">book_project</prop>
-	        </props>
-	</property>
 </bean>
 
 <mybatis-spring:scan base-package="bestseller,board,cart,data,purchase,user,review,comment"/>
