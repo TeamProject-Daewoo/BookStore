@@ -213,85 +213,82 @@ public class PurchaseController {
             HttpServletRequest request,
             HttpSession session
     ) {
-    	model.addAttribute("page", "/payment/checkout");
-        // 5. 'payment.jsp' 뷰를 렌더링합니다.
-        return "index";
-        /*try {
+        try {
             int memberId = getLoginedMemberId(user);
-            List<CartItem> itemsToPurchase = null;
-            int totalAmount = 0;
-            String orderName = "";
-            System.out.println("payment 호출!!");
-
-            if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
-                // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
-                // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
-                Book book = userService.getBookByIsbn(bookIsbn);
-                if (book == null) {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
-                    return "redirect:/user/booklist";
-                }
-                CartItem directItem = new CartItem(book, quantity);
-                itemsToPurchase = new ArrayList<>(Collections.singletonList(directItem));
-                
-                totalAmount = directItem.getItemTotal();
-                
-                if (!itemsToPurchase.isEmpty()) {
-                    orderName = itemsToPurchase.get(0).getBook().getTitle();
-                }
-                
-            } else if ("cart".equals(purchaseType)) {
-            	
-            	List<CartItem> cartItems = new ArrayList<>();
-
-                // CookieService를 통해 쿠키 읽기
-                Map<String, Integer> cartMap = cookieService.readCartCookie(request);
-                
-             // --- ❗️ 디버깅 코드 추가 ---
-                System.out.println("=========================================");
-                System.out.println("읽어온 장바구니 쿠키 내용: " + cartMap);
-                System.out.println("=========================================");
-
-                for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
-                    String isbn = entry.getKey();
-                    int cookie_quantity = entry.getValue();
-
-                    // isbn으로 DB에서 Book 조회
-                    Book book = bookMapper.findByIsbn(isbn);
-                    
-                    if (book != null) {
-                        cartItems.add(new CartItem(book, cookie_quantity));
-                    }
-                }
-                
-                itemsToPurchase = cartItems;
-                
-                totalAmount = cartItems.stream().mapToInt(CartItem::getItemTotal).sum();
-                
-                if (!itemsToPurchase.isEmpty()) {
-                    orderName = itemsToPurchase.get(0).getBook().getTitle();
-                    if (itemsToPurchase.size() > 1) {
-                        orderName += " 외 " + (itemsToPurchase.size() - 1) + "건";
-                    }
-                }
-                
-            } else {
-                throw new IllegalArgumentException("Invalid purchase type");
-            }
-            
-            // 2. PENDING 상태의 주문을 생성합니다.
-            String orderId = UUID.randomUUID().toString();
-            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
-            
-            Delivery deliveryInfo = new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage);
-            session.setAttribute("pendingOrderId", orderId);
-            session.setAttribute("pendingDeliveryInfo", deliveryInfo);
-
-            // 4. 토스 결제 UI가 있는 JSP 페이지로 필요한 정보를 전달합니다.
-            model.addAttribute("orderId", orderId);
-            model.addAttribute("orderName", orderName);
-            model.addAttribute("customerName", user.getName());
-            model.addAttribute("totalAmount", totalAmount);
+//            List<CartItem> itemsToPurchase = null;
+//            int totalAmount = 0;
+//            String orderName = "";
+//            System.out.println("payment 호출!!");
+//
+//            if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
+//                // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
+//                // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
+//                Book book = userService.getBookByIsbn(bookIsbn);
+//                if (book == null) {
+//                    redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
+//                    return "redirect:/user/booklist";
+//                }
+//                CartItem directItem = new CartItem(book, quantity);
+//                itemsToPurchase = new ArrayList<>(Collections.singletonList(directItem));
+//                
+//                totalAmount = directItem.getItemTotal();
+//                
+//                if (!itemsToPurchase.isEmpty()) {
+//                    orderName = itemsToPurchase.get(0).getBook().getTitle();
+//                }
+//                
+//            } else if ("cart".equals(purchaseType)) {
+//            	
+//            	List<CartItem> cartItems = new ArrayList<>();
+//
+//                // CookieService를 통해 쿠키 읽기
+//                Map<String, Integer> cartMap = cookieService.readCartCookie(request);
+//                
+//             // --- ❗️ 디버깅 코드 추가 ---
+//                System.out.println("=========================================");
+//                System.out.println("읽어온 장바구니 쿠키 내용: " + cartMap);
+//                System.out.println("=========================================");
+//
+//                for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
+//                    String isbn = entry.getKey();
+//                    int cookie_quantity = entry.getValue();
+//
+//                    // isbn으로 DB에서 Book 조회
+//                    Book book = bookMapper.findByIsbn(isbn);
+//                    
+//                    if (book != null) {
+//                        cartItems.add(new CartItem(book, cookie_quantity));
+//                    }
+//                }
+//                
+//                itemsToPurchase = cartItems;
+//                
+//                totalAmount = cartItems.stream().mapToInt(CartItem::getItemTotal).sum();
+//                
+//                if (!itemsToPurchase.isEmpty()) {
+//                    orderName = itemsToPurchase.get(0).getBook().getTitle();
+//                    if (itemsToPurchase.size() > 1) {
+//                        orderName += " 외 " + (itemsToPurchase.size() - 1) + "건";
+//                    }
+//                }
+//                
+//            } else {
+//                throw new IllegalArgumentException("Invalid purchase type");
+//            }
+//            
+//            // 2. PENDING 상태의 주문을 생성합니다.
+//            String orderId = UUID.randomUUID().toString();
+//            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
+//            
+//            Delivery deliveryInfo = new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage);
+//            session.setAttribute("pendingOrderId", orderId);
+//            session.setAttribute("pendingDeliveryInfo", deliveryInfo);
+//
+//            // 4. 토스 결제 UI가 있는 JSP 페이지로 필요한 정보를 전달합니다.
+//            model.addAttribute("orderId", orderId);
+//            model.addAttribute("orderName", orderName);
+//            model.addAttribute("customerName", user.getName());
+//            model.addAttribute("totalAmount", totalAmount);
             model.addAttribute("page", "/payment/checkout");
             // 5. 'payment.jsp' 뷰를 렌더링합니다.
             return "index";
@@ -299,7 +296,7 @@ public class PurchaseController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "결제 진행 중 오류가 발생했습니다.");
             return "redirect:/purchase/checkout"; // 오류 발생 시 이전 페이지로
-        }*/
+        }
     }
 
     // <<-- 3. '구매 확정' 메서드 수정 -->>
