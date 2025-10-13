@@ -218,6 +218,7 @@ public class PurchaseController {
             List<CartItem> itemsToPurchase = null;
             int totalAmount = 0;
             String orderName = "";
+            System.out.println("payment 호출!!");
 
             if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
                 // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.

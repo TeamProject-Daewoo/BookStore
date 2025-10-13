@@ -196,6 +196,7 @@
     </div>
     <script>
     document.getElementById('deliveryMessageSelect').addEventListener('change', function() {
+    	console.log('결제 페이지')
         const textarea = document.getElementById('deliveryMessage');
         if (this.value === '기타' || this.value === '') {
             textarea.value = '';
