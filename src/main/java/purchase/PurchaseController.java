@@ -128,6 +128,7 @@ public class PurchaseController {
             Book book = userService.getBookByIsbn(bookIsbn); 
             if (book == null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
+                System.out.println("책 없음!!");
                 return "redirect:/user/booklist";
             }
             CartItem directItem = new CartItem(book, quantity);
@@ -171,11 +172,13 @@ public class PurchaseController {
             
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters.");
+            System.out.println("2번째 에러!!");
             return "redirect:/user/booklist";
         }
 
         if (itemsToPurchase == null || itemsToPurchase.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "No items to purchase.");
+            System.out.println("3번째 에러!! 아이템 비어있음");
             return "redirect:/user/booklist";
         }
         
