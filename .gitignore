@@ -7,10 +7,8 @@ target/
 .DS_Store
 .factorypath
 .springBeans
-<<<<<<< HEAD
 /bin/
-=======
->>>>>>> 0480e12 (bestseller 구현)
+
 
 *.log
 
