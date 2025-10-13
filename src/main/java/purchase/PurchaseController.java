@@ -226,8 +226,10 @@ public class PurchaseController {
                 // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
                 // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
                 Book book = userService.getBookByIsbn(bookIsbn); 
+                System.out.println("direct 호출!!!");
                 if (book == null) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
+                    System.out.println("예외!!");
                     return "redirect:/user/booklist";
                 }
                 CartItem directItem = new CartItem(book, quantity);
