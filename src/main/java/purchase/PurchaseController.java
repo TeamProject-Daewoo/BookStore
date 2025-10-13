@@ -215,15 +215,14 @@ public class PurchaseController {
     ) {
         try {
             int memberId = getLoginedMemberId(user);
-//            List<CartItem> itemsToPurchase = null;
-//            int totalAmount = 0;
-//            String orderName = "";
-//            System.out.println("payment 호출!!");
-//
-//            if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
-//                // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
-//                // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
-//                Book book = userService.getBookByIsbn(bookIsbn);
+            List<CartItem> itemsToPurchase = null;
+            int totalAmount = 0;
+            String orderName = "";
+
+            if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
+                // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
+                // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
+                Book book = userService.getBookByIsbn(bookIsbn);
 //                if (book == null) {
 //                    redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
 //                    return "redirect:/user/booklist";
@@ -237,7 +236,7 @@ public class PurchaseController {
 //                    orderName = itemsToPurchase.get(0).getBook().getTitle();
 //                }
 //                
-//            } else if ("cart".equals(purchaseType)) {
+            } //else if ("cart".equals(purchaseType)) {
 //            	
 //            	List<CartItem> cartItems = new ArrayList<>();
 //
@@ -277,17 +276,17 @@ public class PurchaseController {
 //            }
 //            
 //            // 2. PENDING 상태의 주문을 생성합니다.
-//            String orderId = UUID.randomUUID().toString();
+            String orderId = UUID.randomUUID().toString();
 //            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
 //            
-//            Delivery deliveryInfo = new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage);
-//            session.setAttribute("pendingOrderId", orderId);
-//            session.setAttribute("pendingDeliveryInfo", deliveryInfo);
-//
-//            // 4. 토스 결제 UI가 있는 JSP 페이지로 필요한 정보를 전달합니다.
-//            model.addAttribute("orderId", orderId);
-//            model.addAttribute("orderName", orderName);
-//            model.addAttribute("customerName", user.getName());
+            Delivery deliveryInfo = new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage);
+            session.setAttribute("pendingOrderId", orderId);
+            session.setAttribute("pendingDeliveryInfo", deliveryInfo);
+
+            // 4. 토스 결제 UI가 있는 JSP 페이지로 필요한 정보를 전달합니다.
+            model.addAttribute("orderId", orderId);
+            model.addAttribute("orderName", orderName);
+            model.addAttribute("customerName", user.getName());
 //            model.addAttribute("totalAmount", totalAmount);
             model.addAttribute("page", "/payment/checkout");
             // 5. 'payment.jsp' 뷰를 렌더링합니다.
