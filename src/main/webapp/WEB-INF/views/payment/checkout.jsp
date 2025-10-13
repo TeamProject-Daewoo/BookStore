@@ -91,8 +91,10 @@
     <script>
       // JavaScript 로직은 변경 없이 그대로 유지됩니다.
       main();
+      console.log("1. main 호출");
 
       async function main() {
+    	  console.log("2. main 호출됨");
         const orderId = "${orderId}";
         const orderName = "${orderName}";
         const customerName = "${customerName}";
@@ -106,12 +108,15 @@
         const widgets = tossPayments.widgets({
           customerKey: customerName,
         });
+        
+        console.log("2. 위젯 인스턴스 생성 완료");
 
         // ✅ 결제 금액 설정
         await widgets.setAmount({
           currency: "KRW",
           value: totalAmount,
         });
+        console.log("3. 결제 금액 설정 완료");
 
         // ✅ 결제 UI 렌더링
         await Promise.all([
@@ -125,8 +130,11 @@
           }),
         ]);
 
+        console.log("4. UI 렌더링 완료");
+
         // ✅ 결제 요청
         const button = document.getElementById("payment-button");
+        console.log("5. 결제 버튼 확인:", button);
         button.addEventListener("click", async () => {
           try {
             await widgets.requestPayment({
