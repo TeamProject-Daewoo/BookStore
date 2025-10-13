@@ -277,8 +277,8 @@ public class PurchaseController {
 //            
 //            // 2. PENDING 상태의 주문을 생성합니다.
             String orderId = UUID.randomUUID().toString();
-//            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
-//            
+            purchaseService.createPendingOrder(memberId, orderId, itemsToPurchase);
+            
             Delivery deliveryInfo = new Delivery(memberId, orderId, receiverName, address, phoneNumber, deliveryMessage);
             session.setAttribute("pendingOrderId", orderId);
             session.setAttribute("pendingDeliveryInfo", deliveryInfo);
@@ -287,7 +287,7 @@ public class PurchaseController {
             model.addAttribute("orderId", orderId);
             model.addAttribute("orderName", orderName);
             model.addAttribute("customerName", user.getName());
-//            model.addAttribute("totalAmount", totalAmount);
+            model.addAttribute("totalAmount", totalAmount);
             model.addAttribute("page", "/payment/checkout");
             // 5. 'payment.jsp' 뷰를 렌더링합니다.
             return "index";
