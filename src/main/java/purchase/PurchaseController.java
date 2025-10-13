@@ -128,7 +128,6 @@ public class PurchaseController {
             Book book = userService.getBookByIsbn(bookIsbn); 
             if (book == null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
-                System.out.println("책 없음!!");
                 return "redirect:/user/booklist";
             }
             CartItem directItem = new CartItem(book, quantity);
@@ -172,13 +171,11 @@ public class PurchaseController {
             
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid purchase type or missing parameters.");
-            System.out.println("2번째 에러!!");
             return "redirect:/user/booklist";
         }
 
         if (itemsToPurchase == null || itemsToPurchase.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "No items to purchase.");
-            System.out.println("3번째 에러!! 아이템 비어있음");
             return "redirect:/user/booklist";
         }
         
@@ -225,11 +222,9 @@ public class PurchaseController {
             if ("direct".equals(purchaseType) && bookIsbn != null && quantity != null) {
                 // bookMapper.findById 대신 userService.getBookByIsbn을 사용합니다.
                 // 이 메서드는 책이 DB에 없으면 API로 가져와 저장까지 해줍니다.
-                Book book = userService.getBookByIsbn(bookIsbn); 
-                System.out.println("direct 호출!!!");
+                Book book = userService.getBookByIsbn(bookIsbn);
                 if (book == null) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Book not found for direct purchase.");
-                    System.out.println("예외!!");
                     return "redirect:/user/booklist";
                 }
                 CartItem directItem = new CartItem(book, quantity);
