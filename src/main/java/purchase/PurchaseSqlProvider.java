@@ -23,7 +23,7 @@ public class PurchaseSqlProvider {
 
         StringBuilder sql = new StringBuilder();
 
-        sql.append("INSERT INTO PURCHASE (MEMBER_ID, BOOK_ID, QUANTITY, ORDER_DATE, ORDER_ID, STATUS) VALUES ");
+        sql.append("INSERT INTO purchase (MEMBER_ID, BOOK_ID, QUANTITY, ORDER_DATE, ORDER_ID, STATUS) VALUES ");
 
         for (int i = 0; i < list.size(); i++) {
             if (i > 0) {
