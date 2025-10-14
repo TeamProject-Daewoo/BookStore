@@ -35,8 +35,7 @@ public class SecurityConfig {
             // 1. URL 접근 권한 설정 (XML의 <intercept-url>)
             // CSRF 보호는 기본으로 활성화되므로 로그인 폼에 토큰을 추가해야 합니다.
             .authorizeHttpRequests(authorize -> authorize
-            	.antMatchers("/health").permitAll()
-            	.antMatchers("/user/**", "/board/main/**", "/board/view/**", "/logout","/resources/**","/cart/**","/category/**","/bestseller/**").permitAll()
+            	.antMatchers("/", "/health", "/user/**", "/board/main/**", "/board/view/**", "/logout","/resources/**","/cart/**","/category/**","/bestseller/**").permitAll()
                 .antMatchers("/purchase/**", "/cart/**", "/board/write/**", "/board/edit/**", "/board/delete/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/manager/**").hasRole("ADMIN")
                 .anyRequest().authenticated() // 나머지 모든 요청은 인증 필요
