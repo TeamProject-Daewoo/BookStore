@@ -81,6 +81,16 @@
             const json = await response.json();
             window.location.href = `<c:url value='/purchase/fail'/>?message=${json.message}&code=${json.code}&orderId=${orderId}`;
         }
+        else {
+        	/* 결제 성공 하면 소켓으로 실시간 통신 */
+        	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        	const host = window.location.host;
+        	const socket = new WebSocket(protocol+"//"+host+"/salesSocket");
+
+        	 socket.onopen = () => {
+        	     socket.send("소켓 전달");
+        	 };
+        }
     }
     
     confirmPayment();
@@ -90,4 +100,6 @@
     if (orderId) {
         orderIdElement.textContent = "주문번호: " + orderId;
     }
+    
+    
 </script>
