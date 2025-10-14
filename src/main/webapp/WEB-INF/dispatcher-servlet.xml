@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<import resource="setting.xml"/>
+	<!-- <import resource="setting.xml"/> -->
 	<!-- <context:component-scan base-package="home,bestseller,board,cart,data,login,manager,purchase,restapi,user,category,review,comment"/> -->
 	
 	<!-- 컨트롤러만 스캔 -->
