@@ -64,11 +64,16 @@
 			<version>1.18.38</version>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ojdbc11</artifactId>
 			<version>23.8.0.25.04</version>
-		</dependency>
+		</dependency>-->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>8.0.33</version>
+		 </dependency>
 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
@@ -174,6 +179,7 @@
 		    <artifactId>jsoup</artifactId>
 		    <version>1.17.2</version>
 		</dependency>
+		
 
 	</dependencies>
 </project>
