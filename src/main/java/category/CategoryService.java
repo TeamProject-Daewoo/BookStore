@@ -27,6 +27,6 @@ public class CategoryService {
 	        if(dbCategory == null || dbCategory.isEmpty() || keyword == null || keyword.isEmpty()) {
 	            return getExistBookList();
 	        }
-	        return bookMapper.findByCategoryAndKeyword(dbCategory, keyword);
+	        return bookMapper.findByCategoryAndKeyword(dbCategory, "%"+keyword+"%");
 	    }
 }

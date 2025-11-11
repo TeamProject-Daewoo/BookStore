@@ -36,7 +36,7 @@ public interface BookMapper extends BaseMapper<Book> {
 	@Delete("delete from book where id=#{id}")
 	int delete(int id);
 
-	@Select("SELECT * FROM book WHERE stock > 0 and (title LIKE '%'||#{keyword}||'%' OR author LIKE '%'||#{keyword}||'%')")
+	@Select("SELECT * FROM book WHERE stock > 0 and (title LIKE #{keyword} OR author LIKE #{keyword})")
 	public List<Book> findByKeyword(String keyword);
 	
 	@Select("select * from book where stock > 0")
@@ -47,7 +47,7 @@ public interface BookMapper extends BaseMapper<Book> {
 
 	@Select("SELECT * FROM book " +
 	        "WHERE stock > 0 AND category = #{category} " +
-	        "AND (title LIKE '%'||#{keyword}||'%' OR author LIKE '%'||#{keyword}||'%')")
+	        "AND (title LIKE #{keyword} OR author LIKE #{keyword})")
 	List<Book> findByCategoryAndKeyword(@Param("category") String category, @Param("keyword") String keyword);
 	
 	@Select("select * from book where isbn=#{isbn}")
