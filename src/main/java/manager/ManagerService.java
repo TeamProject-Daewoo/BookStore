@@ -296,23 +296,8 @@ public class ManagerService {
 	}
 
 	@Transactional(readOnly = true)
-	public Object getMyPurchaseView(int id) {
-		List<MyPurchaseView> result = new ArrayList<>();
-		
-		for (Purchase p : purchaseMapper.findByBookId(id)) {
-			
-			result.add(
-				MyPurchaseView.builder()
-				.price(purchaseMapper.getTotalPrice(p.getId()))
-				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
-				.quantity(p.getQuantity())
-				.img(bookMapper.findById(p.getBook_id()).getImg())
-				.order_date(p.getOrder_date())
-				.category(bookMapper.findById(p.getBook_id()).getCategory())
-				.build()
-			);
-		}
-		return result;
+	public List<MyPurchaseView> getMyPurchaseView(int id) {
+		return purchaseMapper.findMyPurchaseView(id);
 	}
 
 	

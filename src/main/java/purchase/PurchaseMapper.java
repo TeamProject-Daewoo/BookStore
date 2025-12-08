@@ -34,6 +34,18 @@ public interface PurchaseMapper extends BaseMapper<Purchase> {
 	
    	@Select("SELECT * FROM purchase WHERE member_id = #{id} AND status = 'COMPLETED'")
 	List<Purchase> findByUserId(int id);
+   	
+   	@Select("SELECT "
+   			+ "(p.quantity * b.price) AS price, "
+   			+ "b.title AS book_title, "
+   		    + "b.img AS img, "
+   		    + "p.quantity AS quantity, "
+		    + "p.order_date AS order_date, "
+   		    + "b.category AS category "
+   		    + "FROM purchase p "
+   		    + "JOIN book b ON p.book_id = b.id "
+   		    + "WHERE p.member_id = #{id} AND status = 'COMPLETED'")
+   	List<MyPurchaseView> findMyPurchaseView(@Param("id") int id);
 	
 	@Override
 	@Update("UPDATE purchase SET member_id = #{member_id}, book_id = #{book_id}, quantity = #{quantity}, order_id = #{order_id} WHERE id = #{id}")

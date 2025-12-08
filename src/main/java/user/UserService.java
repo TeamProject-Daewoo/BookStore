@@ -278,22 +278,7 @@ public class UserService {
 	
 	@Transactional(readOnly = true)
 	public List<MyPurchaseView> getMyPurchaseView(int id) {
-		List<MyPurchaseView> result = new ArrayList<>();
-		
-		for (Purchase p : purchaseMapper.findByUserId(id)) {
-			
-			result.add(
-				MyPurchaseView.builder()
-				.price(purchaseMapper.getTotalPrice(p.getId()))
-				.book_title(bookMapper.findById(p.getBook_id()).getTitle())
-				.quantity(p.getQuantity())
-				.img(bookMapper.findById(p.getBook_id()).getImg())
-				.order_date(p.getOrder_date())
-				.category(bookMapper.findById(p.getBook_id()).getCategory())
-				.build()
-			);
-		}
-		return result;
+		return purchaseMapper.findMyPurchaseView(id);
 	}
 
 	@Transactional(readOnly = true)
