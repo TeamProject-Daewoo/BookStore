@@ -13,25 +13,30 @@ public class BoardService {
     private final BoardMapper boardMapper;
 
     // 전체 글 목록
+    @Transactional(readOnly = true)
     public List<Board> findAll() {
         return boardMapper.selectAll();
     }
 
     // 글 상세 조회
+    @Transactional(readOnly = true)
     public Board findById(Long id) {
         return boardMapper.selectById(id);
     }
 
     // 글 등록
+    @Transactional
     public int save(Board post) {
         return boardMapper.insert(post);
     }
     
+    @Transactional(readOnly = true)
     public List<Board> findPage(int page, int size) {
         int offset = (page - 1) * size;
         return boardMapper.selectPage(offset, size);
     }
 
+    @Transactional(readOnly = true)
     public int countAll() {
         return boardMapper.countAll();
     }

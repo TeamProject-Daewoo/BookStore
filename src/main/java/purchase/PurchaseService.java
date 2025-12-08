@@ -132,6 +132,7 @@ public class PurchaseService {
 	
 	
 
+    @Transactional(readOnly = true)
     public Delivery getDeliveryInfoByOrderId(String orderId) {
         return purchaseMapper.findByOrderId(orderId);
     }
@@ -146,6 +147,7 @@ public class PurchaseService {
         }
     }
 
+    @Transactional(readOnly = true)
     public String getMostRecentOrderIdByMemberId(int memberId) {
         return purchaseMapper.findMostRecentOrderIdByMemberId(memberId);
     }
@@ -191,10 +193,12 @@ public class PurchaseService {
 		} 
     }
 
+    @Transactional(readOnly = true)
 	public List<Purchase> findPendingOrderItemsByOrderId(String orderId) {
 		return purchaseMapper.findPendingByOrderId(orderId);
 	}
 	
+    @Transactional(readOnly = true)
 	public long calculateTotalAmount(List<Purchase> orderItems) {
         long totalAmount = 0;
         for (Purchase item : orderItems) {
@@ -222,6 +226,7 @@ public class PurchaseService {
         }
     }
 
+    @Transactional
 	public void decreaseStockForOrder(List<Purchase> orderItems) {
 		
         for (Purchase item : orderItems) {

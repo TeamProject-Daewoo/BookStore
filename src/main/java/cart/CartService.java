@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import data.Book;
 import data.BookMapper;
@@ -18,6 +19,7 @@ public class CartService {
     @Autowired
     private BookMapper bookMapper; // To get book details for CartItem
 
+    @Transactional
     public void addItemToCart(int memberId, Book book, int quantity) {
         Cart existingCart = cartMapper.findByMemberIdAndBookId(memberId, book.getId());
 
@@ -41,6 +43,7 @@ public class CartService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<CartItem> getCartItems(int memberId) {
         List<Cart> carts = cartMapper.findByMemberId(memberId);
         List<CartItem> cartItems = new ArrayList<>();
@@ -53,6 +56,7 @@ public class CartService {
         return cartItems;
     }
 
+    @Transactional
     public void updateItemQuantity(int memberId, int bookId, int quantity) {
         if (quantity <= 0) {
             cartMapper.deleteByMemberIdAndBookId(memberId, bookId);
@@ -62,10 +66,12 @@ public class CartService {
         }
     }
 
+    @Transactional
     public void removeItemFromCart(int memberId, int bookId) {
         cartMapper.deleteByMemberIdAndBookId(memberId, bookId);
     }
 
+    @Transactional
     public void clearCart(int memberId) {
         cartMapper.deleteAllByMemberId(memberId);
     }

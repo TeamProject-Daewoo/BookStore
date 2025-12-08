@@ -14,6 +14,7 @@
 <property name="jdbcUrl" value="${db.url}"/>
 <property name="username" value="${db.username}"/>
 <property name="password" value="${db.password}"/>
+<property name="leakDetectionThreshold" value="20000"/>
 </bean>
 <!-- 최종사용할 객체 -->
 <bean id="hikariDataSource" class="com.zaxxer.hikari.HikariDataSource">

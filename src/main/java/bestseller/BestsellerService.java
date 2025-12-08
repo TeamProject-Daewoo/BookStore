@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import data.Book;
 import data.BookMapper;
@@ -25,6 +26,7 @@ public class BestsellerService {
     private BookMapper bookMapper;
 
     // 화면용 DTO 반환
+    @Transactional(readOnly = true)
     public List<BestsellerView> getBestSellers(String period) {
         List<Bestseller> bestsellerList = bestsellerMapper.findByPeriod(period);
 
@@ -61,6 +63,7 @@ public class BestsellerService {
         updateBestseller("month", monthStart.atStartOfDay(), monthEnd.atTime(LocalTime.MAX));
     }
 
+    @Transactional
     private void updateBestseller(String period, LocalDateTime startDate, LocalDateTime endDate) {
         List<Purchase> purchases = purchaseMapper.findByDateRange(startDate, endDate);
 
