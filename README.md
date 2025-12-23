@@ -37,7 +37,7 @@
 
 ### Frontend
 - **View**: JSP (JSTL 1.2)
-- **Framework**: Vue.js (상세 버전 미기입)
+- **Framework**: Vue.js
 
 ### Infrastructure & DevOps
 - **Cloud**: AWS (Elastic Beanstalk, S3)
