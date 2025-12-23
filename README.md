@@ -1,5 +1,71 @@
-# BookStore 프로젝트
+# 📖 책숲 BookForest
 
+> **도서 판매 웹사이트**
+
+---
+
+## 🚀 1. 프로젝트 소개
+사용자와 관리자가 모두 이용할 수 있는 종합 도서 판매 플랫폼입니다. 사용자는 도서 검색, 상세 조회, 장바구니 담기, 도서 구매, 리뷰 작성 등의 기능을 이용할 수 있습니다. 관리자는 도서 등록·수정·삭제, 재고 관리, 주문 내역 관리, 사용자 관리 등 플랫폼 운영에 필요한 다양한 관리 기능을 제공받습니다.
+
+---
+
+## ✨ 2. 주요 기능
+
+### 👤 User (사용자)
+- **도서 조회 및 검색**: 전체 도서 목록 확인 및 키워드 검색 기능
+- **회원가입 및 마이페이지**: 일반 사용자 및 관리자 가입, 내 정보 수정
+- **장바구니 및 주문**: 상품 담기, 수량 변경, 직접 구매 및 장바구니 결제 기능
+- **게시판 및 리뷰**: 게시글 작성 및 도서 리뷰 관리
+
+### 🛠 Manager (관리자)
+- **도서 관리**: 신규 도서 등록, 정보 수정 및 삭제
+- **회원 관리**: 전체 회원 목록 조회 및 권한/정보 관리
+- **현황 파악**: 도서 판매 현황 확인
+
+---
+
+## 🛠 3. 기술 스택
+
+### Backend
+- **Language**: Java 1.8
+- **Framework**: Spring Framework 5.3.33 / Spring Web MVC 5.3.8
+- **Security**: Spring Security 5.8.10
+- **ORM/Library**: MyBatis 3.5.19, Lombok, Jackson, Jsoup
+- **Database**: MySQL 8.0.33
+- **Connection Pool**: HikariCP 6.3.0
+
+### Frontend
+- **View**: JSP (JSTL 1.2)
+- **Framework**: Vue.js (상세 버전 미기입)
+
+### Infrastructure & DevOps
+- **Cloud**: AWS (Elastic Beanstalk, S3)
+- **CI/CD**: GitHub Actions
+- **Build Tool**: Maven
+
+---
+
+## 📂 4. 프로젝트 구조
+
+```text
+src
+├── main
+│   ├── java
+│   │   ├── bestseller      # 베스트셀러 데이터 처리 및 뷰 관리
+│   │   ├── board           # 게시판 CRUD 로직
+│   │   ├── cart            # 장바구니 및 쿠키 서비스
+│   │   ├── category        # 도서 카테고리 분류
+│   │   ├── login           # Spring Security 기반 인증/인가 설정
+│   │   ├── purchase        # 결제 시스템 및 주문 스케줄러
+│   │   ├── restapi         # 비동기 처리를 위한 REST 컨트롤러
+│   │   └── user            # 사용자 관리 및 네이버 도서 API 연동
+│   ├── resources           # DB 접속 정보 및 API 키 설정 (properties)
+│   └── webapp
+│       └── WEB-INF
+│           ├── views       # JSP 페이지 구성 (Board, Manager, User 등)
+│           └── web.xml     # 서블릿 및 필터 설정
+
+## 📂 5. 엔드포인트 목록
 ## 기본페이지
 - `GET /`  
   도서 목록 페이지로 이동(user/booklist)
