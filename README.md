@@ -1,6 +1,7 @@
 # 📖 책숲 BookForest
 
 > **도서 판매 웹사이트**
+<img width="3840" height="1930" alt="Image" src="https://github.com/user-attachments/assets/41d3a6c9-9adc-470f-bdc1-fef8f0a3fd37" />
 
 ---
 
@@ -64,6 +65,7 @@ src
 │       └── WEB-INF
 │           ├── views       # JSP 페이지 구성 (Board, Manager, User 등)
 │           └── web.xml     # 서블릿 및 필터 설정
+```
 
 ## 📂 5. 엔드포인트 목록
 ## 기본페이지
