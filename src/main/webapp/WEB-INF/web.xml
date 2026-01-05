@@ -21,7 +21,6 @@
 		<listener-class>home.MySQLCleanupListener</listener-class>
 	</listener>
 
-
 	<!-- DispatcherServlet 등록 -->
 	<servlet>
 		<servlet-name>dispatcher</servlet-name>
@@ -61,11 +60,19 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	
-		<filter>
+	<filter>
+	    <filter-name>rateLimitFilter</filter-name>
+	    <filter-class>home.RateLimitFilter</filter-class>
+	</filter>
+	<filter-mapping>
+	    <filter-name>rateLimitFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 	</filter>
-
 	<filter-mapping>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<url-pattern>/*</url-pattern>
@@ -75,7 +82,5 @@
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
-	
-	
 	
 </web-app>
