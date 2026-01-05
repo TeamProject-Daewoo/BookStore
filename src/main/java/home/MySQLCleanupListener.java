@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 
-@Component // Spring Bean으로 등록
 public class MySQLCleanupListener implements ServletContextListener { 
 	
 	@Override
