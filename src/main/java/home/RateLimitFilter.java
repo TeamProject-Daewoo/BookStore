@@ -39,7 +39,7 @@ public class RateLimitFilter implements Filter {
             }
         }
         
-        // 2. 봇 공격 제한(1초에 3번)
+        // 2. 봇 공격 제한(1초에 5번)
         Bucket globalBucket = buckets.computeIfAbsent(clientIp + ":global", k -> createBucket(1, 5));
         if (!isErrorPage && !globalBucket.tryConsume(1)) {
             sendErrorRedirect(httpRequest, httpResponse);
@@ -62,7 +62,7 @@ public class RateLimitFilter implements Filter {
 
     private Bucket createBucket(long seconds, int capacity) {
         return Bucket.builder()
-            .addLimit(Bandwidth.classic(capacity, Refill.intervally(capacity, Duration.ofSeconds(seconds))))
+            .addLimit(Bandwidth.classic(capacity, Refill.greedy(capacity, Duration.ofSeconds(seconds))))
             .build();
     }
 
